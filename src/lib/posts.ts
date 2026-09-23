@@ -1,0 +1,124 @@
+import 'server-only';
+import { cache } from 'react';
+import { createClient } from '~/lib/supabase/server';
+import type { Post } from '~/lib/supabase/types';
+
+export interface PostInput {
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  menuId: string | null;
+  coverImagePath: string | null;
+}
+
+/** Public posts for the home feed or a menu listing, newest first. */
+export async function getPublicPosts(menuSlug?: string): Promise<Post[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from('posts')
+    .select('*')
+    .eq('is_public', true)
+    .order('published_at', { ascending: false });
+
+  if (menuSlug !== undefined) {
+    const { data: menu } = await supabase.from('menus').select('id').eq('slug', menuSlug).maybeSingle();
+    if (!menu) return [];
+    query = query.eq('menu_id', menu.id);
+  }
+
+  const { data, error } = await query;
+  if (error) throw new Error(`글 목록을 불러오지 못했습니다: ${error.message}`);
+  return data;
+}
+
+/**
+ * A single post by slug. RLS decides visibility: public posts are visible to
+ * everyone, private posts only to the signed-in owner. A `null` result means
+ * either the post doesn't exist or the viewer isn't allowed to see it — the
+ * caller should render a 404 either way, never distinguish the two.
+ */
+export const getPostBySlug = cache(async (slug: string): Promise<Post | null> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from('posts').select('*').eq('slug', slug).maybeSingle();
+  if (error) throw new Error(`글을 불러오지 못했습니다: ${error.message}`);
+  return data;
+});
+
+/** All posts visible to the signed-in owner (public and private), for the admin dashboard. */
+export async function getAdminPosts(): Promise<Post[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
+  if (error) throw new Error(`글 목록을 불러오지 못했습니다: ${error.message}`);
+  return data;
+}
+
+export async function getPostById(id: string): Promise<Post | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from('posts').select('*').eq('id', id).maybeSingle();
+  if (error) throw new Error(`글을 불러오지 못했습니다: ${error.message}`);
+  return data;
+}
+
+export async function postSlugExists(slug: string, excludeId?: string): Promise<boolean> {
+  const supabase = await createClient();
+  let query = supabase.from('posts').select('id').eq('slug', slug).limit(1);
+  if (excludeId !== undefined) {
+    query = query.neq('id', excludeId);
+  }
+  const { data, error } = await query;
+  if (error) throw new Error(`슬러그 중복 확인에 실패했습니다: ${error.message}`);
+  return data.length > 0;
+}
+
+export async function createPost(input: PostInput, isPublic: boolean): Promise<Post> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('posts')
+    .insert({
+      title: input.title,
+      slug: input.slug,
+      content: input.content,
+      excerpt: input.excerpt,
+      menu_id: input.menuId,
+      cover_image_path: input.coverImagePath,
+      is_public: isPublic,
+      published_at: isPublic ? new Date().toISOString() : null,
+    })
+    .select('*')
+    .single();
+
+  if (error) throw new Error(`글을 저장하지 못했습니다: ${error.message}`);
+  return data;
+}
+
+export async function updatePost(id: string, input: PostInput, isPublic: boolean): Promise<Post> {
+  const supabase = await createClient();
+  const current = await getPostById(id);
+  const becomingPublic = isPublic && current?.published_at == null;
+
+  const { data, error } = await supabase
+    .from('posts')
+    .update({
+      title: input.title,
+      slug: input.slug,
+      content: input.content,
+      excerpt: input.excerpt,
+      menu_id: input.menuId,
+      cover_image_path: input.coverImagePath,
+      is_public: isPublic,
+      ...(becomingPublic ? { published_at: new Date().toISOString() } : {}),
+    })
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error) throw new Error(`글을 수정하지 못했습니다: ${error.message}`);
+  return data;
+}
+
+export async function deletePost(id: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase.from('posts').delete().eq('id', id);
+  if (error) throw new Error(`글을 삭제하지 못했습니다: ${error.message}`);
+}

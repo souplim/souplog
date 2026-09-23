@@ -1,0 +1,73 @@
+.heading {
+  font-size: var(--text-display);
+  margin-bottom: var(--space-lg);
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: var(--space-md);
+  padding-block: var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+  font-weight: 600;
+  transition: color var(--duration-fast) var(--ease-out-expo);
+}
+
+.title:hover {
+  color: var(--color-accent);
+}
+
+.status {
+  font-size: var(--text-xs);
+  padding: 0.15em 0.6em;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.statusPublic {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.rowActions {
+  display: flex;
+  gap: var(--space-sm);
+  font-size: var(--text-sm);
+}
+
+.rowActions a {
+  color: var(--color-text-muted);
+}
+
+.rowActions a:hover {
+  color: var(--color-accent);
+}
+
+.deleteButton {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-sm);
+  padding: 0;
+}
+
+.deleteButton:hover {
+  color: var(--color-danger);
+}
+
+.empty {
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,47 @@
+/* Custom hljs theme tuned to the site's own tokens instead of a stock highlight.js theme. */
+
+.hljs {
+  color: var(--color-text);
+  background: transparent;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag {
+  color: var(--color-accent-strong);
+  font-weight: 600;
+}
+
+.hljs-string,
+.hljs-attr,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+  color: var(--color-accent);
+}
+
+.hljs-number,
+.hljs-title,
+.hljs-section,
+.hljs-name {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.hljs-deletion,
+.hljs-regexp {
+  color: var(--color-danger);
+}
+
+.hljs-built_in,
+.hljs-type,
+.hljs-class .hljs-title {
+  color: var(--color-text-muted);
+}

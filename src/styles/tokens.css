@@ -46,9 +46,8 @@
   --content-width: 42rem;
   --page-width: 72rem;
 
-  --radius-sm: 3px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
+  /* Base for shadcn's --radius-sm/md/lg/xl/... calc scale (src/app/globals.css @theme inline). */
+  --radius: 6px;
 
   --shadow-card: 0 1px 2px oklch(20% 0.02 60 / 0.06), 0 8px 24px oklch(20% 0.02 60 / 0.06);
   --shadow-raised: 0 2px 4px oklch(20% 0.02 60 / 0.08), 0 16px 40px oklch(20% 0.02 60 / 0.1);
@@ -56,6 +55,35 @@
   --duration-fast: 150ms;
   --duration-normal: 280ms;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /*
+   * shadcn/ui theming contract — aliases onto the palette above so every
+   * shadcn component consumes our bronze/gold tokens instead of its default
+   * neutral gray scale. Only --primary-foreground differs between themes
+   * (light needs a light foreground on the mid-tone accent, dark needs a
+   * dark one); everything else here flips automatically because the
+   * --color-* custom properties it references are redefined in the
+   * [data-theme='dark'] block below — var() inside a custom property is
+   * resolved at used-value time, not when this line is parsed.
+   */
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: var(--color-surface-raised);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface-raised);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-accent);
+  --primary-foreground: var(--color-surface);
+  --secondary: var(--color-surface-raised);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-surface);
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-accent-tint);
+  --accent-foreground: var(--color-accent-strong);
+  --destructive: var(--color-danger);
+  --border: var(--color-border);
+  --input: var(--color-border-strong);
+  --ring: var(--color-accent);
 }
 
 :root[data-theme='dark'] {
@@ -77,6 +105,9 @@
 
   --shadow-card: 0 1px 2px oklch(0% 0 0 / 0.3), 0 8px 24px oklch(0% 0 0 / 0.35);
   --shadow-raised: 0 2px 4px oklch(0% 0 0 / 0.4), 0 20px 48px oklch(0% 0 0 / 0.45);
+
+  /* The accent flips from mid-tone to light in dark mode, so its foreground needs to flip from light to dark text too. */
+  --primary-foreground: var(--color-bg);
 }
 
 @media (prefers-reduced-motion: reduce) {

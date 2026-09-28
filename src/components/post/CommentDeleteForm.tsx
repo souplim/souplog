@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from 'react';
 import { deleteCommentAction } from '~/lib/actions/comments';
-import styles from './CommentDeleteForm.module.css';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
 
 interface CommentDeleteFormProps {
   commentId: string;
@@ -15,31 +16,31 @@ export function CommentDeleteForm({ commentId, postSlug }: CommentDeleteFormProp
 
   if (!open) {
     return (
-      <button type="button" className={styles.trigger} onClick={() => setOpen(true)}>
+      <Button type="button" variant="ghost" size="sm" className="h-auto p-0 text-muted-foreground" onClick={() => setOpen(true)}>
         삭제
-      </button>
+      </Button>
     );
   }
 
   return (
-    <form action={formAction} className={styles.form}>
+    <form action={formAction} className="flex items-center gap-2">
       <input type="hidden" name="commentId" value={commentId} />
-      <input
-        className={styles.input}
+      <Input
         name="password"
         type="password"
         placeholder="비밀번호"
         maxLength={72}
         required
         autoFocus
+        className="h-7 w-32 text-xs"
       />
-      <button type="submit" className={styles.confirm} disabled={pending}>
+      <Button type="submit" size="sm" variant="destructive" disabled={pending} className="h-7">
         {pending ? '삭제 중…' : '확인'}
-      </button>
-      <button type="button" className={styles.trigger} onClick={() => setOpen(false)}>
+      </Button>
+      <Button type="button" variant="ghost" size="sm" className="h-7" onClick={() => setOpen(false)}>
         취소
-      </button>
-      {state?.error && <span className={styles.error}>{state.error}</span>}
+      </Button>
+      {state?.error && <span className="text-xs text-destructive">{state.error}</span>}
     </form>
   );
 }

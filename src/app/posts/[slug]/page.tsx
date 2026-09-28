@@ -8,7 +8,7 @@ import { getMenus } from '~/lib/menus';
 import { getPostBySlug } from '~/lib/posts';
 import { CommentList } from '~/components/post/CommentList';
 import { PostContent } from '~/components/post/PostContent';
-import styles from './page.module.css';
+import { Badge } from '~/components/ui/badge';
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;
@@ -52,27 +52,40 @@ export default async function PostPage({ params }: PostPageProps) {
   const menuName = post.menu_id ? menus.find((menu) => menu.id === post.menu_id)?.name : undefined;
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <p className={styles.eyebrow}>
-          {menuName ?? '글'}
-          {post.published_at && <> · {formatDate(post.published_at)}</>}
+    <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-xl)] sm:px-6">
+      <header className="mx-auto mb-8 max-w-[var(--content-width)]">
+        <p className="mb-2 flex items-center gap-2 text-xs tracking-wide text-accent-foreground">
+          <span className="uppercase">{menuName ?? '글'}</span>
+          {post.published_at && <span>· {formatDate(post.published_at)}</span>}
         </p>
-        <h1 className={styles.title}>
+        <h1 className="font-heading text-[clamp(2rem,1.5rem+2.5vw,3.5rem)] leading-tight">
           {post.title}
-          {!post.is_public && <span className={styles.privateBadge}>비공개</span>}
+          {!post.is_public && (
+            <Badge variant="outline" className="ml-3 align-middle">
+              비공개
+            </Badge>
+          )}
         </h1>
       </header>
 
       {post.cover_image_path && (
-        <div className={styles.cover}>
-          <Image src={getPostImageUrl(post.cover_image_path)} alt="" fill sizes="100vw" priority />
+        <div className="relative mb-8 aspect-video overflow-hidden rounded-xl shadow-[var(--shadow-card)]">
+          <Image
+            src={getPostImageUrl(post.cover_image_path)}
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
         </div>
       )}
 
-      <PostContent content={post.content} />
+      <div className="mx-auto max-w-[var(--content-width)]">
+        <PostContent content={post.content} />
 
-      {post.is_public && <CommentList postId={post.id} postSlug={post.slug} isOwner={Boolean(user)} />}
+        {post.is_public && <CommentList postId={post.id} postSlug={post.slug} isOwner={Boolean(user)} />}
+      </div>
     </div>
   );
 }

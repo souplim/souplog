@@ -2,7 +2,10 @@
 
 import { useActionState } from 'react';
 import { createCommentAction } from '~/lib/actions/comments';
-import styles from './CommentForm.module.css';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Textarea } from '~/components/ui/textarea';
+import { Alert, AlertDescription } from '~/components/ui/alert';
 
 interface CommentFormProps {
   postId: string;
@@ -13,31 +16,28 @@ export function CommentForm({ postId, postSlug }: CommentFormProps) {
   const [state, formAction, pending] = useActionState(createCommentAction.bind(null, postSlug), undefined);
 
   return (
-    <form action={formAction} className={styles.form}>
+    <form action={formAction} className="mt-6 space-y-3">
       <input type="hidden" name="postId" value={postId} />
-      <div className={styles.row}>
-        <input className={styles.input} name="authorName" placeholder="닉네임" maxLength={40} required />
-        <input
-          className={styles.input}
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Input name="authorName" placeholder="닉네임" maxLength={40} required className="sm:w-40" />
+        <Input
           name="password"
           type="password"
           placeholder="비밀번호 (삭제용)"
           maxLength={72}
           required
+          className="sm:w-48"
         />
       </div>
-      <textarea
-        className={styles.textarea}
-        name="content"
-        placeholder="댓글을 남겨보세요"
-        maxLength={2000}
-        rows={3}
-        required
-      />
-      {state?.error && <p className={styles.error}>{state.error}</p>}
-      <button type="submit" className={styles.submit} disabled={pending}>
+      <Textarea name="content" placeholder="댓글을 남겨보세요" maxLength={2000} rows={3} required />
+      {state?.error && (
+        <Alert variant="destructive">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
+      )}
+      <Button type="submit" disabled={pending}>
         {pending ? '등록 중…' : '댓글 등록'}
-      </button>
+      </Button>
     </form>
   );
 }

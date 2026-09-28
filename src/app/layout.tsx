@@ -24,7 +24,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <ThemeProvider nonce={nonce}>
           <Header />
-          <main>{children}</main>
+          <main className="flex-1">{children}</main>
           <Footer />
         </ThemeProvider>
       </body>

@@ -4,7 +4,6 @@ import { updatePostAction } from '~/lib/actions/posts';
 import { getMenus } from '~/lib/menus';
 import { getPostById } from '~/lib/posts';
 import { PostForm } from '~/components/admin/PostForm';
-import styles from '../../../page.module.css';
 
 interface EditPostPageProps {
   params: Promise<{ id: string }>;
@@ -20,7 +19,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
 
   return (
     <div>
-      <h1 className={styles.heading}>글 수정</h1>
+      <h1 className="mb-6 font-heading text-3xl">글 수정</h1>
       <PostForm menus={menus} post={post} action={updatePostAction.bind(null, id)} submitLabel="저장" />
     </div>
   );

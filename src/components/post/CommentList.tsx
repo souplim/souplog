@@ -3,7 +3,6 @@ import { getCommentsForPost } from '~/lib/comments';
 import { CommentDeleteForm } from './CommentDeleteForm';
 import { CommentForm } from './CommentForm';
 import { OwnerDeleteCommentButton } from './OwnerDeleteCommentButton';
-import styles from './CommentList.module.css';
 
 interface CommentListProps {
   postId: string;
@@ -15,21 +14,23 @@ export async function CommentList({ postId, postSlug, isOwner }: CommentListProp
   const comments = await getCommentsForPost(postId);
 
   return (
-    <section className={styles.section} aria-labelledby="comments-heading">
-      <h2 id="comments-heading" className={styles.heading}>
+    <section className="mt-16 border-t border-border pt-10" aria-labelledby="comments-heading">
+      <h2 id="comments-heading" className="font-heading text-xl">
         댓글 {comments.length > 0 && `(${comments.length})`}
       </h2>
 
       {comments.length === 0 ? (
-        <p className={styles.empty}>아직 댓글이 없습니다.</p>
+        <p className="mt-4 text-muted-foreground">아직 댓글이 없습니다.</p>
       ) : (
-        <ul className={styles.list}>
+        <ul className="mt-4 divide-y divide-border">
           {comments.map((comment) => (
-            <li key={comment.id} className={styles.comment}>
-              <div className={styles.meta}>
-                <span className={styles.author}>{comment.author_name}</span>
-                <time dateTime={comment.created_at}>{formatDate(comment.created_at)}</time>
-                <span className={styles.actions}>
+            <li key={comment.id} className="py-4">
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="font-medium">{comment.author_name}</span>
+                <time className="text-muted-foreground" dateTime={comment.created_at}>
+                  {formatDate(comment.created_at)}
+                </time>
+                <span className="ml-auto">
                   {isOwner ? (
                     <OwnerDeleteCommentButton commentId={comment.id} postSlug={postSlug} />
                   ) : (
@@ -37,7 +38,7 @@ export async function CommentList({ postId, postSlug, isOwner }: CommentListProp
                   )}
                 </span>
               </div>
-              <p className={styles.body}>{comment.content}</p>
+              <p className="mt-1.5">{comment.content}</p>
             </li>
           ))}
         </ul>

@@ -1,7 +1,6 @@
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
-import styles from './PostContent.module.css';
 
 interface PostContentProps {
   content: string;
@@ -14,7 +13,7 @@ interface PostContentProps {
  */
 export function PostContent({ content }: PostContentProps) {
   return (
-    <div className={styles.content}>
+    <div className="prose prose-lg max-w-none prose-headings:font-heading prose-img:rounded-lg prose-img:ring-1 prose-img:ring-foreground/10">
       <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
         {content}
       </Markdown>

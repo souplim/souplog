@@ -7,7 +7,7 @@ export const loginSchema = z.object({
 
 export const postSchema = z.object({
   title: z.string().trim().min(1, '제목을 입력하세요.').max(200),
-  slug: z.string().trim().min(1).max(200),
+  slug: z.string().trim().max(200),
   content: z.string().max(100_000),
   excerpt: z.string().trim().max(300),
   menuId: z.union([z.uuid(), z.literal('')]).transform((value) => (value === '' ? null : value)),
@@ -16,7 +16,7 @@ export const postSchema = z.object({
 
 export const menuSchema = z.object({
   name: z.string().trim().min(1, '이름을 입력하세요.').max(50),
-  slug: z.string().trim().min(1).max(50),
+  slug: z.string().trim().max(50),
 });
 
 export const commentSchema = z.object({

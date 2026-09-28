@@ -4,7 +4,9 @@ import { useActionState } from 'react';
 import { createMenuAction } from '~/lib/actions/menus';
 import type { Menu } from '~/lib/supabase/types';
 import { MenuRow } from './MenuRow';
-import styles from './MenuManager.module.css';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Alert, AlertDescription } from '~/components/ui/alert';
 
 interface MenuManagerProps {
   menus: Menu[];
@@ -14,17 +16,21 @@ export function MenuManager({ menus }: MenuManagerProps) {
   const [state, formAction, pending] = useActionState(createMenuAction, undefined);
 
   return (
-    <div>
-      <form action={formAction} className={styles.createForm}>
-        <input className={styles.input} name="name" placeholder="메뉴 이름" required maxLength={50} />
-        <input className={styles.input} name="slug" placeholder="슬러그 (선택)" maxLength={50} />
-        <button type="submit" className={styles.submit} disabled={pending}>
+    <div className="space-y-6">
+      <form action={formAction} className="flex flex-wrap items-center gap-2">
+        <Input name="name" placeholder="메뉴 이름" required maxLength={50} className="w-40" />
+        <Input name="slug" placeholder="슬러그 (선택)" maxLength={50} className="w-40" />
+        <Button type="submit" disabled={pending}>
           {pending ? '추가 중…' : '메뉴 추가'}
-        </button>
-        {state?.error && <span className={styles.error}>{state.error}</span>}
+        </Button>
+        {state?.error && (
+          <Alert variant="destructive" className="w-full">
+            <AlertDescription>{state.error}</AlertDescription>
+          </Alert>
+        )}
       </form>
 
-      <div className={styles.list}>
+      <div className="divide-y divide-border rounded-lg border border-border">
         {menus.map((menu, index) => (
           <MenuRow key={menu.id} menu={menu} isFirst={index === 0} isLast={index === menus.length - 1} />
         ))}

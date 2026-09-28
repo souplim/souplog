@@ -1,18 +1,18 @@
 import Link from 'next/link';
 import { getCurrentUser } from '~/lib/auth';
-import styles from './Footer.module.css';
+import { Button } from '~/components/ui/button';
 
 export async function Footer() {
   const user = await getCurrentUser().catch(() => null);
 
   return (
-    <footer className={styles.footer}>
-      <div className={styles.inner}>
+    <footer className="border-t border-border/70">
+      <div className="mx-auto flex h-14 max-w-[var(--page-width)] items-center justify-between px-4 text-sm text-muted-foreground sm:px-6">
         <span>© {new Date().getFullYear()} souplog</span>
         {!user && (
-          <Link href="/login" className={styles.loginLink}>
-            로그인
-          </Link>
+          <Button variant="link" size="sm" className="h-auto p-0 text-muted-foreground" asChild>
+            <Link href="/login">로그인</Link>
+          </Button>
         )}
       </div>
     </footer>

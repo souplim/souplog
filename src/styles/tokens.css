@@ -20,7 +20,7 @@
 
   --color-danger: oklch(55% 0.18 25);
 
-  --font-display: var(--font-noto-serif-kr), 'Noto Serif KR', serif;
+  --font-display: var(--font-fraunces), var(--font-gowun-batang), 'Gowun Batang', serif;
   --font-body: var(--font-pretendard), Pretendard, -apple-system, sans-serif;
 
   --text-hero: clamp(2.75rem, 2.1rem + 2.8vw, 4.75rem);

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
-import { notoSerifKr, pretendard } from './fonts';
+import { fraunces, gowunBatang, pretendard } from './fonts';
 import { ThemeProvider } from '~/components/theme/ThemeProvider';
 import { Header } from '~/components/header/Header';
 import { Footer } from '~/components/header/Footer';
@@ -20,7 +20,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const nonce = (await headers()).get('x-nonce') ?? undefined;
 
   return (
-    <html lang="ko" className={`${notoSerifKr.variable} ${pretendard.variable}`} suppressHydrationWarning>
+    <html
+      lang="ko"
+      className={`${fraunces.variable} ${gowunBatang.variable} ${pretendard.variable}`}
+      suppressHydrationWarning
+    >
       <body>
         <ThemeProvider nonce={nonce}>
           <Header />

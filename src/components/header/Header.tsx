@@ -23,17 +23,17 @@ export async function Header() {
 
         <MenuNav menus={menus} />
 
-        <div className="flex items-center gap-1">
+        <div className="no-scrollbar flex min-w-0 shrink items-center gap-1 overflow-x-auto">
           <ThemeToggle />
           {user ? (
             <>
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" className="shrink-0" asChild>
                 <Link href="/admin/posts/new">새 글 작성</Link>
               </Button>
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" className="shrink-0" asChild>
                 <Link href="/admin/menus">메뉴 관리</Link>
               </Button>
-              <form action={logout}>
+              <form action={logout} className="shrink-0">
                 <Button variant="ghost" size="sm" type="submit">
                   로그아웃
                 </Button>

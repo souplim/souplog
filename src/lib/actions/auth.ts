@@ -25,7 +25,7 @@ export async function login(_prevState: LoginState | undefined, formData: FormDa
     return { error: '이메일 또는 비밀번호가 올바르지 않습니다.' };
   }
 
-  redirect('/admin');
+  redirect('/');
 }
 
 export async function logout(): Promise<void> {

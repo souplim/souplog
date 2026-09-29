@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getCurrentUser } from '~/lib/auth';
 import { getMenuBySlug } from '~/lib/menus';
 import { getPublicPosts } from '~/lib/posts';
 import { PostListItem } from '~/components/post/PostListItem';
@@ -19,17 +20,18 @@ export default async function MenuPage({ params }: MenuPageProps) {
   const menu = await getMenuBySlug(slug);
   if (!menu) notFound();
 
-  const posts = await getPublicPosts(slug);
+  const user = await getCurrentUser();
+  const isOwner = Boolean(user);
+  const posts = await getPublicPosts(slug, { includeDrafts: isOwner });
 
   return (
     <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-section)] sm:px-6">
-      <h1 className="font-heading text-3xl">{menu.name}</h1>
       {posts.length === 0 ? (
-        <p className="mt-8 text-muted-foreground">이 메뉴에는 아직 공개된 글이 없습니다.</p>
+        <p className="text-muted-foreground">이 메뉴에는 아직 공개된 글이 없습니다.</p>
       ) : (
-        <div className="mt-8 divide-y divide-border">
+        <div className="divide-y divide-border">
           {posts.map((post) => (
-            <PostListItem key={post.id} post={post} />
+            <PostListItem key={post.id} post={post} isOwner={isOwner} />
           ))}
         </div>
       )}

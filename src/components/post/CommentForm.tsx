@@ -18,18 +18,21 @@ export function CommentForm({ postId, postSlug }: CommentFormProps) {
   return (
     <form action={formAction} className="mt-6 space-y-3">
       <input type="hidden" name="postId" value={postId} />
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Input name="authorName" placeholder="닉네임" maxLength={40} required className="sm:w-40" />
-        <Input
-          name="password"
-          type="password"
-          placeholder="비밀번호 (삭제용)"
-          maxLength={72}
-          required
-          className="sm:w-48"
-        />
+      <div key={state?.resetKey ?? 0} className="space-y-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Input name="authorName" placeholder="닉네임" maxLength={40} required className="sm:w-40" />
+          <Input
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            placeholder="비밀번호 (삭제용)"
+            maxLength={72}
+            required
+            className="sm:w-48"
+          />
+        </div>
+        <Textarea name="content" placeholder="댓글을 남겨보세요" maxLength={2000} rows={3} required />
       </div>
-      <Textarea name="content" placeholder="댓글을 남겨보세요" maxLength={2000} rows={3} required />
       {state?.error && (
         <Alert variant="destructive">
           <AlertDescription>{state.error}</AlertDescription>

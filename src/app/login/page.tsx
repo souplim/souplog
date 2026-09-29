@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: '로그인' };
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
-  if (user) redirect('/admin');
+  if (user) redirect('/');
 
   return (
     <div className="mx-auto flex max-w-[var(--page-width)] justify-center px-4 py-[var(--space-section)] sm:px-6">

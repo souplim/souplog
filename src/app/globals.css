@@ -10,7 +10,7 @@
 
 @theme inline {
   --font-sans: var(--font-body);
-  --font-heading: var(--font-display);
+  --font-heading: var(--font-body);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -75,7 +75,7 @@
   h2,
   h3,
   h4 {
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     line-height: var(--leading-tight);
     font-weight: 700;
     letter-spacing: -0.01em;

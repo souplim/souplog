@@ -8,7 +8,7 @@
 -- 글쓴이 계정은 이 SQL로 만들지 않는다. Supabase 대시보드의
 -- Authentication > Users 에서 한 번만 직접 만든다.
 
-create extension if not exists pgcrypto;
+create extension if not exists pgcrypto with schema extensions;
 
 -- ---------------------------------------------------------------------------
 -- 메뉴 (사이트 내비게이션 겸 카테고리)
@@ -124,7 +124,7 @@ create or replace function public.create_comment(
 returns table (id uuid, post_id uuid, author_name text, content text, created_at timestamptz)
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_is_public boolean;
@@ -172,7 +172,7 @@ create or replace function public.delete_comment(
 returns boolean
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_hash text;

@@ -12,14 +12,20 @@ export interface PostInput {
   coverImagePath: string | null;
 }
 
-/** Public posts for the home feed or a menu listing, newest first. */
-export async function getPublicPosts(menuSlug?: string): Promise<Post[]> {
+/**
+ * Posts for the home feed or a menu listing, newest first. Pass
+ * `includeDrafts` when the viewer is the signed-in owner, so private/draft
+ * posts appear inline instead of only being reachable from the admin
+ * dashboard — RLS still limits which private rows come back to the owner's
+ * own posts.
+ */
+export async function getPublicPosts(menuSlug?: string, options?: { includeDrafts?: boolean }): Promise<Post[]> {
   const supabase = await createClient();
-  let query = supabase
-    .from('posts')
-    .select('*')
-    .eq('is_public', true)
-    .order('published_at', { ascending: false });
+  let query = supabase.from('posts').select('*').order('published_at', { ascending: false });
+
+  if (!options?.includeDrafts) {
+    query = query.eq('is_public', true);
+  }
 
   if (menuSlug !== undefined) {
     const { data: menu } = await supabase.from('menus').select('id').eq('slug', menuSlug).maybeSingle();
@@ -44,14 +50,6 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post | null> =>
   if (error) throw new Error(`글을 불러오지 못했습니다: ${error.message}`);
   return data;
 });
-
-/** All posts visible to the signed-in owner (public and private), for the admin dashboard. */
-export async function getAdminPosts(): Promise<Post[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
-  if (error) throw new Error(`글 목록을 불러오지 못했습니다: ${error.message}`);
-  return data;
-}
 
 export async function getPostById(id: string): Promise<Post | null> {
   const supabase = await createClient();

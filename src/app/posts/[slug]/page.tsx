@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCurrentUser } from '~/lib/auth';
 import { formatDate } from '~/lib/date';
@@ -7,8 +8,10 @@ import { getPostImageUrl } from '~/lib/images';
 import { getMenus } from '~/lib/menus';
 import { getPostBySlug } from '~/lib/posts';
 import { CommentList } from '~/components/post/CommentList';
+import { DeletePostButton } from '~/components/post/DeletePostButton';
 import { PostContent } from '~/components/post/PostContent';
 import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;
@@ -52,7 +55,8 @@ export default async function PostPage({ params }: PostPageProps) {
   const menuName = post.menu_id ? menus.find((menu) => menu.id === post.menu_id)?.name : undefined;
 
   return (
-    <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-xl)] sm:px-6">
+    // 4rem/3.5rem subtract Header's h-16 and Footer's h-14 so short posts still fill the viewport without stretching <main> itself.
+    <div className="mx-auto flex min-h-[calc(100dvh-4rem-3.5rem)] max-w-[var(--page-width)] flex-col px-4 py-[var(--space-xl)] sm:px-6">
       <header className="mx-auto mb-8 max-w-[var(--content-width)]">
         <p className="mb-2 flex items-center gap-2 text-xs tracking-wide text-accent-foreground">
           <span className="uppercase">{menuName ?? '글'}</span>
@@ -60,12 +64,21 @@ export default async function PostPage({ params }: PostPageProps) {
         </p>
         <h1 className="font-heading text-[clamp(2rem,1.5rem+2.5vw,3.5rem)] leading-tight">
           {post.title}
-          {!post.is_public && (
-            <Badge variant="outline" className="ml-3 align-middle">
-              비공개
+          {user && (
+            <Badge variant={post.is_public ? 'secondary' : 'outline'} className="ml-3 align-middle">
+              {post.is_public ? '공개' : '비공개'}
             </Badge>
           )}
         </h1>
+
+        {user && (
+          <div className="mt-3 flex items-center gap-1">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href={`/admin/posts/${post.id}/edit`}>수정</Link>
+            </Button>
+            <DeletePostButton postId={post.id} />
+          </div>
+        )}
       </header>
 
       {post.cover_image_path && (
@@ -81,11 +94,15 @@ export default async function PostPage({ params }: PostPageProps) {
         </div>
       )}
 
-      <div className="mx-auto max-w-[var(--content-width)]">
+      <div className="mx-auto w-full max-w-[var(--content-width)]">
         <PostContent content={post.content} />
-
-        {post.is_public && <CommentList postId={post.id} postSlug={post.slug} isOwner={Boolean(user)} />}
       </div>
+
+      {post.is_public && (
+        <div className="mx-auto mt-auto w-full max-w-[var(--content-width)]">
+          <CommentList postId={post.id} postSlug={post.slug} isOwner={Boolean(user)} />
+        </div>
+      )}
     </div>
   );
 }

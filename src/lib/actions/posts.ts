@@ -67,7 +67,7 @@ export async function createPostAction(
   const coverImage = formData.get('coverImage');
   const coverImagePath = coverImage instanceof File && coverImage.size > 0 ? await uploadCoverImage(coverImage) : null;
 
-  const post = await createPost(
+  await createPost(
     {
       title: parsed.data.title,
       slug,
@@ -79,9 +79,8 @@ export async function createPostAction(
     parsed.data.isPublic,
   );
 
-  revalidatePath('/admin');
   revalidatePath('/');
-  redirect(`/admin/posts/${post.id}/edit`);
+  redirect('/');
 }
 
 export async function updatePostAction(
@@ -121,15 +120,14 @@ export async function updatePostAction(
     parsed.data.isPublic,
   );
 
-  revalidatePath('/admin');
   revalidatePath('/');
   revalidatePath(`/posts/${slug}`);
-  redirect('/admin');
+  redirect('/');
 }
 
 export async function deletePostAction(postId: string): Promise<void> {
   await requireUser();
   await deletePost(postId);
-  revalidatePath('/admin');
   revalidatePath('/');
+  redirect('/');
 }

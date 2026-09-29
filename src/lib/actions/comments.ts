@@ -7,11 +7,12 @@ import { commentSchema, deleteCommentSchema } from '~/lib/validation';
 
 export interface CommentFormState {
   error?: string;
+  resetKey?: number;
 }
 
 export async function createCommentAction(
   postSlug: string,
-  _prevState: CommentFormState | undefined,
+  prevState: CommentFormState | undefined,
   formData: FormData,
 ): Promise<CommentFormState> {
   const parsed = commentSchema.safeParse({
@@ -22,17 +23,20 @@ export async function createCommentAction(
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? '입력을 확인하세요.' };
+    return { error: parsed.error.issues[0]?.message ?? '입력을 확인하세요.', resetKey: prevState?.resetKey };
   }
 
   try {
     await createComment(parsed.data);
   } catch (error) {
-    return { error: error instanceof Error ? error.message : '댓글을 저장하지 못했습니다.' };
+    return {
+      error: error instanceof Error ? error.message : '댓글을 저장하지 못했습니다.',
+      resetKey: prevState?.resetKey,
+    };
   }
 
   revalidatePath(`/posts/${postSlug}`);
-  return {};
+  return { resetKey: (prevState?.resetKey ?? 0) + 1 };
 }
 
 export async function deleteCommentAction(

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getCurrentUser } from '~/lib/auth';
 import { logout } from '~/lib/actions/auth';
 import { getMenus } from '~/lib/menus';
+import { MenuNav } from '~/components/header/MenuNav';
 import { ThemeToggle } from '~/components/theme/ThemeToggle';
 import { Button } from '~/components/ui/button';
 
@@ -20,24 +21,17 @@ export async function Header() {
           souplog
         </Link>
 
-        <nav aria-label="메인 내비게이션" className="min-w-0 flex-1">
-          <ul className="no-scrollbar flex items-center gap-1 overflow-x-auto">
-            {menus.map((menu) => (
-              <li key={menu.id} className="shrink-0">
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/menu/${menu.slug}`}>{menu.name}</Link>
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <MenuNav menus={menus} />
 
         <div className="flex items-center gap-1">
           <ThemeToggle />
           {user ? (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin">관리자</Link>
+                <Link href="/admin/posts/new">새 글 작성</Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/admin/menus">메뉴 관리</Link>
               </Button>
               <form action={logout}>
                 <Button variant="ghost" size="sm" type="submit">

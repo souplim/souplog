@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import { deleteCommentAction } from '~/lib/actions/comments';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
@@ -16,8 +17,15 @@ export function CommentDeleteForm({ commentId, postSlug }: CommentDeleteFormProp
 
   if (!open) {
     return (
-      <Button type="button" variant="ghost" size="sm" className="h-auto p-0 text-muted-foreground" onClick={() => setOpen(true)}>
-        삭제
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        className="text-muted-foreground"
+        onClick={() => setOpen(true)}
+        aria-label="삭제"
+      >
+        <Trash2 />
       </Button>
     );
   }

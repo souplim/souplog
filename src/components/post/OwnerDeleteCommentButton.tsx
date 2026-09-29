@@ -1,5 +1,6 @@
 'use client';
 
+import { Trash2 } from 'lucide-react';
 import { deleteCommentAsOwnerAction } from '~/lib/actions/comments';
 import { Button } from '~/components/ui/button';
 import {
@@ -23,8 +24,14 @@ export function OwnerDeleteCommentButton({ commentId, postSlug }: OwnerDeleteCom
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button type="button" variant="ghost" size="sm" className="h-auto p-0 text-muted-foreground">
-          관리자 삭제
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          className="text-muted-foreground"
+          aria-label="관리자 삭제"
+        >
+          <Trash2 />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

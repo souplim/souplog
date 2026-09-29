@@ -29,7 +29,7 @@ export default async function MenuPage({ params }: MenuPageProps) {
       {posts.length === 0 ? (
         <p className="text-muted-foreground">이 메뉴에는 아직 공개된 글이 없습니다.</p>
       ) : (
-        <div className="divide-y divide-border">
+        <div className="space-y-2">
           {posts.map((post) => (
             <PostListItem key={post.id} post={post} isOwner={isOwner} />
           ))}

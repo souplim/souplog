@@ -1,5 +1,6 @@
 'use client';
 
+import { Trash2 } from 'lucide-react';
 import { deletePostAction } from '~/lib/actions/posts';
 import { Button } from '~/components/ui/button';
 import {
@@ -18,8 +19,13 @@ export function DeletePostButton({ postId }: { postId: string }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-          삭제
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="text-destructive hover:text-destructive"
+          aria-label="삭제"
+        >
+          <Trash2 />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

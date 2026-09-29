@@ -19,7 +19,7 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-section)] sm:px-6">
-      <div className="divide-y divide-border">
+      <div className="space-y-2">
         {posts.map((post) => (
           <PostListItem
             key={post.id}

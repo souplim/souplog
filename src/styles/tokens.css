@@ -1,22 +1,22 @@
 /*
- * 미니멀 라이트/다크 럭셔리 — 절제된 대비와 단 하나의 브론즈/골드 accent.
+ * 미니멀 라이트/다크 럭셔리 — 화이트 베이스와 단 하나의 진녹색 accent.
  * 색·간격·모서리·타이포는 전부 여기서만 정의한다. 컴포넌트에 직접 박지 않는다.
  */
 
 :root {
   color-scheme: light;
 
-  --color-bg: oklch(97.5% 0.012 80);
-  --color-surface: oklch(99.2% 0.006 80);
+  --color-bg: oklch(100% 0 0);
+  --color-surface: oklch(98% 0.004 150);
   --color-surface-raised: oklch(100% 0 0);
-  --color-text: oklch(22% 0.018 55);
-  --color-text-muted: oklch(46% 0.02 60);
-  --color-border: oklch(88% 0.012 75);
-  --color-border-strong: oklch(78% 0.016 75);
+  --color-text: oklch(20% 0.01 150);
+  --color-text-muted: oklch(46% 0.015 150);
+  --color-border: oklch(90% 0.008 150);
+  --color-border-strong: oklch(80% 0.01 150);
 
-  --color-accent: oklch(56% 0.13 70);
-  --color-accent-strong: oklch(46% 0.135 68);
-  --color-accent-tint: oklch(93% 0.04 75);
+  --color-accent: oklch(38% 0.09 152);
+  --color-accent-strong: oklch(28% 0.08 152);
+  --color-accent-tint: oklch(94% 0.035 150);
 
   --color-danger: oklch(55% 0.18 25);
 
@@ -48,8 +48,8 @@
   /* Base for shadcn's --radius-sm/md/lg/xl/... calc scale (src/app/globals.css @theme inline). */
   --radius: 6px;
 
-  --shadow-card: 0 1px 2px oklch(20% 0.02 60 / 0.06), 0 8px 24px oklch(20% 0.02 60 / 0.06);
-  --shadow-raised: 0 2px 4px oklch(20% 0.02 60 / 0.08), 0 16px 40px oklch(20% 0.02 60 / 0.1);
+  --shadow-card: 0 1px 2px oklch(20% 0.01 150 / 0.06), 0 8px 24px oklch(20% 0.01 150 / 0.06);
+  --shadow-raised: 0 2px 4px oklch(20% 0.01 150 / 0.08), 0 16px 40px oklch(20% 0.01 150 / 0.1);
 
   --duration-fast: 150ms;
   --duration-normal: 280ms;
@@ -96,9 +96,9 @@
   --color-border: oklch(31% 0.014 76);
   --color-border-strong: oklch(40% 0.018 76);
 
-  --color-accent: oklch(76% 0.14 78);
-  --color-accent-strong: oklch(84% 0.12 80);
-  --color-accent-tint: oklch(30% 0.05 75);
+  --color-accent: oklch(68% 0.13 148);
+  --color-accent-strong: oklch(78% 0.1 148);
+  --color-accent-tint: oklch(32% 0.06 148);
 
   --color-danger: oklch(68% 0.17 25);
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Pencil, Trash2, X } from 'lucide-react';
 import { deleteMenuAction, moveMenuAction, updateMenuAction } from '~/lib/actions/menus';
 import type { Menu } from '~/lib/supabase/types';
 import { Button } from '~/components/ui/button';
@@ -76,13 +76,25 @@ export function MenuRow({ menu, isFirst, isLast }: MenuRowProps) {
       )}
 
       <div className="flex items-center gap-1">
-        <Button type="button" variant="ghost" size="sm" onClick={() => setEditing((value) => !value)}>
-          {editing ? '취소' : '수정'}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setEditing((value) => !value)}
+          aria-label={editing ? '취소' : '수정'}
+        >
+          {editing ? <X /> : <Pencil />}
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-              삭제
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="text-destructive hover:text-destructive"
+              aria-label="삭제"
+            >
+              <Trash2 />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>

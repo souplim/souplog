@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Pencil } from 'lucide-react';
 import { getCurrentUser } from '~/lib/auth';
 import { formatDate } from '~/lib/date';
 import { getPostImageUrl } from '~/lib/images';
@@ -73,8 +74,10 @@ export default async function PostPage({ params }: PostPageProps) {
 
         {user && (
           <div className="mt-3 flex items-center gap-1">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href={`/admin/posts/${post.id}/edit`}>수정</Link>
+            <Button variant="ghost" size="icon-sm" asChild>
+              <Link href={`/admin/posts/${post.id}/edit`} aria-label="수정">
+                <Pencil />
+              </Link>
             </Button>
             <DeletePostButton postId={post.id} />
           </div>

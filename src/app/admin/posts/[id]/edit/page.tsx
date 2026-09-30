@@ -18,9 +18,12 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   if (!post) notFound();
 
   return (
-    <div>
-      <h1 className="mb-6 font-heading text-3xl">글 수정</h1>
-      <PostForm menus={menus} post={post} action={updatePostAction.bind(null, id)} submitLabel="저장" />
-    </div>
+    <PostForm
+      menus={menus}
+      post={post}
+      action={updatePostAction.bind(null, id)}
+      submitLabel="저장"
+      cancelHref={`/posts/${post.slug}`}
+    />
   );
 }

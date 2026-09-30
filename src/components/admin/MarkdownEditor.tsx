@@ -37,7 +37,7 @@ export function MarkdownEditor({ name, defaultValue }: MarkdownEditorProps) {
           />
         </div>
         <div className={cn('flex flex-col gap-1.5', activeTab !== 'preview' && 'hidden md:flex')}>
-          <span className="text-sm font-medium text-muted-foreground">미리보기</span>
+          <span className="text-sm leading-none font-medium text-muted-foreground">미리보기</span>
           <div className="min-h-96 overflow-y-auto rounded-lg border border-input p-4">
             <PostContent content={content} />
           </div>

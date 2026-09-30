@@ -59,10 +59,23 @@ export default async function PostPage({ params }: PostPageProps) {
     // 4rem/3.5rem subtract Header's h-16 and Footer's h-14 so short posts still fill the viewport without stretching <main> itself.
     <div className="mx-auto flex min-h-[calc(100dvh-4rem-3.5rem)] max-w-[var(--page-width)] flex-col px-4 py-[var(--space-xl)] sm:px-6">
       <header className="mx-auto mb-8 max-w-[var(--content-width)]">
-        <p className="mb-2 flex items-center gap-2 text-xs tracking-wide text-accent-foreground">
-          <span className="uppercase">{menuName ?? '글'}</span>
-          {post.published_at && <span>· {formatDate(post.published_at)}</span>}
-        </p>
+        <div className="mb-2 flex items-center justify-between gap-2 text-xs tracking-wide text-accent-foreground">
+          <div className="flex items-center gap-2">
+            <span className="uppercase">{menuName ?? '글'}</span>
+            {post.published_at && <span>· {formatDate(post.published_at)}</span>}
+          </div>
+
+          {user && (
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon-sm" asChild>
+                <Link href={`/admin/posts/${post.id}/edit`} aria-label="수정">
+                  <Pencil />
+                </Link>
+              </Button>
+              <DeletePostButton postId={post.id} />
+            </div>
+          )}
+        </div>
         <h1 className="font-heading text-[clamp(2rem,1.5rem+2.5vw,3.5rem)] leading-tight">
           {post.title}
           {user && (
@@ -71,17 +84,6 @@ export default async function PostPage({ params }: PostPageProps) {
             </Badge>
           )}
         </h1>
-
-        {user && (
-          <div className="mt-3 flex items-center gap-1">
-            <Button variant="ghost" size="icon-sm" asChild>
-              <Link href={`/admin/posts/${post.id}/edit`} aria-label="수정">
-                <Pencil />
-              </Link>
-            </Button>
-            <DeletePostButton postId={post.id} />
-          </div>
-        )}
       </header>
 
       {post.cover_image_path && (

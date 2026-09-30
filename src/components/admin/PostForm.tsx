@@ -2,21 +2,20 @@
 
 import { useActionState, useState } from 'react';
 import Link from 'next/link';
-import { formatDate } from '~/lib/date';
+import { cn } from '~/lib/utils';
 import type { Menu, Post } from '~/lib/supabase/types';
 import type { PostFormState } from '~/lib/actions/posts';
-import { DeletePostButton } from '~/components/post/DeletePostButton';
-import { MarkdownEditor } from './MarkdownEditor';
-import { PostImageUploader } from './PostImageUploader';
+import { PostEditorPane } from './PostEditorPane';
+import { PostPreviewPane } from './PostPreviewPane';
+import { EDITOR_GUTTER_CLASS, NO_MENU_VALUE } from './postEditorStyles';
 import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { Textarea } from '~/components/ui/textarea';
-import { Switch } from '~/components/ui/switch';
 import { Alert, AlertDescription } from '~/components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs';
 
-const NO_MENU_VALUE = 'none';
+/** Site header (4rem) + footer (3.5rem) — the editor fills whatever is left. */
+const EDITOR_HEIGHT = 'md:h-[calc(100dvh-4rem-3.5rem)]';
+
+type EditorTab = 'edit' | 'preview';
 
 interface PostFormProps {
   menus: Menu[];
@@ -30,84 +29,62 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
   const [state, formAction, pending] = useActionState(action, undefined);
   const [menuId, setMenuId] = useState(post?.menu_id ?? NO_MENU_VALUE);
   const [isPublic, setIsPublic] = useState(post?.is_public ?? false);
+  const [title, setTitle] = useState(post?.title ?? '');
+  const [content, setContent] = useState(post?.content ?? '');
+  const [activeTab, setActiveTab] = useState<EditorTab>('edit');
 
   return (
-    <form action={formAction} className="mx-auto flex w-full max-w-[var(--page-width)] flex-col">
+    <form action={formAction} className={cn('flex flex-col', EDITOR_HEIGHT)}>
       <input type="hidden" name="menuId" value={menuId === NO_MENU_VALUE ? '' : menuId} />
       <input type="hidden" name="isPublic" value={isPublic ? 'on' : ''} />
       <input type="hidden" name="slug" value="" />
 
-      <header className="mx-auto mb-8 w-full max-w-[var(--content-width)]">
-        <div className="mb-2 flex items-center justify-between gap-2 text-xs tracking-wide text-accent-foreground">
-          <div className="flex items-center gap-2">
-            <Select value={menuId} onValueChange={setMenuId}>
-              <SelectTrigger
-                size="sm"
-                className="h-auto gap-1 border-none bg-transparent p-0 text-xs font-medium uppercase tracking-wide text-accent-foreground shadow-none hover:bg-transparent focus-visible:ring-0"
-              >
-                <SelectValue placeholder="메뉴 없음" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NO_MENU_VALUE}>메뉴 없음</SelectItem>
-                {menus.map((menu) => (
-                  <SelectItem key={menu.id} value={menu.id}>
-                    {menu.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {post?.published_at && <span>· {formatDate(post.published_at)}</span>}
-          </div>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as EditorTab)}
+        className={cn('border-b border-border py-2 md:hidden', EDITOR_GUTTER_CLASS)}
+      >
+        <TabsList>
+          <TabsTrigger value="edit">편집</TabsTrigger>
+          <TabsTrigger value="preview">미리보기</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <Switch id="isPublic-toggle" size="sm" checked={isPublic} onCheckedChange={setIsPublic} />
-              <Label htmlFor="isPublic-toggle" className="text-xs text-accent-foreground">
-                공개
-              </Label>
-            </div>
-            {post && <DeletePostButton postId={post.id} />}
-            <Link href={cancelHref} className="text-xs text-muted-foreground transition-colors hover:text-foreground">
-              취소
-            </Link>
-          </div>
-        </div>
-
-        <Input
-          name="title"
-          defaultValue={post?.title}
-          required
-          maxLength={200}
-          placeholder="제목을 입력하세요"
-          className="h-auto w-full border-none bg-transparent p-0 font-heading text-[clamp(2rem,1.5rem+2.5vw,3.5rem)] leading-tight shadow-none outline-none focus-visible:ring-0"
+      <div className="grid min-h-0 flex-1 md:grid-cols-2">
+        <PostEditorPane
+          menus={menus}
+          menuId={menuId}
+          onMenuIdChange={setMenuId}
+          isPublic={isPublic}
+          onIsPublicChange={setIsPublic}
+          title={title}
+          onTitleChange={setTitle}
+          content={content}
+          onContentChange={setContent}
+          defaultExcerpt={post?.excerpt}
+          images={post?.images ?? []}
+          publishedAt={post?.published_at}
+          className={activeTab === 'edit' ? undefined : 'hidden md:flex'}
         />
-      </header>
-
-      <div className="mx-auto mb-8 w-full max-w-[var(--content-width)]">
-        <PostImageUploader initialImages={post?.images ?? []} />
+        <PostPreviewPane
+          content={content}
+          className={activeTab === 'preview' ? undefined : 'hidden md:block'}
+        />
       </div>
 
-      <div className="mx-auto w-full max-w-[var(--content-width)]">
-        <div className="space-y-1.5">
-          <Label htmlFor="excerpt" className="text-xs text-muted-foreground">
-            요약 (목록과 공유 미리보기에 쓰입니다)
-          </Label>
-          <Textarea id="excerpt" name="excerpt" defaultValue={post?.excerpt} rows={2} maxLength={300} />
-        </div>
-      </div>
-
-      <div className="mx-auto mt-6 w-full max-w-[var(--content-width)]">
-        <MarkdownEditor name="content" defaultValue={post?.content ?? ''} />
-      </div>
-
-      <div className="mx-auto w-full max-w-[var(--content-width)]">
+      <div className="shrink-0 border-t border-border bg-background/85 backdrop-blur">
         {state?.error && (
-          <Alert variant="destructive" className="mt-6">
-            <AlertDescription>{state.error}</AlertDescription>
-          </Alert>
+          <div className={cn('pt-3', EDITOR_GUTTER_CLASS)}>
+            <Alert variant="destructive">
+              <AlertDescription>{state.error}</AlertDescription>
+            </Alert>
+          </div>
         )}
 
-        <div className="mt-8 flex items-center justify-end gap-2 border-t border-border pt-6">
+        <div className={cn('flex items-center justify-end gap-2 py-3', EDITOR_GUTTER_CLASS)}>
+          <Button asChild variant="ghost">
+            <Link href={cancelHref}>취소</Link>
+          </Button>
           <Button type="submit" disabled={pending}>
             {pending ? '저장 중…' : submitLabel}
           </Button>

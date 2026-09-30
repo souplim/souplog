@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
 import { requireUser } from '~/lib/auth';
 
+/**
+ * Only gates the section — the post editor runs full-bleed, so each admin page
+ * owns whatever container it needs.
+ */
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   await requireUser();
 
-  return (
-    <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-xl)] sm:px-6">{children}</div>
-  );
+  return <>{children}</>;
 }

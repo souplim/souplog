@@ -59,10 +59,11 @@ export function PostListItem({ post, menuName, isOwner = false }: PostListItemPr
           </div>
 
           {isOwner && (
-            <div className="relative z-10 flex shrink-0 items-center gap-1">
-              <Button variant="ghost" size="icon-sm" asChild>
-                <Link href={`/admin/posts/${post.id}/edit`} aria-label="수정">
+            <div className="relative z-10 flex shrink-0 items-center gap-2">
+              <Button variant="outline" asChild>
+                <Link href={`/admin/posts/${post.id}/edit`}>
                   <Pencil />
+                  수정
                 </Link>
               </Button>
               <DeletePostButton postId={post.id} />

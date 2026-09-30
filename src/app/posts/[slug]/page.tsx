@@ -89,7 +89,7 @@ export default async function PostPage({ params }: PostPageProps) {
                   수정
                 </Link>
               </Button>
-              <DeletePostButton postId={post.id} label="삭제" />
+              <DeletePostButton postId={post.id} />
             </div>
           )}
         </div>

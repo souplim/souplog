@@ -17,35 +17,19 @@ import {
 
 interface DeletePostButtonProps {
   postId: string;
-  /**
-   * Render a labelled button sized like the editor's 저장/취소 pair. Without it
-   * the trigger stays an icon square, which is what a dense post list wants.
-   */
-  label?: string;
 }
 
-export function DeletePostButton({ postId, label }: DeletePostButtonProps) {
+export function DeletePostButton({ postId }: DeletePostButtonProps) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   return (
     <AlertDialog open={open} onOpenChange={(next) => !pending && setOpen(next)}>
       <AlertDialogTrigger asChild>
-        {label ? (
-          <Button variant="destructive">
-            <Trash2 />
-            {label}
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-destructive hover:text-destructive"
-            aria-label="삭제"
-          >
-            <Trash2 />
-          </Button>
-        )}
+        <Button variant="destructive">
+          <Trash2 />
+          삭제
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

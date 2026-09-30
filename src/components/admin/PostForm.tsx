@@ -103,9 +103,9 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
         />
       </header>
 
-      <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-xl bg-muted shadow-[var(--shadow-card)]">
+      <div className="mx-auto mb-8 w-full max-w-[var(--content-width)]">
         {coverPreview ? (
-          <>
+          <div className="relative aspect-video w-full max-w-sm overflow-hidden rounded-xl bg-muted shadow-[var(--shadow-card)]">
             {/* Newly picked files are blob: URLs the Next.js optimizer can't serve, so this preview bypasses it. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={coverPreview} alt="" className="size-full object-cover" />
@@ -117,14 +117,14 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
             >
               <X className="size-4" />
             </button>
-          </>
+          </div>
         ) : (
           <label
             htmlFor="coverImage"
-            className="flex size-full cursor-pointer flex-col items-center justify-center gap-2 text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground"
+            className="inline-flex w-auto cursor-pointer items-center gap-2 rounded-full border border-dashed border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
           >
-            <ImagePlus className="size-6" />
-            <span className="text-sm">표지 이미지 추가</span>
+            <ImagePlus className="size-3.5" />
+            <span>표지 이미지 추가</span>
           </label>
         )}
         <input

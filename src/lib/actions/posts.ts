@@ -80,7 +80,8 @@ export async function createPostAction(
   );
 
   revalidatePath('/');
-  redirect('/');
+  revalidatePath(`/posts/${slug}`);
+  redirect(`/posts/${slug}`);
 }
 
 export async function updatePostAction(
@@ -122,7 +123,7 @@ export async function updatePostAction(
 
   revalidatePath('/');
   revalidatePath(`/posts/${slug}`);
-  redirect('/');
+  redirect(`/posts/${slug}`);
 }
 
 export async function deletePostAction(postId: string): Promise<void> {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useTransition } from 'react';
 import { ChevronDown, ChevronUp, Pencil, Trash2, X } from 'lucide-react';
 import { deleteMenuAction, moveMenuAction, updateMenuAction } from '~/lib/actions/menus';
 import type { Menu } from '~/lib/supabase/types';
@@ -8,7 +8,6 @@ import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -27,6 +26,15 @@ interface MenuRowProps {
 export function MenuRow({ menu, isFirst, isLast }: MenuRowProps) {
   const [editing, setEditing] = useState(false);
   const [state, formAction, pending] = useActionState(updateMenuAction.bind(null, menu.id), undefined);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePending, startDeleteTransition] = useTransition();
+
+  const handleDelete = () => {
+    startDeleteTransition(async () => {
+      await deleteMenuAction(menu.id);
+      setDeleteOpen(false);
+    });
+  };
 
   return (
     <div className="flex items-center gap-3 p-3">
@@ -85,7 +93,7 @@ export function MenuRow({ menu, isFirst, isLast }: MenuRowProps) {
         >
           {editing ? <X /> : <Pencil />}
         </Button>
-        <AlertDialog>
+        <AlertDialog open={deleteOpen} onOpenChange={(next) => !deletePending && setDeleteOpen(next)}>
           <AlertDialogTrigger asChild>
             <Button
               type="button"
@@ -103,12 +111,15 @@ export function MenuRow({ menu, isFirst, isLast }: MenuRowProps) {
               <AlertDialogDescription>이 메뉴의 글은 미분류로 남습니다.</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>취소</AlertDialogCancel>
-              <form action={deleteMenuAction.bind(null, menu.id)}>
-                <AlertDialogAction type="submit" variant="destructive" className="w-full">
-                  삭제
-                </AlertDialogAction>
-              </form>
+              <AlertDialogCancel disabled={deletePending}>취소</AlertDialogCancel>
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={deletePending}
+                onClick={handleDelete}
+              >
+                {deletePending ? '삭제 중…' : '삭제'}
+              </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

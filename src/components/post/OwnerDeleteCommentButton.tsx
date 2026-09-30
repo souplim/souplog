@@ -1,11 +1,11 @@
 'use client';
 
+import { useState, useTransition } from 'react';
 import { Trash2 } from 'lucide-react';
 import { deleteCommentAsOwnerAction } from '~/lib/actions/comments';
 import { Button } from '~/components/ui/button';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -21,8 +21,18 @@ interface OwnerDeleteCommentButtonProps {
 }
 
 export function OwnerDeleteCommentButton({ commentId, postSlug }: OwnerDeleteCommentButtonProps) {
+  const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  const handleDelete = () => {
+    startTransition(async () => {
+      await deleteCommentAsOwnerAction(postSlug, commentId);
+      setOpen(false);
+    });
+  };
+
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={(next) => !pending && setOpen(next)}>
       <AlertDialogTrigger asChild>
         <Button
           type="button"
@@ -40,12 +50,15 @@ export function OwnerDeleteCommentButton({ commentId, postSlug }: OwnerDeleteCom
           <AlertDialogDescription>되돌릴 수 없습니다.</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>취소</AlertDialogCancel>
-          <form action={deleteCommentAsOwnerAction.bind(null, postSlug, commentId)}>
-            <AlertDialogAction type="submit" variant="destructive" className="w-full">
-              삭제
-            </AlertDialogAction>
-          </form>
+          <AlertDialogCancel disabled={pending}>취소</AlertDialogCancel>
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={pending}
+            onClick={handleDelete}
+          >
+            {pending ? '삭제 중…' : '삭제'}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

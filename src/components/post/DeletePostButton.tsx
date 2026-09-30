@@ -1,11 +1,11 @@
 'use client';
 
+import { useState, useTransition } from 'react';
 import { Trash2 } from 'lucide-react';
 import { deletePostAction } from '~/lib/actions/posts';
 import { Button } from '~/components/ui/button';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -16,8 +16,11 @@ import {
 } from '~/components/ui/alert-dialog';
 
 export function DeletePostButton({ postId }: { postId: string }) {
+  const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={(next) => !pending && setOpen(next)}>
       <AlertDialogTrigger asChild>
         <Button
           variant="ghost"
@@ -34,12 +37,15 @@ export function DeletePostButton({ postId }: { postId: string }) {
           <AlertDialogDescription>되돌릴 수 없습니다.</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>취소</AlertDialogCancel>
-          <form action={deletePostAction.bind(null, postId)}>
-            <AlertDialogAction type="submit" variant="destructive" className="w-full">
-              삭제
-            </AlertDialogAction>
-          </form>
+          <AlertDialogCancel disabled={pending}>취소</AlertDialogCancel>
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={pending}
+            onClick={() => startTransition(() => deletePostAction(postId))}
+          >
+            {pending ? '삭제 중…' : '삭제'}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

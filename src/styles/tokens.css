@@ -42,7 +42,9 @@
   --space-xl: clamp(3rem, 2.4rem + 2.4vw, 4.5rem);
   --space-section: clamp(4rem, 3rem + 4vw, 8rem);
 
-  --content-width: 42rem;
+  /* Reading column for a post: wide enough to avoid the narrow-strip look on
+     desktop, still short of --page-width so the text keeps a comfortable measure. */
+  --content-width: 56rem;
   --page-width: 72rem;
 
   /* Base for shadcn's --radius-sm/md/lg/xl/... calc scale (src/app/globals.css @theme inline). */

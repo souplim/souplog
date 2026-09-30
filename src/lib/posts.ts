@@ -27,7 +27,15 @@ function toPost(row: PostRow): Post {
  */
 export async function getPublicPosts(menuSlug?: string, options?: { includeDrafts?: boolean }): Promise<Post[]> {
   const supabase = await createClient();
-  let query = supabase.from('posts').select('*').order('published_at', { ascending: false });
+  // `nullsFirst: false` matters once drafts are in the list: Postgres sorts
+  // NULLs first on `desc`, which would park every unpublished draft above the
+  // whole feed. Drafts fall to the end and order among themselves by when they
+  // were written, which is the date the list shows for them.
+  let query = supabase
+    .from('posts')
+    .select('*')
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false });
 
   if (!options?.includeDrafts) {
     query = query.eq('is_public', true);

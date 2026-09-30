@@ -59,32 +59,40 @@ export default async function PostPage({ params }: PostPageProps) {
   return (
     // 4rem/3.5rem subtract Header's h-16 and Footer's h-14 so short posts still fill the viewport without stretching <main> itself.
     <div className="mx-auto flex min-h-[calc(100dvh-4rem-3.5rem)] max-w-[var(--page-width)] flex-col px-4 py-[var(--space-xl)] sm:px-6">
-      <header className="mx-auto mb-8 max-w-[var(--content-width)]">
-        <div className="mb-2 flex items-center justify-between gap-2 text-xs tracking-wide text-accent-foreground">
-          <div className="flex items-center gap-2">
-            <span className="uppercase">{menuName ?? '글'}</span>
-            {post.published_at && <span>· {formatDate(post.published_at)}</span>}
-          </div>
-
-          {user && (
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon-sm" asChild>
-                <Link href={`/admin/posts/${post.id}/edit`} aria-label="수정">
-                  <Pencil />
-                </Link>
-              </Button>
-              <DeletePostButton postId={post.id} />
-            </div>
-          )}
+      {/* w-full: mx-auto cancels the flex parent's stretch, so without it the
+          header shrinks to fit the title and no longer lines up with the body. */}
+      <header className="mx-auto mb-8 w-full max-w-[var(--content-width)]">
+        <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wide text-accent-foreground">
+          <span>{menuName ?? '글'}</span>
         </div>
         <h1 className="font-heading text-[clamp(2rem,1.5rem+2.5vw,3.5rem)] leading-tight">
           {post.title}
-          {user && (
-            <Badge variant={post.is_public ? 'secondary' : 'outline'} className="ml-3 align-middle">
-              {post.is_public ? '공개' : '비공개'}
-            </Badge>
-          )}
         </h1>
+
+        {/* Naver-blog style byline: date and visibility under the title, owner actions flush right. */}
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs tracking-wide text-accent-foreground">
+            {/* A draft has no published_at yet — fall back to when it was written. */}
+            <span>{formatDate(post.published_at ?? post.created_at)}</span>
+            {user && (
+              <Badge variant={post.is_public ? 'secondary' : 'outline'}>
+                {post.is_public ? '공개' : '비공개'}
+              </Badge>
+            )}
+          </div>
+
+          {user && (
+            <div className="flex items-center gap-2">
+              <Button variant="outline" asChild>
+                <Link href={`/admin/posts/${post.id}/edit`}>
+                  <Pencil />
+                  수정
+                </Link>
+              </Button>
+              <DeletePostButton postId={post.id} label="삭제" />
+            </div>
+          )}
+        </div>
       </header>
 
       {post.images.length > 0 && (

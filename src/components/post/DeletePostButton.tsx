@@ -15,21 +15,37 @@ import {
   AlertDialogTrigger,
 } from '~/components/ui/alert-dialog';
 
-export function DeletePostButton({ postId }: { postId: string }) {
+interface DeletePostButtonProps {
+  postId: string;
+  /**
+   * Render a labelled button sized like the editor's 저장/취소 pair. Without it
+   * the trigger stays an icon square, which is what a dense post list wants.
+   */
+  label?: string;
+}
+
+export function DeletePostButton({ postId, label }: DeletePostButtonProps) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   return (
     <AlertDialog open={open} onOpenChange={(next) => !pending && setOpen(next)}>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="text-destructive hover:text-destructive"
-          aria-label="삭제"
-        >
-          <Trash2 />
-        </Button>
+        {label ? (
+          <Button variant="destructive">
+            <Trash2 />
+            {label}
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-destructive hover:text-destructive"
+            aria-label="삭제"
+          >
+            <Trash2 />
+          </Button>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

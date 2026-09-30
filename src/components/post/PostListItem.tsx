@@ -13,6 +13,11 @@ interface PostListItemProps {
 }
 
 export function PostListItem({ post, menuName, isOwner = false }: PostListItemProps) {
+  // A draft has no `published_at` yet, so it falls back to when it was written
+  // — the owner-only 공개/비공개 badge already says whether it's published, and
+  // a row with no date at all just reads as broken.
+  const date = post.published_at ?? post.created_at;
+
   return (
     <article className="group relative -mx-4 rounded-xl transition-colors duration-300 ease-out sm:-mx-5">
       <div className="relative rounded-xl px-4 py-6 transition-[background-color,box-shadow,transform] duration-300 ease-out group-hover:-translate-y-0.5 group-hover:bg-card group-hover:shadow-[var(--shadow-card)] group-active:translate-y-0 group-active:duration-100 sm:px-5">
@@ -26,8 +31,8 @@ export function PostListItem({ post, menuName, isOwner = false }: PostListItemPr
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <time className="font-mono tabular-nums" dateTime={post.published_at ?? undefined}>
-                {post.published_at ? formatDate(post.published_at) : '미발행'}
+              <time className="font-mono tabular-nums" dateTime={date}>
+                {formatDate(date)}
               </time>
               {menuName && (
                 <Badge className="border-transparent bg-accent text-accent-foreground">{menuName}</Badge>

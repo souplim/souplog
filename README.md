@@ -4,7 +4,7 @@
 
 ## 무엇이 특이한가
 
-`lba`와 같은 Supabase + Vercel 조합을 쓰지만, 접근 제어 방식은 다르다.
+Supabase + Vercel 조합을 쓰지만, 접근 제어 방식은 다르다.
 
 1. **실제 인증을 쓴다.** 이 블로그는 **비공개 글**이 있으므로 Supabase Auth(이메일+비밀번호, 관리자 1명)와 RLS로 서버 단에서 권한을 강제한다.
 2. **가입 화면이 없다.** 관리자 계정은 Supabase 대시보드에서 한 번만 직접 만든다. 앱 코드 어디에도 회원가입 폼이 없다.
@@ -25,10 +25,10 @@ pnpm install
 
 키는 두 곳에 있다.
 
-| 환경변수                        | 대시보드 위치                              |
-| -------------------------------- | ------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`       | **Settings > Data API** 의 Project URL      |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`  | **Settings > API Keys** 의 `anon` 키        |
+| 환경변수                        | 대시보드 위치                          |
+| ------------------------------- | -------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | **Settings > Data API** 의 Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | **Settings > API Keys** 의 `anon` 키   |
 
 `service_role` 키는 쓰지 않는다. 어디에도 넣지 않는다.
 
@@ -64,15 +64,15 @@ pnpm dev
 
 ## 스크립트
 
-| 명령              | 하는 일                                  |
-| ----------------- | ----------------------------------------- |
-| `pnpm dev`        | 개발 서버 (http://localhost:3000)         |
-| `pnpm build`      | 프로덕션 빌드                             |
-| `pnpm start`      | 빌드 결과물 로컬 서빙                     |
-| `pnpm test`       | 단위 테스트 (vitest) — 순수 함수 위주     |
-| `pnpm test:watch` | 단위 테스트 워치 모드                     |
-| `pnpm typecheck`  | 타입 검사만                               |
-| `pnpm lint`       | ESLint                                    |
+| 명령              | 하는 일                                     |
+| ----------------- | ------------------------------------------- |
+| `pnpm dev`        | 개발 서버 (http://localhost:3000)           |
+| `pnpm build`      | 프로덕션 빌드                               |
+| `pnpm start`      | 빌드 결과물 로컬 서빙                       |
+| `pnpm test`       | 단위 테스트 (vitest) — 순수 함수 위주       |
+| `pnpm test:watch` | 단위 테스트 워치 모드                       |
+| `pnpm typecheck`  | 타입 검사만                                 |
+| `pnpm lint`       | ESLint                                      |
 | `pnpm e2e`        | Playwright — 로그인 페이지 스모크·시각 회귀 |
 
 ### e2e 범위와 한계
@@ -123,4 +123,4 @@ e2e/                  Playwright
 
 ## 배포
 
-Vercel에 연결하고 `.env.example`의 환경변수 셋을 그대로 등록한다. [`vercel.json`](./vercel.json)의 `crons`가 매일 한 번 [`/api/ping`](./src/app/api/ping/route.ts)을 호출해 Supabase 무료 티어의 7일 자동 일시정지를 막는다 (`lba`의 `api/ping.ts`와 같은 이유).
+Vercel에 연결하고 `.env.example`의 환경변수 셋을 그대로 등록한다. [`vercel.json`](./vercel.json)의 `crons`가 매일 한 번 [`/api/ping`](./src/app/api/ping/route.ts)을 호출해 Supabase 무료 티어의 7일 자동 일시정지를 막는다.

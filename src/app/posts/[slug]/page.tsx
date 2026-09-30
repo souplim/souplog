@@ -8,6 +8,7 @@ import { formatDate } from '~/lib/date';
 import { getPostImageUrl } from '~/lib/images';
 import { getMenus } from '~/lib/menus';
 import { getPostBySlug } from '~/lib/posts';
+import { decodeSlugParam } from '~/lib/slugify';
 import { CommentList } from '~/components/post/CommentList';
 import { DeletePostButton } from '~/components/post/DeletePostButton';
 import { PostContent } from '~/components/post/PostContent';
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   // owner — if `post` comes back, whoever is asking is allowed to see it, so
   // there's no reason to also gate on `is_public` here (that would only
   // break the owner's own tab title while previewing an unpublished draft).
-  const post = await getPostBySlug(slug);
+  const post = await getPostBySlug(decodeSlugParam(slug));
 
   if (!post) {
     return { title: '글을 찾을 수 없습니다' };
@@ -45,7 +46,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
-  const [post, user] = await Promise.all([getPostBySlug(slug), getCurrentUser()]);
+  const [post, user] = await Promise.all([getPostBySlug(decodeSlugParam(slug)), getCurrentUser()]);
 
   // RLS already hides other people's private posts (getPostBySlug returns
   // null for them); this is a second line of defense against a page reached

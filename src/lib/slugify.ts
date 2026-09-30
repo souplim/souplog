@@ -24,6 +24,23 @@ function fallbackSlug(): string {
 }
 
 /**
+ * Decodes a `[slug]` route param. Next.js only percent-decodes dynamic
+ * segments for a normal page navigation — a redirect fired from inside a
+ * Server Action (e.g. right after creating a post) hands the browser an
+ * already-percent-encoded path (encoding was required to keep non-ASCII
+ * slugs out of the `x-action-redirect` response header) and that segment
+ * arrives at the page un-decoded. Safe to call on an already-decoded slug
+ * too, since a real slug (see `slugify` above) never contains `%`.
+ */
+export function decodeSlugParam(rawSlug: string): string {
+  try {
+    return decodeURIComponent(rawSlug);
+  } catch {
+    return rawSlug;
+  }
+}
+
+/**
  * Appends a numeric suffix until the slug no longer collides, given a
  * predicate that checks existing slugs (e.g. a DB lookup).
  */

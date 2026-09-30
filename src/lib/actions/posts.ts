@@ -81,7 +81,7 @@ export async function createPostAction(
 
   revalidatePath('/');
   revalidatePath(`/posts/${slug}`);
-  redirect(`/posts/${slug}`);
+  redirect(`/posts/${encodeURIComponent(slug)}`);
 }
 
 export async function updatePostAction(
@@ -123,7 +123,7 @@ export async function updatePostAction(
 
   revalidatePath('/');
   revalidatePath(`/posts/${slug}`);
-  redirect(`/posts/${slug}`);
+  redirect(`/posts/${encodeURIComponent(slug)}`);
 }
 
 export async function deletePostAction(postId: string): Promise<void> {

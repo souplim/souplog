@@ -21,7 +21,7 @@ pnpm install
 
 ### 2. Supabase
 
-새 프로젝트를 만들고 SQL Editor에 [`supabase/schema.sql`](./supabase/schema.sql)을 그대로 붙여 실행한다. 테이블 셋(`menus` · `posts` · `comments`), `comments_public` 뷰, `create_comment`/`delete_comment` 함수, RLS 정책, 표지 이미지 버킷(`post-images`)이 한 번에 만들어진다. 여러 번 실행해도 안전하다.
+새 프로젝트를 만들고 SQL Editor에 [`supabase/schema.sql`](./supabase/schema.sql)을 그대로 붙여 실행한다. 테이블 셋(`menus` · `posts` · `comments`), `comments_public` 뷰, `create_comment`/`delete_comment` 함수, RLS 정책, 사진 버킷(`post-images`)이 한 번에 만들어진다. 여러 번 실행해도 안전하다 — 이미 쓰고 있는 DB라면 예전 `posts.cover_image_path`(표지 1장)를 `posts.images`(사진 여러 장)로 옮기는 이관까지 같은 스크립트가 처리한다.
 
 키는 두 곳에 있다.
 
@@ -53,7 +53,7 @@ pnpm dev
 1. `/login` 에서 로그인
 2. 로그인 상태에서는 헤더에 **새 글 작성** · **메뉴 관리** 버튼이 바로 뜬다 — 관리자 대시보드를 거치지 않고 바로 글을 쓸 수 있다.
 3. 홈/메뉴 글 목록에서도 각 글마다 **수정**·**삭제** 버튼이 인라인으로 붙는다(비공개 글도 소유자에게는 목록에 함께 보이고 `비공개` 배지가 붙는다).
-4. `/admin/posts/new` — 마크다운 에디터(좌: 입력, 우: 실시간 미리보기)로 글 작성. 표지 이미지 업로드 가능. 공개 체크박스를 켜지 않으면 비공개로 저장된다.
+4. `/admin/posts/new` — 마크다운 에디터(좌: 입력, 우: 실시간 미리보기)로 글 작성. 사진은 한 글에 최대 10장까지 올릴 수 있고, 첫 장이 목록·공유 미리보기의 대표 이미지가 된다. 공개 체크박스를 켜지 않으면 비공개로 저장된다.
 5. `/admin` — 내가 쓴 모든 글(공개+비공개) 목록을 한 번에 보고 싶을 때 쓰는 보조 대시보드. `/admin/menus` — 내비게이션 겸 카테고리 메뉴 CRUD, 위/아래 버튼으로 순서 변경
 
 비공개 글은 `is_public = false`인 동안 RLS가 아예 응답에 포함시키지 않는다 — 로그인하지 않은 방문자에게는 존재 자체가 보이지 않는다(404).

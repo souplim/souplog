@@ -1,14 +1,13 @@
 'use client';
 
-import { useActionState, useRef, useState, type ChangeEvent } from 'react';
+import { useActionState, useState } from 'react';
 import Link from 'next/link';
-import { ImagePlus, X } from 'lucide-react';
 import { formatDate } from '~/lib/date';
-import { getPostImageUrl } from '~/lib/images';
 import type { Menu, Post } from '~/lib/supabase/types';
 import type { PostFormState } from '~/lib/actions/posts';
 import { DeletePostButton } from '~/components/post/DeletePostButton';
 import { MarkdownEditor } from './MarkdownEditor';
+import { PostImageUploader } from './PostImageUploader';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -31,30 +30,11 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
   const [state, formAction, pending] = useActionState(action, undefined);
   const [menuId, setMenuId] = useState(post?.menu_id ?? NO_MENU_VALUE);
   const [isPublic, setIsPublic] = useState(post?.is_public ?? false);
-  const [coverPreview, setCoverPreview] = useState<string | null>(
-    post?.cover_image_path ? getPostImageUrl(post.cover_image_path) : null,
-  );
-  const [coverRemoved, setCoverRemoved] = useState(false);
-  const coverInputRef = useRef<HTMLInputElement>(null);
-
-  function handleCoverChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setCoverPreview(URL.createObjectURL(file));
-    setCoverRemoved(false);
-  }
-
-  function handleCoverRemove() {
-    setCoverPreview(null);
-    setCoverRemoved(true);
-    if (coverInputRef.current) coverInputRef.current.value = '';
-  }
 
   return (
     <form action={formAction} className="mx-auto flex w-full max-w-[var(--page-width)] flex-col">
       <input type="hidden" name="menuId" value={menuId === NO_MENU_VALUE ? '' : menuId} />
       <input type="hidden" name="isPublic" value={isPublic ? 'on' : ''} />
-      <input type="hidden" name="existingCoverImagePath" value={coverRemoved ? '' : (post?.cover_image_path ?? '')} />
       <input type="hidden" name="slug" value="" />
 
       <header className="mx-auto mb-8 w-full max-w-[var(--content-width)]">
@@ -104,38 +84,7 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
       </header>
 
       <div className="mx-auto mb-8 w-full max-w-[var(--content-width)]">
-        {coverPreview ? (
-          <div className="relative aspect-video w-full max-w-sm overflow-hidden rounded-xl bg-muted shadow-[var(--shadow-card)]">
-            {/* Newly picked files are blob: URLs the Next.js optimizer can't serve, so this preview bypasses it. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={coverPreview} alt="" className="size-full object-cover" />
-            <button
-              type="button"
-              onClick={handleCoverRemove}
-              className="absolute top-3 right-3 flex size-8 items-center justify-center rounded-full bg-background/80 text-foreground shadow-[var(--shadow-card)] backdrop-blur transition-colors hover:bg-background"
-              aria-label="표지 이미지 제거"
-            >
-              <X className="size-4" />
-            </button>
-          </div>
-        ) : (
-          <label
-            htmlFor="coverImage"
-            className="inline-flex w-auto cursor-pointer items-center gap-2 rounded-full border border-dashed border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
-          >
-            <ImagePlus className="size-3.5" />
-            <span>표지 이미지 추가</span>
-          </label>
-        )}
-        <input
-          ref={coverInputRef}
-          id="coverImage"
-          name="coverImage"
-          type="file"
-          accept="image/*"
-          onChange={handleCoverChange}
-          className="sr-only"
-        />
+        <PostImageUploader initialImages={post?.images ?? []} />
       </div>
 
       <div className="mx-auto w-full max-w-[var(--content-width)]">

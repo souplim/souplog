@@ -42,7 +42,13 @@ create table if not exists public.posts (
 
   is_public         boolean not null default false,
   menu_id           uuid references public.menus (id) on delete set null,
-  cover_image_path  text,
+
+  -- 글에 붙는 사진들. [{"path": "<uuid>.webp", "width": 1200, "height": 800}, ...]
+  -- 순서가 곧 화면에 보이는 순서이고, 첫 장이 목록·공유 미리보기의 대표 이미지다.
+  -- width/height 는 업로드할 때 파일 헤더에서 읽어 저장한다 — 렌더링할 때
+  -- 원본 비율 그대로 자리를 잡기 위한 값이라, 없으면 사진이 잘리거나 레이아웃이 밀린다.
+  images            jsonb not null default '[]'::jsonb,
+
   published_at      timestamptz,
 
   created_at        timestamptz not null default now(),
@@ -52,6 +58,25 @@ create table if not exists public.posts (
 create index if not exists posts_menu_idx on public.posts (menu_id);
 create index if not exists posts_is_public_published_idx
   on public.posts (is_public, published_at desc);
+
+-- 표지 이미지 1장(cover_image_path) → 사진 여러 장(images) 이관.
+-- 이미 이관이 끝난 DB(및 새로 만든 DB)에서는 컬럼이 없으므로 통째로 건너뛴다.
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'posts' and column_name = 'cover_image_path'
+  ) then
+    alter table public.posts add column if not exists images jsonb not null default '[]'::jsonb;
+
+    update public.posts
+       set images = jsonb_build_array(jsonb_build_object('path', cover_image_path))
+     where cover_image_path is not null
+       and images = '[]'::jsonb;
+
+    alter table public.posts drop column cover_image_path;
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- 댓글 (비회원 — 닉네임 + 삭제용 비밀번호)
@@ -237,7 +262,7 @@ create policy "owner_deletes_comments" on public.comments
   for delete to authenticated using (true);
 
 -- ---------------------------------------------------------------------------
--- 표지 이미지 스토리지
+-- 글 사진 스토리지
 -- ---------------------------------------------------------------------------
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)

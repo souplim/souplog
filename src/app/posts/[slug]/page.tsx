@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Pencil } from 'lucide-react';
@@ -12,6 +11,7 @@ import { decodeSlugParam } from '~/lib/slugify';
 import { CommentList } from '~/components/post/CommentList';
 import { DeletePostButton } from '~/components/post/DeletePostButton';
 import { PostContent } from '~/components/post/PostContent';
+import { PostGallery } from '~/components/post/PostGallery';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
       description: post.excerpt || undefined,
       type: 'article',
       publishedTime: post.published_at ?? undefined,
-      images: post.cover_image_path ? [getPostImageUrl(post.cover_image_path)] : undefined,
+      images: post.images.length > 0 ? post.images.map((image) => getPostImageUrl(image.path)) : undefined,
     },
   };
 }
@@ -87,16 +87,9 @@ export default async function PostPage({ params }: PostPageProps) {
         </h1>
       </header>
 
-      {post.cover_image_path && (
-        <div className="relative mb-8 aspect-video overflow-hidden rounded-xl shadow-[var(--shadow-card)]">
-          <Image
-            src={getPostImageUrl(post.cover_image_path)}
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover"
-            priority
-          />
+      {post.images.length > 0 && (
+        <div className="mx-auto mb-8 w-full max-w-[var(--content-width)]">
+          <PostGallery images={post.images} title={post.title} />
         </div>
       )}
 

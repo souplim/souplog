@@ -16,7 +16,9 @@ export function buildCsp(nonce: string): string {
     `default-src 'self'`,
     scriptSrc,
     `style-src 'self' 'unsafe-inline'`,
-    `img-src 'self' data: https://*.supabase.co`,
+    // blob: covers the local previews the post form shows for photos that
+    // haven't been uploaded yet.
+    `img-src 'self' data: blob: https://*.supabase.co`,
     `font-src 'self'`,
     `connect-src 'self' https://*.supabase.co`,
     `frame-src 'none'`,

@@ -1,7 +1,8 @@
 import 'server-only';
 import { cache } from 'react';
+import { parsePostImages, type PostImage } from '~/lib/images';
 import { createClient } from '~/lib/supabase/server';
-import type { Post } from '~/lib/supabase/types';
+import type { Post, PostRow } from '~/lib/supabase/types';
 
 export interface PostInput {
   title: string;
@@ -9,7 +10,12 @@ export interface PostInput {
   content: string;
   excerpt: string;
   menuId: string | null;
-  coverImagePath: string | null;
+  images: PostImage[];
+}
+
+/** Single place the `images` jsonb column is validated on its way in. */
+function toPost(row: PostRow): Post {
+  return { ...row, images: parsePostImages(row.images) };
 }
 
 /**
@@ -35,7 +41,7 @@ export async function getPublicPosts(menuSlug?: string, options?: { includeDraft
 
   const { data, error } = await query;
   if (error) throw new Error(`글 목록을 불러오지 못했습니다: ${error.message}`);
-  return data;
+  return data.map(toPost);
 }
 
 /**
@@ -48,14 +54,14 @@ export const getPostBySlug = cache(async (slug: string): Promise<Post | null> =>
   const supabase = await createClient();
   const { data, error } = await supabase.from('posts').select('*').eq('slug', slug).maybeSingle();
   if (error) throw new Error(`글을 불러오지 못했습니다: ${error.message}`);
-  return data;
+  return data ? toPost(data) : null;
 });
 
 export async function getPostById(id: string): Promise<Post | null> {
   const supabase = await createClient();
   const { data, error } = await supabase.from('posts').select('*').eq('id', id).maybeSingle();
   if (error) throw new Error(`글을 불러오지 못했습니다: ${error.message}`);
-  return data;
+  return data ? toPost(data) : null;
 }
 
 export async function postSlugExists(slug: string, excludeId?: string): Promise<boolean> {
@@ -79,7 +85,7 @@ export async function createPost(input: PostInput, isPublic: boolean): Promise<P
       content: input.content,
       excerpt: input.excerpt,
       menu_id: input.menuId,
-      cover_image_path: input.coverImagePath,
+      images: input.images,
       is_public: isPublic,
       published_at: isPublic ? new Date().toISOString() : null,
     })
@@ -87,7 +93,7 @@ export async function createPost(input: PostInput, isPublic: boolean): Promise<P
     .single();
 
   if (error) throw new Error(`글을 저장하지 못했습니다: ${error.message}`);
-  return data;
+  return toPost(data);
 }
 
 export async function updatePost(id: string, input: PostInput, isPublic: boolean): Promise<Post> {
@@ -103,7 +109,7 @@ export async function updatePost(id: string, input: PostInput, isPublic: boolean
       content: input.content,
       excerpt: input.excerpt,
       menu_id: input.menuId,
-      cover_image_path: input.coverImagePath,
+      images: input.images,
       is_public: isPublic,
       ...(becomingPublic ? { published_at: new Date().toISOString() } : {}),
     })
@@ -112,7 +118,7 @@ export async function updatePost(id: string, input: PostInput, isPublic: boolean
     .single();
 
   if (error) throw new Error(`글을 수정하지 못했습니다: ${error.message}`);
-  return data;
+  return toPost(data);
 }
 
 export async function deletePost(id: string): Promise<void> {

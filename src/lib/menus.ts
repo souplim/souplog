@@ -10,19 +10,17 @@ export interface MenuInput {
 
 // Cached per request: Header, Footer, and page bodies all ask for the menu
 // list independently within the same render pass.
+//
+// This is also how a page resolves a single menu by slug — the nav list is a
+// handful of rows the Header has already fetched on every request, so finding
+// it in there costs nothing, where a dedicated `where slug = ?` query would be
+// one more round trip on the critical path.
 export const getMenus = cache(async (): Promise<Menu[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase.from('menus').select('*').order('sort_order', { ascending: true });
   if (error) throw new Error(`메뉴 목록을 불러오지 못했습니다: ${error.message}`);
   return data;
 });
-
-export async function getMenuBySlug(slug: string): Promise<Menu | null> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.from('menus').select('*').eq('slug', slug).maybeSingle();
-  if (error) throw new Error(`메뉴를 불러오지 못했습니다: ${error.message}`);
-  return data;
-}
 
 export async function menuSlugExists(slug: string, excludeId?: string): Promise<boolean> {
   const supabase = await createClient();

@@ -4,9 +4,12 @@ import { getPublicPosts } from '~/lib/posts';
 import { PostListItem } from '~/components/post/PostListItem';
 
 export default async function HomePage() {
-  const user = await getCurrentUser();
+  // The post query depends on who's asking, so it can't start before the auth
+  // check resolves — the menu list doesn't, so it rides along with it instead
+  // of waiting its turn behind both.
+  const [user, menus] = await Promise.all([getCurrentUser(), getMenus()]);
   const isOwner = Boolean(user);
-  const [posts, menus] = await Promise.all([getPublicPosts(undefined, { includeDrafts: isOwner }), getMenus()]);
+  const posts = await getPublicPosts({ includeDrafts: isOwner });
   const menuNameById = new Map(menus.map((menu) => [menu.id, menu.name]));
 
   if (posts.length === 0) {

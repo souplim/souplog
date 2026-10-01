@@ -46,14 +46,21 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
-  const [post, user] = await Promise.all([getPostBySlug(decodeSlugParam(slug)), getCurrentUser()]);
+  // `getMenus` joins the batch unconditionally rather than waiting to see if
+  // the post has a menu: it's request-cached and the Header has already asked
+  // for it, so it costs nothing here but saves a round trip's wait when the
+  // post does belong to one.
+  const [post, user, menus] = await Promise.all([
+    getPostBySlug(decodeSlugParam(slug)),
+    getCurrentUser(),
+    getMenus(),
+  ]);
 
   // RLS already hides other people's private posts (getPostBySlug returns
   // null for them); this is a second line of defense against a page reached
   // through a stale cached link.
   if (!post) notFound();
 
-  const menus = post.menu_id ? await getMenus() : [];
   const menuName = post.menu_id ? menus.find((menu) => menu.id === post.menu_id)?.name : undefined;
 
   return (

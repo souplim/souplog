@@ -18,6 +18,12 @@ function toPost(row: PostRow): Post {
   return { ...row, images: parsePostImages(row.images) };
 }
 
+export interface PostListOptions {
+  /** Narrows the list to one menu. The caller resolves the slug — see `getMenus`. */
+  menuId?: string;
+  includeDrafts?: boolean;
+}
+
 /**
  * Posts for the home feed or a menu listing, newest first. Pass
  * `includeDrafts` when the viewer is the signed-in owner, so private/draft
@@ -25,7 +31,7 @@ function toPost(row: PostRow): Post {
  * dashboard — RLS still limits which private rows come back to the owner's
  * own posts.
  */
-export async function getPublicPosts(menuSlug?: string, options?: { includeDrafts?: boolean }): Promise<Post[]> {
+export async function getPublicPosts(options?: PostListOptions): Promise<Post[]> {
   const supabase = await createClient();
   // `nullsFirst: false` matters once drafts are in the list: Postgres sorts
   // NULLs first on `desc`, which would park every unpublished draft above the
@@ -41,10 +47,8 @@ export async function getPublicPosts(menuSlug?: string, options?: { includeDraft
     query = query.eq('is_public', true);
   }
 
-  if (menuSlug !== undefined) {
-    const { data: menu } = await supabase.from('menus').select('id').eq('slug', menuSlug).maybeSingle();
-    if (!menu) return [];
-    query = query.eq('menu_id', menu.id);
+  if (options?.menuId !== undefined) {
+    query = query.eq('menu_id', options.menuId);
   }
 
   const { data, error } = await query;

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCurrentUser } from '~/lib/auth';
-import { getMenuBySlug } from '~/lib/menus';
+import { getMenus } from '~/lib/menus';
 import { getPublicPosts } from '~/lib/posts';
 import { PostListItem } from '~/components/post/PostListItem';
 
@@ -11,18 +11,21 @@ interface MenuPageProps {
 
 export async function generateMetadata({ params }: MenuPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const menu = await getMenuBySlug(slug);
-  return { title: menu?.name ?? '메뉴' };
+  const menus = await getMenus();
+  return { title: menus.find((menu) => menu.slug === slug)?.name ?? '메뉴' };
 }
 
 export default async function MenuPage({ params }: MenuPageProps) {
   const { slug } = await params;
-  const menu = await getMenuBySlug(slug);
+  // `getMenus` is the Header's request-cached call, so this resolves off work
+  // that's already in flight; only the auth check is genuinely new here.
+  const [menus, user] = await Promise.all([getMenus(), getCurrentUser()]);
+
+  const menu = menus.find((item) => item.slug === slug);
   if (!menu) notFound();
 
-  const user = await getCurrentUser();
   const isOwner = Boolean(user);
-  const posts = await getPublicPosts(slug, { includeDrafts: isOwner });
+  const posts = await getPublicPosts({ menuId: menu.id, includeDrafts: isOwner });
 
   return (
     <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-section)] sm:px-6">

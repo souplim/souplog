@@ -64,6 +64,7 @@
     @apply bg-background text-foreground font-sans;
     font-size: var(--text-base);
     line-height: var(--leading-normal);
+    letter-spacing: var(--tracking-normal);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition:
@@ -77,8 +78,8 @@
   h4 {
     font-family: var(--font-body);
     line-height: var(--leading-tight);
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-weight: var(--weight-strong);
+    letter-spacing: var(--tracking-tight);
   }
 
   a {
@@ -123,6 +124,7 @@
   --tw-prose-code: var(--color-text);
   --tw-prose-pre-code: var(--color-text);
   --tw-prose-pre-bg: var(--color-surface);
+  --tw-prose-kbd: var(--color-text);
   --tw-prose-th-borders: var(--color-border);
   --tw-prose-td-borders: var(--color-border);
 }
@@ -134,11 +136,46 @@
  * they introduce. The plugin's own rules sit inside `:where()`, so these plain
  * descendant selectors outrank them without `!important`.
  */
+.prose {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+}
+
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4 {
   margin-bottom: 0.5em;
+  font-weight: var(--weight-strong);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.prose blockquote {
+  font-style: normal;
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+  border-left-width: 2px;
+}
+
+.prose blockquote p::before,
+.prose blockquote p::after {
+  content: none;
+}
+
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  font-weight: var(--weight-regular);
+  padding: 0.15em 0.4em;
+  border-radius: calc(var(--radius) * 0.5);
+  background: var(--color-surface);
+  letter-spacing: 0;
+}
+
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  content: none;
 }
 
 .prose h2,

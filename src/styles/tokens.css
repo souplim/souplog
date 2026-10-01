@@ -1,81 +1,79 @@
 /*
- * 미니멀 라이트/다크 럭셔리 — 화이트 베이스와 단 하나의 진녹색 accent.
- * 색·간격·모서리·타이포는 전부 여기서만 정의한다. 컴포넌트에 직접 박지 않는다.
+ * souplog tokens v2 — 단일 색상(hue 158) 뉴트럴 + 절제된 진녹색 accent.
+ * 라이트/다크가 같은 hue를 공유한다(v1은 다크만 따뜻한 hue 80이었다).
+ * 색·간격·모서리·타이포는 전부 여기서만 정의한다.
  */
 
 :root {
   color-scheme: light;
 
-  --color-bg: oklch(100% 0 0);
-  --color-surface: oklch(98% 0.004 150);
+  --color-bg: oklch(99.2% 0.002 158);
+  --color-surface: oklch(97.3% 0.004 158);
   --color-surface-raised: oklch(100% 0 0);
-  --color-text: oklch(20% 0.01 150);
-  --color-text-muted: oklch(46% 0.015 150);
-  --color-border: oklch(90% 0.008 150);
-  --color-border-strong: oklch(80% 0.01 150);
+  --color-text: oklch(22% 0.012 158);
+  --color-text-muted: oklch(50% 0.012 158);
+  --color-border: oklch(92.5% 0.004 158);
+  --color-border-strong: oklch(85% 0.006 158);
 
-  --color-accent: oklch(38% 0.09 152);
-  --color-accent-strong: oklch(28% 0.08 152);
-  --color-accent-tint: oklch(94% 0.035 150);
+  --color-accent: oklch(42% 0.075 158);
+  --color-accent-strong: oklch(32% 0.06 158);
+  --color-accent-tint: oklch(95.5% 0.02 158);
 
-  --color-danger: oklch(55% 0.18 25);
+  --color-danger: oklch(54% 0.16 25);
 
   --font-body: var(--font-pretendard), Pretendard, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
 
-  --text-hero: clamp(2.75rem, 2.1rem + 2.8vw, 4.75rem);
-  --text-display: clamp(1.75rem, 1.5rem + 1.1vw, 2.375rem);
-  --text-lg: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem);
-  --text-base: clamp(1rem, 0.96rem + 0.15vw, 1.0625rem);
-  --text-sm: 0.875rem;
-  --text-xs: 0.75rem;
+  /* 로드하는 굵기(400/600)만 쓴다 — v1의 700은 합성 볼드였다. */
+  --weight-regular: 400;
+  --weight-strong: 600;
 
-  --leading-tight: 1.2;
+  --text-display: clamp(2rem, 1.6rem + 1.6vw, 2.75rem);
+  --text-title: 1.5rem;
+  --text-lg: 1.25rem;
+  --text-base: 1.0625rem;
+  --text-sm: 0.9375rem;
+  --text-xs: 0.8125rem;
+
+  --leading-tight: 1.3;
   --leading-normal: 1.6;
-  --leading-relaxed: 1.85;
+  --leading-relaxed: 1.8;
+
+  --tracking-tight: -0.025em;
+  --tracking-normal: -0.01em;
 
   --space-3xs: 0.25rem;
   --space-2xs: 0.5rem;
   --space-xs: 0.75rem;
   --space-sm: 1rem;
   --space-md: 1.5rem;
-  --space-lg: clamp(2rem, 1.7rem + 1.2vw, 2.75rem);
-  --space-xl: clamp(3rem, 2.4rem + 2.4vw, 4.5rem);
-  --space-section: clamp(4rem, 3rem + 4vw, 8rem);
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+  --space-section: clamp(4rem, 3rem + 4vw, 7rem);
 
-  /* Reading column for a post: wide enough to avoid the narrow-strip look on
-     desktop, still short of --page-width so the text keeps a comfortable measure. */
-  --content-width: 56rem;
-  --page-width: 72rem;
+  /* 한글 본문 한 줄 ~38자 */
+  --content-width: 42rem;
+  --page-width: 64rem;
 
-  /* Base for shadcn's --radius-sm/md/lg/xl/... calc scale (src/app/globals.css @theme inline). */
-  --radius: 6px;
+  --radius: 8px;
 
-  --shadow-card: 0 1px 2px oklch(20% 0.01 150 / 0.06), 0 8px 24px oklch(20% 0.01 150 / 0.06);
-  --shadow-raised: 0 2px 4px oklch(20% 0.01 150 / 0.08), 0 16px 40px oklch(20% 0.01 150 / 0.1);
+  /* 카드 그림자는 없앴다. 떠 있는 레이어(팝오버·다이얼로그)만 그림자를 쓴다. */
+  --shadow-raised: 0 1px 2px oklch(22% 0.012 158 / 0.06), 0 12px 32px oklch(22% 0.012 158 / 0.08);
 
   --duration-fast: 150ms;
-  --duration-normal: 280ms;
+  --duration-normal: 240ms;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /*
-   * shadcn/ui theming contract — aliases onto the palette above so every
-   * shadcn component consumes our bronze/gold tokens instead of its default
-   * neutral gray scale. Only --primary-foreground differs between themes
-   * (light needs a light foreground on the mid-tone accent, dark needs a
-   * dark one); everything else here flips automatically because the
-   * --color-* custom properties it references are redefined in the
-   * [data-theme='dark'] block below — var() inside a custom property is
-   * resolved at used-value time, not when this line is parsed.
-   */
+  /* shadcn/ui 계약 — 위 팔레트에 별칭 */
   --background: var(--color-bg);
   --foreground: var(--color-text);
   --card: var(--color-surface-raised);
   --card-foreground: var(--color-text);
   --popover: var(--color-surface-raised);
   --popover-foreground: var(--color-text);
-  --primary: var(--color-accent);
-  --primary-foreground: var(--color-surface);
-  --secondary: var(--color-surface-raised);
+  --primary: var(--color-text);
+  --primary-foreground: var(--color-bg);
+  --secondary: var(--color-surface);
   --secondary-foreground: var(--color-text);
   --muted: var(--color-surface);
   --muted-foreground: var(--color-text-muted);
@@ -90,25 +88,21 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --color-bg: oklch(16% 0.008 80);
-  --color-surface: oklch(20.5% 0.01 78);
-  --color-surface-raised: oklch(24% 0.012 76);
-  --color-text: oklch(93% 0.012 80);
-  --color-text-muted: oklch(68% 0.016 78);
-  --color-border: oklch(31% 0.014 76);
-  --color-border-strong: oklch(40% 0.018 76);
+  --color-bg: oklch(17% 0.006 158);
+  --color-surface: oklch(20.5% 0.007 158);
+  --color-surface-raised: oklch(23.5% 0.008 158);
+  --color-text: oklch(94% 0.006 158);
+  --color-text-muted: oklch(70% 0.01 158);
+  --color-border: oklch(28% 0.008 158);
+  --color-border-strong: oklch(37% 0.01 158);
 
-  --color-accent: oklch(68% 0.13 148);
-  --color-accent-strong: oklch(78% 0.1 148);
-  --color-accent-tint: oklch(32% 0.06 148);
+  --color-accent: oklch(76% 0.09 158);
+  --color-accent-strong: oklch(84% 0.07 158);
+  --color-accent-tint: oklch(27% 0.035 158);
 
-  --color-danger: oklch(68% 0.17 25);
+  --color-danger: oklch(70% 0.15 25);
 
-  --shadow-card: 0 1px 2px oklch(0% 0 0 / 0.3), 0 8px 24px oklch(0% 0 0 / 0.35);
-  --shadow-raised: 0 2px 4px oklch(0% 0 0 / 0.4), 0 20px 48px oklch(0% 0 0 / 0.45);
-
-  /* The accent flips from mid-tone to light in dark mode, so its foreground needs to flip from light to dark text too. */
-  --primary-foreground: var(--color-bg);
+  --shadow-raised: 0 1px 2px oklch(0% 0 0 / 0.4), 0 16px 40px oklch(0% 0 0 / 0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {

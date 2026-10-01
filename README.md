@@ -119,7 +119,10 @@ src/
 proxy.ts (src/)  Next.js 16의 미들웨어 — Supabase 세션 갱신 + CSP nonce 발급
 supabase/schema.sql   대시보드에 붙여 실행하는 스키마
 e2e/                  Playwright
+docs/                 조사 기록 — 왜 그렇게 고쳤는지가 남아 있는 곳
 ```
+
+- [페이지 이동 지연과 로딩 UI](./docs/navigation-loading.md) — 링크를 눌러도 반응이 없던 구간의 원인, `loading.tsx` 도입, 쿼리 워터폴 정리와 전후 측정
 
 ## 배포
 

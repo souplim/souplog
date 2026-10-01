@@ -16,10 +16,10 @@ export function CommentForm({ postId, postSlug }: CommentFormProps) {
   const [state, formAction, pending] = useActionState(createCommentAction.bind(null, postSlug), undefined);
 
   return (
-    <form action={formAction} className="mt-6 space-y-3">
+    <form action={formAction} className="mt-6 flex flex-col gap-2.5">
       <input type="hidden" name="postId" value={postId} />
-      <div key={state?.resetKey ?? 0} className="space-y-3">
-        <div className="flex flex-col gap-3 sm:flex-row">
+      <div key={state?.resetKey ?? 0} className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-2.5 sm:flex-row">
           <Input name="authorName" placeholder="닉네임" maxLength={40} required className="sm:w-40" />
           <Input
             name="password"
@@ -38,7 +38,7 @@ export function CommentForm({ postId, postSlug }: CommentFormProps) {
           <AlertDescription>{state.error}</AlertDescription>
         </Alert>
       )}
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} className="self-end">
         {pending ? '등록 중…' : '댓글 등록'}
       </Button>
     </form>

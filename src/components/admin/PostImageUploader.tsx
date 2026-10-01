@@ -157,7 +157,7 @@ function Thumbnail({ src, label, isCover, onRemove }: ThumbnailProps) {
       <button
         type="button"
         onClick={onRemove}
-        className="absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-background/85 text-foreground opacity-0 shadow-[var(--shadow-card)] backdrop-blur transition-opacity duration-[var(--duration-fast)] group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-background/85 text-foreground opacity-0 shadow-[var(--shadow-raised)] backdrop-blur transition-opacity duration-[var(--duration-fast)] group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
         aria-label={`${label} 제거`}
       >
         <X className="size-3.5" />

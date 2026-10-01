@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from 'cn';
-import { buttonVariants } from '~/components/ui/button';
 import type { Menu } from '~/lib/supabase/types';
 
 interface MenuNavProps {
@@ -15,7 +14,7 @@ export function MenuNav({ menus }: MenuNavProps) {
 
   return (
     <nav aria-label="메인 내비게이션" className="min-w-0 flex-1">
-      <ul className="no-scrollbar flex items-center gap-1 overflow-x-auto">
+      <ul className="no-scrollbar flex items-center gap-5 overflow-x-auto">
         {menus.map((menu) => {
           const isActive = pathname === `/menu/${menu.slug}`;
           return (
@@ -24,8 +23,8 @@ export function MenuNav({ menus }: MenuNavProps) {
                 href={`/menu/${menu.slug}`}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  buttonVariants({ variant: 'ghost', size: 'sm' }),
-                  isActive && 'bg-muted font-semibold text-foreground',
+                  'inline-flex h-9 items-center rounded-xs text-sm whitespace-nowrap text-muted-foreground outline-none transition-colors duration-[var(--duration-fast)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50',
+                  isActive && 'font-semibold text-foreground',
                 )}
               >
                 {menu.name}

@@ -70,7 +70,7 @@ function PostGalleryImage({ image, alt, isFirst }: PostGalleryImageProps) {
       width={image.width}
       height={image.height}
       sizes={IMAGE_SIZES}
-      className="mx-auto h-auto max-h-[70svh] w-auto max-w-full rounded-xl object-contain shadow-[var(--shadow-card)]"
+      className="mx-auto h-auto max-h-[70svh] w-auto max-w-full rounded-lg object-contain ring-1 ring-border"
       loading={loading}
       fetchPriority={fetchPriority}
     />

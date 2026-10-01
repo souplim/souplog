@@ -13,7 +13,7 @@ interface PostContentProps {
  */
 export function PostContent({ content }: PostContentProps) {
   return (
-    <div className="prose prose-lg max-w-none prose-headings:font-heading prose-img:rounded-lg prose-img:ring-1 prose-img:ring-foreground/10">
+    <div className="prose max-w-none prose-headings:font-heading prose-img:rounded-lg prose-img:ring-1 prose-img:ring-border">
       <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
         {content}
       </Markdown>

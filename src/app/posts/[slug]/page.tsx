@@ -61,17 +61,17 @@ export default async function PostPage({ params }: PostPageProps) {
     <div className="mx-auto flex min-h-[calc(100dvh-4rem-3.5rem)] max-w-[var(--page-width)] flex-col px-4 py-[var(--space-xl)] sm:px-6">
       {/* w-full: mx-auto cancels the flex parent's stretch, so without it the
           header shrinks to fit the title and no longer lines up with the body. */}
-      <header className="mx-auto mb-8 w-full max-w-[var(--content-width)]">
-        <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wide text-accent-foreground">
+      <header className="mx-auto mb-8 w-full max-w-[var(--content-width)] border-b border-border pb-7">
+        <div className="mb-2.5 text-xs font-semibold text-accent-foreground">
           <span>{menuName ?? '글'}</span>
         </div>
-        <h1 className="font-heading text-[clamp(2rem,1.5rem+2.5vw,3.5rem)] leading-tight">
+        <h1 className="font-heading text-[length:var(--text-display)] tracking-[-0.03em] text-balance">
           {post.title}
         </h1>
 
         {/* Naver-blog style byline: date and visibility under the title, owner actions flush right. */}
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs tracking-wide text-accent-foreground">
+        <div className="mt-3.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs tabular-nums text-muted-foreground">
             {/* A draft has no published_at yet — fall back to when it was written. */}
             <span>{formatDate(post.published_at ?? post.created_at)}</span>
             {user && (
@@ -82,8 +82,8 @@ export default async function PostPage({ params }: PostPageProps) {
           </div>
 
           {user && (
-            <div className="flex items-center gap-2">
-              <Button variant="outline" asChild>
+            <div className="flex items-center gap-1">
+              <Button variant="outline" size="sm" asChild>
                 <Link href={`/admin/posts/${post.id}/edit`}>
                   <Pencil />
                   수정

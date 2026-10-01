@@ -6,7 +6,7 @@
  * md and up, leaving the title at 14px on desktop.
  */
 export const EDITOR_TITLE_CLASS =
-  'font-heading text-[clamp(1.75rem,1.35rem+1.6vw,2.5rem)] md:text-[clamp(1.75rem,1.35rem+1.6vw,2.5rem)] font-bold leading-tight tracking-tight';
+  'font-heading text-[clamp(1.75rem,1.35rem+1.6vw,2.5rem)] md:text-[clamp(1.75rem,1.35rem+1.6vw,2.5rem)] font-semibold leading-tight tracking-[-0.03em]';
 
 /**
  * One gutter for the whole editor — the title, the meta row, the body and the

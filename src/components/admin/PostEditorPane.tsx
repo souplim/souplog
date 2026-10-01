@@ -68,7 +68,7 @@ export function PostEditorPane({
         <Select value={menuId} onValueChange={onMenuIdChange}>
           <SelectTrigger
             size="sm"
-            className="h-auto gap-1 border-none bg-transparent p-0 text-xs font-medium tracking-wide text-accent-foreground uppercase shadow-none hover:bg-transparent focus-visible:ring-0 dark:bg-transparent dark:hover:bg-transparent"
+            className="h-auto gap-1 border-none bg-transparent p-0 text-xs font-semibold text-accent-foreground shadow-none hover:bg-transparent focus-visible:ring-0 dark:bg-transparent dark:hover:bg-transparent"
           >
             <SelectValue placeholder="메뉴 없음" />
           </SelectTrigger>

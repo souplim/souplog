@@ -18,8 +18,9 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-section)] sm:px-6">
-      <div className="space-y-2">
+    <div className="mx-auto max-w-[var(--content-width)] px-4 py-[var(--space-section)] sm:px-6">
+      <h2 className="mb-2 text-xs font-normal tracking-normal text-muted-foreground">최근 글</h2>
+      <div>
         {posts.map((post) => (
           <PostListItem
             key={post.id}

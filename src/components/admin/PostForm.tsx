@@ -63,7 +63,7 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
           onContentChange={setContent}
           defaultExcerpt={post?.excerpt}
           images={post?.images ?? []}
-          publishedAt={post?.published_at}
+          createdAt={post?.created_at}
           className={activeTab === 'edit' ? undefined : 'hidden md:flex'}
         />
         <PostPreviewPane

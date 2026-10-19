@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
       title: post.title,
       description: post.excerpt || undefined,
       type: 'article',
-      publishedTime: post.published_at ?? undefined,
+      publishedTime: post.created_at,
       images: post.images.length > 0 ? post.images.map((image) => getPostImageUrl(image.path)) : undefined,
     },
   };
@@ -79,8 +79,7 @@ export default async function PostPage({ params }: PostPageProps) {
         {/* Naver-blog style byline: date and visibility under the title, owner actions flush right. */}
         <div className="mt-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs tabular-nums text-muted-foreground">
-            {/* A draft has no published_at yet — fall back to when it was written. */}
-            <span>{formatDate(post.published_at ?? post.created_at)}</span>
+                        <span>{formatDate(post.created_at)}</span>
             {user && (
               <Badge variant={post.is_public ? 'secondary' : 'outline'}>
                 {post.is_public ? '공개' : '비공개'}

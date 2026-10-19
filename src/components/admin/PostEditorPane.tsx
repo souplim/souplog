@@ -24,7 +24,7 @@ interface PostEditorPaneProps {
   onContentChange: (value: string) => void;
   defaultExcerpt?: string;
   images: PostImage[];
-  publishedAt?: string | null;
+  createdAt?: string;
   className?: string;
 }
 
@@ -44,7 +44,7 @@ export function PostEditorPane({
   onContentChange,
   defaultExcerpt,
   images,
-  publishedAt,
+  createdAt,
   className,
 }: PostEditorPaneProps) {
   return (
@@ -82,7 +82,7 @@ export function PostEditorPane({
           </SelectContent>
         </Select>
 
-        {publishedAt && <span>{formatDate(publishedAt)}</span>}
+        {createdAt && <span>{formatDate(createdAt)}</span>}
 
         <div className="ml-auto flex items-center gap-1.5">
           <Switch id="isPublic-toggle" size="sm" checked={isPublic} onCheckedChange={onIsPublicChange} />

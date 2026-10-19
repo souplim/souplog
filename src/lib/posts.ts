@@ -33,15 +33,7 @@ export interface PostListOptions {
  */
 export async function getPublicPosts(options?: PostListOptions): Promise<Post[]> {
   const supabase = await createClient();
-  // `nullsFirst: false` matters once drafts are in the list: Postgres sorts
-  // NULLs first on `desc`, which would park every unpublished draft above the
-  // whole feed. Drafts fall to the end and order among themselves by when they
-  // were written, which is the date the list shows for them.
-  let query = supabase
-    .from('posts')
-    .select('*')
-    .order('published_at', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false });
+  let query = supabase.from('posts').select('*').order('created_at', { ascending: false });
 
   if (!options?.includeDrafts) {
     query = query.eq('is_public', true);
@@ -99,7 +91,6 @@ export async function createPost(input: PostInput, isPublic: boolean): Promise<P
       menu_id: input.menuId,
       images: input.images,
       is_public: isPublic,
-      published_at: isPublic ? new Date().toISOString() : null,
     })
     .select('*')
     .single();
@@ -110,9 +101,6 @@ export async function createPost(input: PostInput, isPublic: boolean): Promise<P
 
 export async function updatePost(id: string, input: PostInput, isPublic: boolean): Promise<Post> {
   const supabase = await createClient();
-  const current = await getPostById(id);
-  const becomingPublic = isPublic && current?.published_at == null;
-
   const { data, error } = await supabase
     .from('posts')
     .update({
@@ -123,7 +111,6 @@ export async function updatePost(id: string, input: PostInput, isPublic: boolean
       menu_id: input.menuId,
       images: input.images,
       is_public: isPublic,
-      ...(becomingPublic ? { published_at: new Date().toISOString() } : {}),
     })
     .eq('id', id)
     .select('*')

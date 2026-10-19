@@ -49,15 +49,16 @@ create table if not exists public.posts (
   -- 원본 비율 그대로 자리를 잡기 위한 값이라, 없으면 사진이 잘리거나 레이아웃이 밀린다.
   images            jsonb not null default '[]'::jsonb,
 
-  published_at      timestamptz,
-
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
 
 create index if not exists posts_menu_idx on public.posts (menu_id);
-create index if not exists posts_is_public_published_idx
-  on public.posts (is_public, published_at desc);
+-- 글 날짜는 created_at 하나만 쓴다 — 예전 published_at 컬럼과 인덱스를 걷어낸다.
+drop index if exists public.posts_is_public_published_idx;
+alter table public.posts drop column if exists published_at;
+create index if not exists posts_is_public_created_idx
+  on public.posts (is_public, created_at desc);
 
 -- 표지 이미지 1장(cover_image_path) → 사진 여러 장(images) 이관.
 -- 이미 이관이 끝난 DB(및 새로 만든 DB)에서는 컬럼이 없으므로 통째로 건너뛴다.

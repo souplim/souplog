@@ -13,10 +13,7 @@ interface PostListItemProps {
 }
 
 export function PostListItem({ post, menuName, isOwner = false }: PostListItemProps) {
-  // A draft has no `published_at` yet, so it falls back to when it was written
-  // — the owner-only 공개/비공개 badge already says whether it's published, and
-  // a row with no date at all just reads as broken.
-  const date = post.published_at ?? post.created_at;
+  const date = post.created_at;
 
   return (
     <article className="group relative border-b border-border py-6">

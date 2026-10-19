@@ -34,7 +34,6 @@ export interface Database {
           menu_id: string | null;
           // jsonb — shape is enforced on read by parsePostImages, not by the DB.
           images: unknown;
-          published_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -47,7 +46,6 @@ export interface Database {
           is_public?: boolean;
           menu_id?: string | null;
           images?: PostImage[];
-          published_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { cn } from 'cn';
-import { getPostImageUrl, type PostImage } from '~/lib/images';
+import { getCoverRenderWidth, getPostImageUrl, type PostImage } from '~/lib/images';
 
 interface ProfileAvatarProps {
   avatar: PostImage | null;
@@ -25,7 +25,7 @@ export function ProfileAvatar({ avatar, name, size, className }: ProfileAvatarPr
           src={getPostImageUrl(avatar.path)}
           alt={`${name} 프로필 사진`}
           fill
-          sizes={`${size}px`}
+          sizes={`${getCoverRenderWidth(avatar, size)}px`}
           priority
           className="object-cover"
         />

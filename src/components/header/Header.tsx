@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { getCurrentUser } from '~/lib/auth';
-import { getPostImageUrl } from '~/lib/images';
 import { getMenus } from '~/lib/menus';
 import { getProfile } from '~/lib/profile';
 import { MenuNav } from '~/components/header/MenuNav';
@@ -29,12 +28,7 @@ export async function Header() {
 
         <div className="flex shrink-0 items-center gap-1">
           <ThemeToggle />
-          {user ? (
-            <AdminMenu
-              name={profile?.name || null}
-              avatarUrl={profile?.avatar ? getPostImageUrl(profile.avatar.path) : null}
-            />
-          ) : null}
+          {user ? <AdminMenu name={profile?.name || null} avatar={profile?.avatar ?? null} /> : null}
         </div>
       </div>
     </header>

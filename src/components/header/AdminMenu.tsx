@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { UserRound } from 'lucide-react';
 import { logout } from '~/lib/actions/auth';
+import { getCoverRenderWidth, getPostImageUrl, type PostImage } from '~/lib/images';
 import { ADMIN_LINKS } from '~/components/header/adminLinks';
 import {
   DropdownMenu,
@@ -20,15 +21,15 @@ const AVATAR_SIZE = 32;
 interface AdminMenuProps {
   /** The About page's name — labels the menu so it reads as "signed in as". */
   name: string | null;
-  /** Public URL of the About page's profile photo, or `null` to show a plain icon. */
-  avatarUrl: string | null;
+  /** The About page's profile photo, or `null` to show a plain icon. */
+  avatar: PostImage | null;
 }
 
 /**
  * Every owner-only action behind one profile button at the header's right
  * edge — visitors never see it, and the nav keeps the full width on a phone.
  */
-export function AdminMenu({ name, avatarUrl }: AdminMenuProps) {
+export function AdminMenu({ name, avatar }: AdminMenuProps) {
   const logoutFormRef = useRef<HTMLFormElement>(null);
 
   return (
@@ -39,8 +40,14 @@ export function AdminMenu({ name, avatarUrl }: AdminMenuProps) {
           aria-label="관리자 메뉴"
           className="relative ml-1 flex size-8 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-accent text-accent-foreground ring-1 ring-border outline-none transition-shadow duration-[var(--duration-fast)] hover:ring-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/50 data-[state=open]:ring-foreground/40"
         >
-          {avatarUrl ? (
-            <Image src={avatarUrl} alt="" fill sizes={`${AVATAR_SIZE}px`} className="object-cover" />
+          {avatar ? (
+            <Image
+              src={getPostImageUrl(avatar.path)}
+              alt=""
+              fill
+              sizes={`${getCoverRenderWidth(avatar, AVATAR_SIZE)}px`}
+              className="object-cover"
+            />
           ) : (
             <UserRound className="size-4" />
           )}

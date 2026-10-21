@@ -28,6 +28,20 @@ export function getPostImageUrl(path: string): string {
 }
 
 /**
+ * Width (px) an image actually renders at when `object-cover` fills a `size`×`size`
+ * box — the value `next/image`'s `sizes` needs. A landscape photo is scaled until
+ * its *height* fills the box, so it renders wider than the box itself; hinting
+ * only the box width makes the optimizer serve a copy too short, which then gets
+ * upscaled and turns blurry.
+ */
+export function getCoverRenderWidth(image: PostImage, size: number): number {
+  const { width, height } = image;
+  // Older uploads have no recorded size; assume a wide 16:9 shot so they stay sharp.
+  const aspectRatio = width && height ? width / height : 16 / 9;
+  return Math.ceil(size * Math.max(1, aspectRatio));
+}
+
+/**
  * Normalizes the `images` jsonb column (or a form's round-tripped copy of it)
  * into a list the UI can render. Malformed entries are skipped, not thrown
  * on: one bad row shouldn't take down a whole post page.

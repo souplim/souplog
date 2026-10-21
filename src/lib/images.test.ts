@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_POST_IMAGES, parsePostImage, parsePostImageJson, parsePostImages, parsePostImagesJson } from './images';
+import {
+  MAX_POST_IMAGES,
+  getCoverRenderWidth,
+  parsePostImage,
+  parsePostImageJson,
+  parsePostImages,
+  parsePostImagesJson,
+} from './images';
 
 const PATH = '0a1b2c3d-4e5f-6071-8293-a4b5c6d7e8f9.webp';
 const OTHER_PATH = '11111111-2222-3333-4444-555555555555.jpg';
@@ -77,5 +84,20 @@ describe('parsePostImageJson', () => {
     expect(parsePostImageJson('')).toBeNull();
     expect(parsePostImageJson('{not json')).toBeNull();
     expect(parsePostImageJson(undefined)).toBeNull();
+  });
+});
+
+describe('getCoverRenderWidth', () => {
+  it('widens a landscape photo so its height still fills the box', () => {
+    expect(getCoverRenderWidth({ path: PATH, width: 2560, height: 1440 }, 112)).toBe(200);
+  });
+
+  it('keeps the box width for square and portrait photos', () => {
+    expect(getCoverRenderWidth({ path: PATH, width: 400, height: 400 }, 112)).toBe(112);
+    expect(getCoverRenderWidth({ path: PATH, width: 640, height: 960 }, 112)).toBe(112);
+  });
+
+  it('assumes a 16:9 shot when the size was never recorded', () => {
+    expect(getCoverRenderWidth({ path: PATH }, 32)).toBe(57);
   });
 });

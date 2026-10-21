@@ -1,15 +1,12 @@
 import { monthlyFinishedCounts } from '~/lib/book-shelf';
 import type { Book } from '~/lib/supabase/types';
 
+import { MonthlyFinishedChart } from './MonthlyFinishedChart';
+
 interface ShelfSummaryProps {
   books: Book[];
   year: number;
 }
-
-/** Bars never shrink below this, so an empty month still reads as a month. */
-const MIN_BAR_PERCENT = 4;
-/** Months named under the chart — enough to read the rest by counting. */
-const LABELED_MONTHS = [1, 6, 12];
 
 /**
  * The shelf in one glance: this year's count up front, the other two
@@ -21,7 +18,6 @@ export function ShelfSummary({ books, year }: ShelfSummaryProps) {
   const finishedThisYear = months.reduce((sum, count) => sum + count, 0);
   const readingCount = books.filter((book) => book.status === 'reading').length;
   const wantCount = books.filter((book) => book.status === 'want').length;
-  const busiestMonth = Math.max(1, ...months);
 
   return (
     <div className="grid gap-[var(--space-md)] border-y border-border py-[var(--space-md)] sm:grid-cols-[auto_1fr] sm:items-end sm:gap-[var(--space-lg)]">
@@ -37,30 +33,7 @@ export function ShelfSummary({ books, year }: ShelfSummaryProps) {
         <SummaryLink href="#wishlist" label="읽고 싶은" count={wantCount} />
       </dl>
 
-      <figure className="min-w-0">
-        <ol className="flex h-16 items-end gap-1" aria-label={`${year}년 월별로 다 읽은 책`}>
-          {months.map((count, index) => (
-            <li key={index} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
-              <span
-                aria-hidden="true"
-                className={count > 0 ? 'w-full rounded-t-[2px] bg-[var(--color-accent)]' : 'w-full rounded-t-[2px] bg-muted'}
-                style={{ height: `${Math.max(MIN_BAR_PERCENT, (count / busiestMonth) * 100)}%` }}
-              />
-              <span className="sr-only">
-                {index + 1}월 {count}권
-              </span>
-            </li>
-          ))}
-        </ol>
-        {/* Same 12 cells as the bars, so each label sits under its own month rather than at an even third of the width. */}
-        <figcaption className="mt-1.5 flex gap-1 text-[0.6875rem] tabular-nums text-muted-foreground" aria-hidden="true">
-          {months.map((_, index) => (
-            <span key={index} className="flex-1 text-center whitespace-nowrap">
-              {LABELED_MONTHS.includes(index + 1) && `${index + 1}월`}
-            </span>
-          ))}
-        </figcaption>
-      </figure>
+      <MonthlyFinishedChart months={months} year={year} />
     </div>
   );
 }

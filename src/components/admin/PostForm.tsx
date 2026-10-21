@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { startTransition, useActionState, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { cn } from '~/lib/utils';
 import type { Menu, Post } from '~/lib/supabase/types';
@@ -33,8 +33,17 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
   const [content, setContent] = useState(post?.content ?? '');
   const [activeTab, setActiveTab] = useState<EditorTab>('edit');
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => formAction(formData));
+  }
+
   return (
-    <form action={formAction} className={cn('flex flex-col', EDITOR_HEIGHT)}>
+    // Dispatched from onSubmit rather than `action`: React resets a form after
+    // every action, failed ones included, which empties the file inputs while
+    // the uploaders still list the picked files — a retry then saves none of them.
+    <form onSubmit={handleSubmit} className={cn('flex flex-col', EDITOR_HEIGHT)}>
       <input type="hidden" name="menuId" value={menuId === NO_MENU_VALUE ? '' : menuId} />
       <input type="hidden" name="isPublic" value={isPublic ? 'on' : ''} />
       <input type="hidden" name="slug" value="" />

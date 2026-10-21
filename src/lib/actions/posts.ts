@@ -83,7 +83,10 @@ async function uploadPostAttachment(file: File): Promise<PostAttachment> {
   const supabase = await createClient();
   const path = `${randomUUID()}.${extension}`;
 
-  const { error } = await supabase.storage.from(POST_ATTACHMENT_BUCKET).upload(path, file, {
+  // Sent as raw bytes, not the File: storage-js wraps a Blob in multipart and
+  // ignores `contentType`, falling back to the browser's type — empty for
+  // .hwp or .md, which the bucket's allowed_mime_types then rejects.
+  const { error } = await supabase.storage.from(POST_ATTACHMENT_BUCKET).upload(path, await file.arrayBuffer(), {
     contentType: ATTACHMENT_CONTENT_TYPES[extension],
   });
 

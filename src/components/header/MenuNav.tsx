@@ -9,6 +9,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 
@@ -22,6 +23,7 @@ const ACTIVE_NAV_ITEM_CLASS = 'font-semibold text-foreground';
 
 const ABOUT_HREF = '/about';
 const BOOKS_HREF = '/books';
+const ALL_POSTS_HREF = '/';
 const MENU_PATH_PREFIX = '/menu/';
 
 /**
@@ -88,6 +90,16 @@ function PostMenuDropdown({ menus, pathname, isActive }: PostMenuDropdownProps) 
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-40">
+        <DropdownMenuItem asChild>
+          <Link
+            href={ALL_POSTS_HREF}
+            aria-current={pathname === ALL_POSTS_HREF ? 'page' : undefined}
+            className={cn(pathname === ALL_POSTS_HREF && 'font-semibold text-foreground')}
+          >
+            전체 글
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         {menus.map((menu) => {
           const href = `${MENU_PATH_PREFIX}${menu.slug}`;
           const isCurrent = pathname === href;

@@ -17,7 +17,7 @@ export function MenuManager({ menus }: MenuManagerProps) {
   const [state, formAction, pending] = useActionState(createMenuAction, undefined);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[var(--space-md)]">
       <form action={formAction} className="flex flex-wrap items-center gap-2">
         <Input name="name" placeholder="메뉴 이름" required maxLength={50} className="w-40" />
         <Input name="slug" placeholder="슬러그 (선택)" maxLength={50} className="w-40" />

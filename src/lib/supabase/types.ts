@@ -11,6 +11,7 @@ export interface Database {
           name: string;
           slug: string;
           sort_order: number;
+          is_visible: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -19,10 +20,29 @@ export interface Database {
           name: string;
           slug: string;
           sort_order?: number;
+          is_visible?: boolean;
           created_at?: string;
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['menus']['Insert']>;
+        Relationships: [];
+      };
+      nav_items: {
+        Row: {
+          key: string;
+          label: string;
+          sort_order: number;
+          is_visible: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          key: string;
+          label: string;
+          sort_order?: number;
+          is_visible?: boolean;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['nav_items']['Insert']>;
         Relationships: [];
       };
       posts: {

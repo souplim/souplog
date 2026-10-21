@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import { cn } from 'cn';
+import type { NavItem } from '~/lib/nav-items';
 import type { Menu } from '~/lib/supabase/types';
 import {
   DropdownMenu,
@@ -14,6 +15,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 
 interface MenuNavProps {
+  navItems: NavItem[];
   menus: Menu[];
 }
 
@@ -27,54 +29,62 @@ const ALL_POSTS_HREF = '/';
 const MENU_PATH_PREFIX = '/menu/';
 
 /**
- * About and the bookshelf are fixed pages, so they stay plain links; the
- * owner-managed menus are all post categories, so they fold into one "게시글"
- * dropdown and the nav keeps three entries no matter how many menus exist.
+ * The top-level entries come from 메뉴 관리, where the owner names, orders,
+ * and hides them. About and the bookshelf are fixed pages, so they stay plain
+ * links; the post categories fold into one dropdown so the nav keeps at most
+ * three entries no matter how many menus exist.
  */
-export function MenuNav({ menus }: MenuNavProps) {
+export function MenuNav({ navItems, menus }: MenuNavProps) {
   const pathname = usePathname();
-  const isAboutActive = pathname === ABOUT_HREF;
-  const isBooksActive = pathname === BOOKS_HREF || pathname.startsWith(`${BOOKS_HREF}/`);
-  const isPostsActive = pathname.startsWith(MENU_PATH_PREFIX);
+  const visibleMenus = menus.filter((menu) => menu.is_visible);
 
   return (
     <nav aria-label="메인 내비게이션" className="min-w-0 flex-1">
       <ul className="flex items-center gap-5">
-        <li className="shrink-0">
-          <Link
-            href={ABOUT_HREF}
-            aria-current={isAboutActive ? 'page' : undefined}
-            className={cn(NAV_ITEM_CLASS, isAboutActive && ACTIVE_NAV_ITEM_CLASS)}
-          >
-            About
-          </Link>
-        </li>
-        {menus.length > 0 ? (
-          <li className="shrink-0">
-            <PostMenuDropdown menus={menus} pathname={pathname} isActive={isPostsActive} />
-          </li>
-        ) : null}
-        <li className="shrink-0">
-          <Link
-            href={BOOKS_HREF}
-            aria-current={isBooksActive ? 'page' : undefined}
-            className={cn(NAV_ITEM_CLASS, isBooksActive && ACTIVE_NAV_ITEM_CLASS)}
-          >
-            책장
-          </Link>
-        </li>
+        {navItems
+          .filter((item) => item.isVisible)
+          .map((item) => {
+            if (item.key === 'posts') {
+              if (visibleMenus.length === 0) return null;
+              return (
+                <li key={item.key} className="shrink-0">
+                  <PostMenuDropdown
+                    label={item.label}
+                    menus={visibleMenus}
+                    pathname={pathname}
+                    isActive={pathname.startsWith(MENU_PATH_PREFIX)}
+                  />
+                </li>
+              );
+            }
+
+            const href = item.key === 'about' ? ABOUT_HREF : BOOKS_HREF;
+            const isActive = pathname === href || pathname.startsWith(`${href}/`);
+            return (
+              <li key={item.key} className="shrink-0">
+                <Link
+                  href={href}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(NAV_ITEM_CLASS, isActive && ACTIVE_NAV_ITEM_CLASS)}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
       </ul>
     </nav>
   );
 }
 
 interface PostMenuDropdownProps {
+  label: string;
   menus: Menu[];
   pathname: string;
   isActive: boolean;
 }
 
-function PostMenuDropdown({ menus, pathname, isActive }: PostMenuDropdownProps) {
+function PostMenuDropdown({ label, menus, pathname, isActive }: PostMenuDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -82,7 +92,7 @@ function PostMenuDropdown({ menus, pathname, isActive }: PostMenuDropdownProps) 
           type="button"
           className={cn(NAV_ITEM_CLASS, 'group cursor-pointer data-[state=open]:text-foreground', isActive && ACTIVE_NAV_ITEM_CLASS)}
         >
-          게시글
+          {label}
           <ChevronDown
             aria-hidden
             className="size-3.5 transition-transform duration-[var(--duration-fast)] group-data-[state=open]:rotate-180"

@@ -24,6 +24,27 @@ create table if not exists public.menus (
 );
 
 create index if not exists menus_sort_order_idx on public.menus (sort_order);
+-- 헤더의 게시글 드롭다운에서 빼 둘 메뉴. 숨겨도 /menu/<slug> 페이지와 글은 그대로다.
+alter table public.menus add column if not exists is_visible boolean not null default true;
+
+-- ---------------------------------------------------------------------------
+-- 상단 메뉴 (About · 게시글 · 책장)
+-- ---------------------------------------------------------------------------
+-- 각 항목이 가리키는 페이지는 고정이라 key 집합도 닫혀 있다 — 이름·순서·표시
+-- 여부만 바꾼다. 허용 key 는 src/lib/nav-items.ts 의 NAV_ITEM_KEYS 와 맞춘다.
+-- 행이 없으면 앱이 기본값으로 채워 보여 주므로 아래 기본 행은 출발점일 뿐이다.
+
+create table if not exists public.nav_items (
+  key        text primary key check (key in ('about', 'posts', 'books')),
+  label      text not null,
+  sort_order integer not null default 0,
+  is_visible boolean not null default true,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.nav_items (key, label, sort_order)
+values ('about', 'About', 0), ('posts', '게시글', 1), ('books', '책장', 2)
+on conflict (key) do nothing;
 
 -- ---------------------------------------------------------------------------
 -- 글
@@ -239,6 +260,11 @@ create trigger menus_touch_updated_at
   before update on public.menus
   for each row execute function public.touch_updated_at();
 
+drop trigger if exists nav_items_touch_updated_at on public.nav_items;
+create trigger nav_items_touch_updated_at
+  before update on public.nav_items
+  for each row execute function public.touch_updated_at();
+
 drop trigger if exists profile_touch_updated_at on public.profile;
 create trigger profile_touch_updated_at
   before update on public.profile
@@ -348,6 +374,7 @@ grant execute on function public.delete_comment(uuid, text) to anon, authenticat
 -- ---------------------------------------------------------------------------
 
 alter table public.menus    enable row level security;
+alter table public.nav_items enable row level security;
 alter table public.posts    enable row level security;
 alter table public.comments enable row level security;
 alter table public.profile  enable row level security;
@@ -364,6 +391,9 @@ grant select, insert, update, delete on public.menus, public.posts to authentica
 revoke all on public.comments from anon;
 grant select, delete on public.comments to authenticated;
 
+grant select on public.nav_items to anon;
+grant select, insert, update on public.nav_items to authenticated;
+
 grant select on public.profile to anon;
 grant select, insert, update on public.profile to authenticated;
 
@@ -375,7 +405,7 @@ grant select on public.comments_public to anon, authenticated;
 grant select on public.posts_list to anon, authenticated;
 
 grant select, insert, update, delete
-  on public.menus, public.posts, public.comments, public.profile, public.books to service_role;
+  on public.menus, public.nav_items, public.posts, public.comments, public.profile, public.books to service_role;
 grant select on public.comments_public, public.posts_list to service_role;
 
 drop policy if exists "anyone_reads_menus" on public.menus;
@@ -384,6 +414,14 @@ create policy "anyone_reads_menus" on public.menus
 
 drop policy if exists "owner_writes_menus" on public.menus;
 create policy "owner_writes_menus" on public.menus
+  for all to authenticated using (true) with check (true);
+
+drop policy if exists "anyone_reads_nav_items" on public.nav_items;
+create policy "anyone_reads_nav_items" on public.nav_items
+  for select to anon, authenticated using (true);
+
+drop policy if exists "owner_writes_nav_items" on public.nav_items;
+create policy "owner_writes_nav_items" on public.nav_items
   for all to authenticated using (true) with check (true);
 
 drop policy if exists "anyone_reads_profile" on public.profile;

@@ -2,11 +2,12 @@
 
 import { useActionState, useState } from 'react';
 import { ChevronDown, ChevronUp, Pencil, X } from 'lucide-react';
-import { deleteMenuAction, moveMenuAction, updateMenuAction } from '~/lib/actions/menus';
+import { deleteMenuAction, moveMenuAction, setMenuVisibilityAction, updateMenuAction } from '~/lib/actions/menus';
 import type { Menu } from '~/lib/supabase/types';
 import { ConfirmDeleteDialog } from '~/components/owner/ConfirmDeleteDialog';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+import { VisibilitySwitch } from './VisibilitySwitch';
 
 interface MenuRowProps {
   menu: Menu;
@@ -19,7 +20,7 @@ export function MenuRow({ menu, isFirst, isLast }: MenuRowProps) {
   const [state, formAction, pending] = useActionState(updateMenuAction.bind(null, menu.id), undefined);
 
   return (
-    <div className="flex items-center gap-3 p-3">
+    <div className="flex items-center gap-4 px-4 py-3.5">
       <div className="flex flex-col gap-0.5">
         <Button
           type="button"
@@ -60,12 +61,19 @@ export function MenuRow({ menu, isFirst, isLast }: MenuRowProps) {
         </form>
       ) : (
         <div className="flex-1">
-          <span className="font-medium">{menu.name}</span>
+          <span className={menu.is_visible ? 'font-medium' : 'font-medium text-muted-foreground line-through'}>
+            {menu.name}
+          </span>
           <span className="ml-2 text-sm text-muted-foreground">/{menu.slug}</span>
         </div>
       )}
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-3">
+        <VisibilitySwitch
+          id={`menu-visible-${menu.id}`}
+          checked={menu.is_visible}
+          onChange={(isVisible) => setMenuVisibilityAction(menu.id, isVisible)}
+        />
         <Button
           type="button"
           variant="ghost"

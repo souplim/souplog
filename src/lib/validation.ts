@@ -20,6 +20,10 @@ export const menuSchema = z.object({
   slug: z.string().trim().max(50),
 });
 
+export const navItemSchema = z.object({
+  label: z.string().trim().min(1, '이름을 입력하세요.').max(20),
+});
+
 export const profileSchema = z.object({
   name: z.string().trim().min(1, '이름을 입력하세요.').max(50),
   tagline: z.string().trim().max(160),

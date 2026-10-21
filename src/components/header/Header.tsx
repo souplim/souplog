@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getCurrentUser } from '~/lib/auth';
-import { getMenus } from '~/lib/menus';
+import { getMenus, getNavItems } from '~/lib/menus';
+import { DEFAULT_NAV_ITEMS } from '~/lib/nav-items';
 import { getProfile } from '~/lib/profile';
 import { MenuNav } from '~/components/header/MenuNav';
 import { AdminMenu } from '~/components/header/AdminMenu';
@@ -10,8 +11,14 @@ export async function Header() {
   // Header renders on every page, including the login page a visitor would
   // need during a Supabase outage — a menu-query failure here must not take
   // the whole site down, so it degrades to an empty nav instead of throwing.
-  const [menusResult, userResult] = await Promise.allSettled([getMenus(), getCurrentUser()]);
+  // The top-level entries fall back to their defaults the same way.
+  const [menusResult, navItemsResult, userResult] = await Promise.allSettled([
+    getMenus(),
+    getNavItems(),
+    getCurrentUser(),
+  ]);
   const menus = menusResult.status === 'fulfilled' ? menusResult.value : [];
+  const navItems = navItemsResult.status === 'fulfilled' ? navItemsResult.value : [...DEFAULT_NAV_ITEMS];
   const user = userResult.status === 'fulfilled' ? userResult.value : null;
   // Only the owner sees the profile button, so visitors skip this query. Same
   // degrade-don't-throw rule as above: a failure just falls back to the icon.
@@ -24,7 +31,7 @@ export async function Header() {
           souplog
         </Link>
 
-        <MenuNav menus={menus} />
+        <MenuNav navItems={navItems} menus={menus} />
 
         <div className="flex shrink-0 items-center gap-1">
           <ThemeToggle />

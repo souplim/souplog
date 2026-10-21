@@ -124,6 +124,18 @@ export interface Database {
         };
         Returns: boolean;
       };
+      search_posts: {
+        Args: {
+          p_query: string;
+        };
+        Returns: Database['public']['Views']['posts_list']['Row'][];
+        SetofOptions: {
+          from: '*';
+          to: 'posts_list';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

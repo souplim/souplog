@@ -143,6 +143,33 @@ select
   p.images -> 0 as cover_image
 from public.posts p;
 
+-- 글 검색. 제목과 본문 전체를 대소문자 구분 없이 부분 일치로 찾는다.
+-- posts_list 행을 그대로 돌려주므로 목록 카드를 그대로 재사용한다.
+-- 본문(content)은 뷰에 없어서 posts 와 조인해 조건만 건다.
+-- security definer 를 쓰지 않는다 — 호출자 권한으로 돌아야 posts 의 RLS 가
+-- 그대로 적용되어 비공개 글이 주인에게만 검색된다.
+-- 검색어의 %, _, \ 는 와일드카드가 아니라 글자 그대로 찾도록 이스케이프한다.
+create or replace function public.search_posts(p_query text)
+returns setof public.posts_list
+language sql
+stable
+set search_path = public
+as $$
+  with pattern as (
+    select '%' || replace(replace(replace(trim(p_query), '\', '\\'), '%', '\%'), '_', '\_') || '%' as value
+  )
+  select l.*
+  from public.posts_list l
+  join public.posts p on p.id = l.id
+  cross join pattern
+  where length(trim(p_query)) > 0
+    and (p.title ilike pattern.value escape '\' or p.content ilike pattern.value escape '\')
+  order by l.created_at desc;
+$$;
+
+revoke all on function public.search_posts(text) from public;
+grant execute on function public.search_posts(text) to anon, authenticated, service_role;
+
 -- ---------------------------------------------------------------------------
 -- updated_at 자동 갱신
 -- ---------------------------------------------------------------------------

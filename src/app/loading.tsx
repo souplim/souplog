@@ -1,4 +1,5 @@
 import { PostListSkeleton } from '~/components/post/PostListSkeleton';
+import { SearchForm } from '~/components/search/SearchForm';
 
 /**
  * Container matches `page.tsx` exactly, heading included — the heading is real
@@ -9,7 +10,8 @@ import { PostListSkeleton } from '~/components/post/PostListSkeleton';
  */
 export default function HomeLoading() {
   return (
-    <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-section)] sm:px-6">
+    <div className="mx-auto max-w-[var(--page-width)] px-4 pt-[var(--space-md)] pb-[var(--space-section)] sm:px-6 sm:pt-[var(--space-lg)]">
+      <SearchForm />
       <h2 className="mb-4 text-xs font-normal tracking-normal text-muted-foreground">최근 글</h2>
       <PostListSkeleton />
     </div>

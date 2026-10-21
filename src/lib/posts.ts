@@ -55,6 +55,30 @@ export async function getPublicPosts(options?: PostListOptions): Promise<PostSum
 }
 
 /**
+ * Posts whose title or body contains `query`, newest first, in the same
+ * card shape as `getPublicPosts`. `menuId` narrows the search to one menu,
+ * and `includeDrafts` works the same way as there:
+ * RLS already limits private rows to the owner, this only decides whether the
+ * owner wants them in the results.
+ */
+export async function searchPosts(query: string, options?: PostListOptions): Promise<PostSummary[]> {
+  const supabase = await createClient();
+  let request = supabase.rpc('search_posts', { p_query: query });
+
+  if (!options?.includeDrafts) {
+    request = request.eq('is_public', true);
+  }
+
+  if (options?.menuId !== undefined) {
+    request = request.eq('menu_id', options.menuId);
+  }
+
+  const { data, error } = await request;
+  if (error) throw new Error(`글을 검색하지 못했습니다: ${error.message}`);
+  return data.map(toPostSummary);
+}
+
+/**
  * A single post by slug. RLS decides visibility: public posts are visible to
  * everyone, private posts only to the signed-in owner. A `null` result means
  * either the post doesn't exist or the viewer isn't allowed to see it — the

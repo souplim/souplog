@@ -17,8 +17,10 @@ export function buildCsp(nonce: string): string {
     scriptSrc,
     `style-src 'self' 'unsafe-inline'`,
     // blob: covers the local previews the post form shows for photos that
-    // haven't been uploaded yet.
-    `img-src 'self' data: blob: https://*.supabase.co`,
+    // haven't been uploaded yet. search1.kakaocdn.net serves the thumbnails in
+    // the book form's search results — a picked cover is copied into Supabase
+    // on save, so the shelf itself never loads from there.
+    `img-src 'self' data: blob: https://*.supabase.co https://search1.kakaocdn.net`,
     `font-src 'self'`,
     `connect-src 'self' https://*.supabase.co`,
     `frame-src 'none'`,

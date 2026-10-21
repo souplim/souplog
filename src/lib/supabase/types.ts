@@ -1,4 +1,5 @@
 import type { PostAttachment } from '~/lib/attachments';
+import type { BookStatus } from '~/lib/book-shelf';
 import type { PostImage } from '~/lib/images';
 
 export interface Database {
@@ -75,6 +76,48 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['profile']['Insert']>;
+        Relationships: [];
+      };
+      books: {
+        Row: {
+          id: string;
+          title: string;
+          author: string;
+          publisher: string;
+          isbn: string | null;
+          // jsonb — shape is enforced on read by parsePostImage.
+          cover: unknown;
+          status: BookStatus;
+          total_pages: number | null;
+          current_page: number;
+          // date columns arrive as `YYYY-MM-DD`.
+          started_at: string | null;
+          finished_at: string | null;
+          rating: number | null;
+          note: string;
+          is_public: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          author?: string;
+          publisher?: string;
+          isbn?: string | null;
+          cover?: PostImage | null;
+          status?: BookStatus;
+          total_pages?: number | null;
+          current_page?: number;
+          started_at?: string | null;
+          finished_at?: string | null;
+          rating?: number | null;
+          note?: string;
+          is_public?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['books']['Insert']>;
         Relationships: [];
       };
       comments: {
@@ -193,4 +236,11 @@ export type Profile = Omit<ProfileRow, 'id' | 'avatar'> & {
   avatar: PostImage | null;
 };
 
-export type PublicComment = Database['public']['Views']['comments_public']['Row'];
+export type BookRow = Database['public']['Tables']['books']['Row'];
+
+/** A shelf entry with its cover jsonb already validated. */
+export type Book = Omit<BookRow, 'cover'> & {
+  cover: PostImage | null;
+};
+
+export type PublicComment =Database['public']['Views']['comments_public']['Row'];

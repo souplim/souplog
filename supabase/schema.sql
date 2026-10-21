@@ -189,6 +189,38 @@ create table if not exists public.profile (
 );
 
 -- ---------------------------------------------------------------------------
+-- 책장 (읽고 싶은 책 / 읽는 중 / 읽은 책)
+-- ---------------------------------------------------------------------------
+-- 상태가 바뀔 때 날짜를 채우고 비우는 규칙은 앱(lib/book-shelf.ts)이 정한다.
+-- 여기서는 어떤 경로로 저장되든 깨지면 안 되는 관계만 check 로 막는다.
+
+create table if not exists public.books (
+  id           uuid primary key default gen_random_uuid(),
+  title        text not null,
+  author       text not null default '',
+  publisher    text not null default '',
+  -- 책 검색으로 추가할 때 같은 책이 두 번 꽂히지 않게 한다. 직접 입력한 책은 비워 둔다.
+  isbn         text unique,
+  -- 표지. posts.images 의 한 항목과 같은 모양이고 파일도 post-images 버킷에 둔다.
+  cover        jsonb,
+  status       text not null default 'want' check (status in ('want', 'reading', 'done')),
+  total_pages  integer check (total_pages > 0),
+  current_page integer not null default 0 check (current_page >= 0),
+  started_at   date,
+  finished_at  date,
+  rating       smallint check (rating between 1 and 5),
+  -- 한 줄 감상.
+  note         text not null default '',
+  is_public    boolean not null default true,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now(),
+  constraint books_current_page_within_total check (total_pages is null or current_page <= total_pages),
+  constraint books_finished_after_started check (finished_at is null or started_at is null or finished_at >= started_at)
+);
+
+create index if not exists books_status_finished_idx on public.books (status, finished_at);
+
+-- ---------------------------------------------------------------------------
 -- updated_at 자동 갱신
 -- ---------------------------------------------------------------------------
 
@@ -210,6 +242,11 @@ create trigger menus_touch_updated_at
 drop trigger if exists profile_touch_updated_at on public.profile;
 create trigger profile_touch_updated_at
   before update on public.profile
+  for each row execute function public.touch_updated_at();
+
+drop trigger if exists books_touch_updated_at on public.books;
+create trigger books_touch_updated_at
+  before update on public.books
   for each row execute function public.touch_updated_at();
 
 drop trigger if exists posts_touch_updated_at on public.posts;
@@ -314,6 +351,7 @@ alter table public.menus    enable row level security;
 alter table public.posts    enable row level security;
 alter table public.comments enable row level security;
 alter table public.profile  enable row level security;
+alter table public.books    enable row level security;
 
 -- 2026-10-30 부터 Supabase 는 public 에 새로 만든 테이블에 Data API 권한을
 -- 자동으로 주지 않는다. 새 프로젝트에 이 스크립트를 처음 실행해도 동작하도록
@@ -329,12 +367,15 @@ grant select, delete on public.comments to authenticated;
 grant select on public.profile to anon;
 grant select, insert, update on public.profile to authenticated;
 
+grant select on public.books to anon;
+grant select, insert, update, delete on public.books to authenticated;
+
 grant select on public.comments_public to anon, authenticated;
 -- posts_list 는 security_invoker 뷰라 실제로 보이는 행은 posts 의 RLS 가 정한다.
 grant select on public.posts_list to anon, authenticated;
 
 grant select, insert, update, delete
-  on public.menus, public.posts, public.comments, public.profile to service_role;
+  on public.menus, public.posts, public.comments, public.profile, public.books to service_role;
 grant select on public.comments_public, public.posts_list to service_role;
 
 drop policy if exists "anyone_reads_menus" on public.menus;
@@ -351,6 +392,16 @@ create policy "anyone_reads_profile" on public.profile
 
 drop policy if exists "owner_writes_profile" on public.profile;
 create policy "owner_writes_profile" on public.profile
+  for all to authenticated using (true) with check (true);
+
+-- 글과 같은 규칙: 방문자는 공개한 책만, 글쓴이는 숨긴 책까지 본다.
+drop policy if exists "public_books_are_readable" on public.books;
+create policy "public_books_are_readable" on public.books
+  for select to anon, authenticated
+  using (is_public = true or auth.role() = 'authenticated');
+
+drop policy if exists "owner_writes_books" on public.books;
+create policy "owner_writes_books" on public.books
   for all to authenticated using (true) with check (true);
 
 drop policy if exists "public_posts_are_readable" on public.posts;

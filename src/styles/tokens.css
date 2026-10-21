@@ -60,6 +60,24 @@
   /* 카드 그림자는 없앴다. 떠 있는 레이어(팝오버·다이얼로그)만 그림자를 쓴다. */
   --shadow-raised: 0 1px 2px oklch(22% 0.012 158 / 0.06), 0 12px 32px oklch(22% 0.012 158 / 0.08);
 
+  /*
+   * 책장의 책등 색. 팔레트와 같은 hue 158 안에서 명도·채도만 벌려
+   * 한 선반에 꽂혀도 서로 구분되게 한다. 짝을 이루는 -fg 는 그 위 제목 글자색이다.
+   */
+  --spine-0: oklch(42% 0.075 158);
+  --spine-0-fg: oklch(96% 0.012 158);
+  --spine-1: oklch(30% 0.035 158);
+  --spine-1-fg: oklch(92% 0.01 158);
+  --spine-2: oklch(87% 0.04 158);
+  --spine-2-fg: oklch(28% 0.04 158);
+  --spine-3: oklch(66% 0.07 158);
+  --spine-3-fg: oklch(20% 0.03 158);
+  --spine-4: oklch(95% 0.01 158);
+  --spine-4-fg: oklch(30% 0.02 158);
+  --spine-5: oklch(46% 0.025 158);
+  --spine-5-fg: oklch(96% 0.006 158);
+  --shelf-plank: var(--color-border-strong);
+
   --duration-fast: 150ms;
   --duration-normal: 240ms;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -101,6 +119,19 @@
   --color-accent-tint: oklch(27% 0.035 158);
 
   --color-danger: oklch(70% 0.15 25);
+
+  --spine-0: oklch(48% 0.07 158);
+  --spine-0-fg: oklch(96% 0.012 158);
+  --spine-1: oklch(30% 0.03 158);
+  --spine-1-fg: oklch(88% 0.02 158);
+  --spine-2: oklch(76% 0.05 158);
+  --spine-2-fg: oklch(20% 0.03 158);
+  --spine-3: oklch(60% 0.06 158);
+  --spine-3-fg: oklch(16% 0.02 158);
+  --spine-4: oklch(74% 0.012 158);
+  --spine-4-fg: oklch(22% 0.02 158);
+  --spine-5: oklch(38% 0.02 158);
+  --spine-5-fg: oklch(92% 0.006 158);
 
   --shadow-raised: 0 1px 2px oklch(0% 0 0 / 0.4), 0 16px 40px oklch(0% 0 0 / 0.5);
 }

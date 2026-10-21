@@ -21,16 +21,18 @@ const NAV_ITEM_CLASS =
 const ACTIVE_NAV_ITEM_CLASS = 'font-semibold text-foreground';
 
 const ABOUT_HREF = '/about';
+const BOOKS_HREF = '/books';
 const MENU_PATH_PREFIX = '/menu/';
 
 /**
- * About is a fixed page, so it stays a plain link; the owner-managed menus
- * are all post categories, so they fold into one "게시글" dropdown and the
- * nav keeps two entries no matter how many menus exist.
+ * About and the bookshelf are fixed pages, so they stay plain links; the
+ * owner-managed menus are all post categories, so they fold into one "게시글"
+ * dropdown and the nav keeps three entries no matter how many menus exist.
  */
 export function MenuNav({ menus }: MenuNavProps) {
   const pathname = usePathname();
   const isAboutActive = pathname === ABOUT_HREF;
+  const isBooksActive = pathname === BOOKS_HREF || pathname.startsWith(`${BOOKS_HREF}/`);
   const isPostsActive = pathname.startsWith(MENU_PATH_PREFIX);
 
   return (
@@ -50,6 +52,15 @@ export function MenuNav({ menus }: MenuNavProps) {
             <PostMenuDropdown menus={menus} pathname={pathname} isActive={isPostsActive} />
           </li>
         ) : null}
+        <li className="shrink-0">
+          <Link
+            href={BOOKS_HREF}
+            aria-current={isBooksActive ? 'page' : undefined}
+            className={cn(NAV_ITEM_CLASS, isBooksActive && ACTIVE_NAV_ITEM_CLASS)}
+          >
+            책장
+          </Link>
+        </li>
       </ul>
     </nav>
   );

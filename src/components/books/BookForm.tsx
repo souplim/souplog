@@ -1,7 +1,6 @@
 'use client';
 
 import { startTransition, useActionState, useState, type FormEvent } from 'react';
-import Link from 'next/link';
 import { cn } from 'cn';
 import type { BookFormState } from '~/lib/actions/books';
 import type { BookSearchResult } from '~/lib/book-search';
@@ -10,8 +9,8 @@ import type { Book } from '~/lib/supabase/types';
 import { BookSearch } from './BookSearch';
 import { CoverPicker, type SuggestedCover } from './CoverPicker';
 import { RatingInput } from './RatingInput';
+import { FormActions } from '~/components/form/FormActions';
 import { Alert, AlertDescription } from '~/components/ui/alert';
-import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Switch } from '~/components/ui/switch';
@@ -209,14 +208,7 @@ export function BookForm({ book, action }: BookFormProps) {
         </Alert>
       )}
 
-      <div className="flex items-center justify-end gap-2 border-t border-border pt-5">
-        <Button asChild variant="ghost">
-          <Link href={cancelHref}>취소</Link>
-        </Button>
-        <Button type="submit" disabled={pending}>
-          {pending ? '저장 중…' : '저장'}
-        </Button>
-      </div>
+      <FormActions cancelHref={cancelHref} pending={pending} className="border-t border-border pt-5" />
     </form>
   );
 }

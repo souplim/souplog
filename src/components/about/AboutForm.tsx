@@ -1,12 +1,11 @@
 'use client';
 
 import { startTransition, useActionState, type FormEvent } from 'react';
-import Link from 'next/link';
 import type { ProfileFormState } from '~/lib/actions/profile';
 import type { Profile } from '~/lib/supabase/types';
 import { AvatarPicker } from './AvatarPicker';
+import { FormActions } from '~/components/form/FormActions';
 import { Alert, AlertDescription } from '~/components/ui/alert';
-import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Textarea } from '~/components/ui/textarea';
@@ -65,14 +64,7 @@ export function AboutForm({ profile, action }: AboutFormProps) {
         </Alert>
       )}
 
-      <div className="flex items-center justify-end gap-2 border-t border-border pt-5">
-        <Button asChild variant="ghost">
-          <Link href="/about">취소</Link>
-        </Button>
-        <Button type="submit" disabled={pending}>
-          {pending ? '저장 중…' : '저장'}
-        </Button>
-      </div>
+      <FormActions cancelHref="/about" pending={pending} className="border-t border-border pt-5" />
     </form>
   );
 }

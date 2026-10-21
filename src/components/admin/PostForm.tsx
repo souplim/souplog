@@ -1,14 +1,13 @@
 'use client';
 
 import { startTransition, useActionState, useState, type FormEvent } from 'react';
-import Link from 'next/link';
 import { cn } from '~/lib/utils';
 import type { Menu, Post } from '~/lib/supabase/types';
 import type { PostFormState } from '~/lib/actions/posts';
 import { PostEditorPane } from './PostEditorPane';
 import { PostPreviewPane } from './PostPreviewPane';
 import { EDITOR_GUTTER_CLASS, NO_MENU_VALUE } from './postEditorStyles';
-import { Button } from '~/components/ui/button';
+import { FormActions } from '~/components/form/FormActions';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Tabs, TabsList, TabsTrigger } from '~/components/ui/tabs';
 
@@ -91,14 +90,12 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
           </div>
         )}
 
-        <div className={cn('flex items-center justify-end gap-2 py-3', EDITOR_GUTTER_CLASS)}>
-          <Button asChild variant="ghost">
-            <Link href={cancelHref}>취소</Link>
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {pending ? '저장 중…' : submitLabel}
-          </Button>
-        </div>
+        <FormActions
+          cancelHref={cancelHref}
+          pending={pending}
+          submitLabel={submitLabel}
+          className={cn('py-3', EDITOR_GUTTER_CLASS)}
+        />
       </div>
     </form>
   );

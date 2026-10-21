@@ -6,8 +6,6 @@ import {
   monthlyFinishedCounts,
   progressPercent,
   sanitizeForStatus,
-  shelfSpineStyles,
-  spineStyle,
   todayInSeoul,
   type BookProgress,
 } from './book-shelf';
@@ -102,7 +100,7 @@ describe('daysSince', () => {
 describe('groupFinishedByYear', () => {
   const book = (id: string, finished_at: string | null) => ({ id, finished_at });
 
-  it('puts the newest year first and shelves each year oldest to newest', () => {
+  it('puts the newest year first and shelves each year newest to oldest', () => {
     const groups = groupFinishedByYear([
       book('a', '2025-03-01'),
       book('b', '2026-09-01'),
@@ -110,7 +108,7 @@ describe('groupFinishedByYear', () => {
     ]);
 
     expect(groups.map((group) => group.year)).toEqual([2026, 2025]);
-    expect(groups[0]?.books.map((entry) => entry.id)).toEqual(['c', 'b']);
+    expect(groups[0]?.books.map((entry) => entry.id)).toEqual(['b', 'c']);
   });
 
   it('collects books without a finish date in a last, undated group', () => {
@@ -134,52 +132,6 @@ describe('monthlyFinishedCounts', () => {
     expect(counts[0]).toBe(2);
     expect(counts[11]).toBe(1);
     expect(counts.reduce((sum, count) => sum + count, 0)).toBe(3);
-  });
-});
-
-describe('spineStyle', () => {
-  it('gives a longer book a taller and thicker spine', () => {
-    const thin = spineStyle({ title: '얇은 책', total_pages: 150 });
-    const thick = spineStyle({ title: '두꺼운 책', total_pages: 600 });
-
-    expect(thick.heightRem).toBeGreaterThan(thin.heightRem);
-    expect(thick.widthRem).toBeGreaterThan(thin.widthRem);
-  });
-
-  it('keeps extreme page counts inside the shelf', () => {
-    const tiny = spineStyle({ title: '팸플릿', total_pages: 10 });
-    const huge = spineStyle({ title: '백과사전', total_pages: 5000 });
-
-    expect(huge.heightRem).toBe(spineStyle({ title: '백과사전', total_pages: 640 }).heightRem);
-    expect(tiny.heightRem).toBe(spineStyle({ title: '팸플릿', total_pages: 120 }).heightRem);
-  });
-
-  it('picks the same tone for the same title every time', () => {
-    expect(spineStyle({ title: '데미안', total_pages: 200 }).tone).toBe(
-      spineStyle({ title: '데미안', total_pages: 200 }).tone,
-    );
-  });
-
-  it('never repeats the tone of the spine standing to its left', () => {
-    const own = spineStyle({ title: '데미안', total_pages: 200 }).tone;
-    expect(spineStyle({ title: '데미안', total_pages: 200 }, own).tone).not.toBe(own);
-  });
-
-  it('keeps neighbors on a shelf row apart even when their titles hash alike', () => {
-    const tones = shelfSpineStyles([
-      { title: '데미안', total_pages: 200 },
-      { title: '데미안', total_pages: 200 },
-      { title: '데미안', total_pages: 200 },
-    ]).map((style) => style.tone);
-
-    expect(tones[1]).not.toBe(tones[0]);
-    expect(tones[2]).not.toBe(tones[1]);
-  });
-
-  it('gives a book of unknown length a middling spine', () => {
-    const unknown = spineStyle({ title: '모름', total_pages: null });
-    expect(unknown.heightRem).toBeGreaterThan(spineStyle({ title: '모름', total_pages: 120 }).heightRem);
-    expect(unknown.heightRem).toBeLessThan(spineStyle({ title: '모름', total_pages: 640 }).heightRem);
   });
 });
 

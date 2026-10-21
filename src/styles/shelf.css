@@ -1,0 +1,53 @@
+/*
+ * 읽은 책 선반의 가로 스크롤 줄. 스크롤할 거리가 남은 쪽 가장자리만 흐리게 해서
+ * 표지가 더 있다는 걸 알려준다. 스크롤이 필요 없는 줄은 스크롤 타임라인이 비활성이라
+ * 초깃값(0px)이 그대로 남아 흐림이 생기지 않는다.
+ * 스크롤 타임라인을 지원하지 않는 브라우저는 흐림 없이 잘린 표지만 보인다.
+ */
+@property --shelf-fade-start {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --shelf-fade-end {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+.shelf-row {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+@supports (animation-timeline: scroll()) {
+  .shelf-row {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 var(--shelf-fade-start),
+      #000 calc(100% - var(--shelf-fade-end)),
+      transparent
+    );
+    animation: shelf-row-fade linear both;
+    animation-timeline: scroll(self inline);
+  }
+}
+
+@keyframes shelf-row-fade {
+  0% {
+    --shelf-fade-start: 0px;
+    --shelf-fade-end: 3rem;
+  }
+  8% {
+    --shelf-fade-start: 3rem;
+  }
+  92% {
+    --shelf-fade-end: 3rem;
+  }
+  100% {
+    --shelf-fade-start: 3rem;
+    --shelf-fade-end: 0px;
+  }
+}

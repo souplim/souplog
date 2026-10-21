@@ -1,85 +1,60 @@
-import type { CSSProperties } from 'react';
 import Link from 'next/link';
-import { groupFinishedByYear, shelfSpineStyles, type SpineStyle } from '~/lib/book-shelf';
+import { groupFinishedByYear } from '~/lib/book-shelf';
 import type { Book } from '~/lib/supabase/types';
-
-/**
- * Every slot on the shelf is this tall: the tallest spine, room for it to
- * lift on hover, and the plank under it. Wrapped rows stack exactly one slot
- * apart, so the repeating plank background lands under each row.
- */
-const SHELF_ROW = '13.5rem';
-const PLANK = '6px';
-
-const SHELF_STYLE: CSSProperties = {
-  backgroundImage: `repeating-linear-gradient(to bottom, transparent 0 calc(${SHELF_ROW} - ${PLANK}), var(--shelf-plank) calc(${SHELF_ROW} - ${PLANK}) ${SHELF_ROW})`,
-};
-
-const SLOT_STYLE: CSSProperties = { height: SHELF_ROW, paddingBottom: PLANK };
+import { BookCover } from './BookCover';
 
 interface BookShelfProps {
   books: Book[];
 }
 
-/** Finished books standing as spines, one shelf per year. */
+/**
+ * Finished books standing face-out, one shelf per year. Each shelf is a
+ * single row that scrolls sideways, so a busy year never pushes the rest of
+ * the page down — the page grows by one row per year, not per book.
+ */
 export function BookShelf({ books }: BookShelfProps) {
   const rows = groupFinishedByYear(books);
 
   return (
     <div className="space-y-[var(--space-lg)]">
-      {rows.map((row) => (
-        <section key={row.year ?? 'undated'} aria-labelledby={`shelf-${row.year ?? 'undated'}`}>
-          <h3
-            id={`shelf-${row.year ?? 'undated'}`}
-            className="mb-1 flex items-baseline gap-2 text-sm font-semibold tabular-nums"
-          >
-            {row.year ?? '날짜 미기록'}
-            <span className="text-xs font-normal text-muted-foreground">{row.books.length}권</span>
-          </h3>
-          <ul className="flex flex-wrap gap-x-[3px]" style={SHELF_STYLE}>
-            {shelfSpineStyles(row.books).map((spine, index) => {
-              const book = row.books[index]!;
-              return (
-                <li key={book.id} className="flex items-end" style={SLOT_STYLE}>
-                  <BookSpine book={book} spine={spine} />
+      {rows.map((row) => {
+        const headingId = `shelf-${row.year ?? 'undated'}`;
+        return (
+          <section key={headingId} aria-labelledby={headingId}>
+            <h3 id={headingId} className="mb-1 flex items-baseline gap-2 text-sm font-semibold tabular-nums">
+              {row.year ?? '날짜 미기록'}
+              <span className="text-xs font-normal text-muted-foreground">{row.books.length}권</span>
+            </h3>
+            {/* Bleeds into the page gutter so covers slide out past the edge instead of stopping short of it. */}
+            <ul className="shelf-row -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pt-3 pb-4 sm:-mx-6 sm:scroll-px-6 sm:gap-4 sm:px-6">
+              {row.books.map((book) => (
+                <li key={book.id} className="shrink-0 snap-start">
+                  <ShelfCover book={book} />
                 </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
+              ))}
+            </ul>
+          </section>
+        );
+      })}
     </div>
   );
 }
 
-interface BookSpineProps {
+interface ShelfCoverProps {
   book: Book;
-  spine: SpineStyle;
 }
 
-function BookSpine({ book, spine }: BookSpineProps) {
-  const { heightRem, widthRem, tone } = spine;
+function ShelfCover({ book }: ShelfCoverProps) {
   const label = book.author ? `${book.title} · ${book.author}` : book.title;
 
   return (
-    <Link
-      href={`/books/${book.id}`}
-      aria-label={label}
-      title={label}
-      className="flex justify-center overflow-hidden rounded-t-[3px] rounded-b-[1px] py-2.5 shadow-[inset_2px_0_0_oklch(100%_0_0/0.14),inset_-3px_0_0_oklch(0%_0_0/0.14)] ring-1 ring-black/5 outline-none transition-transform duration-[var(--duration-normal)] ease-[var(--ease-out-expo)] hover:-translate-y-2 focus-visible:-translate-y-2 focus-visible:ring-2 focus-visible:ring-ring"
-      style={{
-        height: `${heightRem}rem`,
-        width: `${widthRem}rem`,
-        backgroundColor: `var(--spine-${tone})`,
-        color: `var(--spine-${tone}-fg)`,
-      }}
-    >
-      <span
-        aria-hidden="true"
-        className="max-h-full overflow-hidden text-xs leading-none font-semibold tracking-[0.02em] text-ellipsis whitespace-nowrap [writing-mode:vertical-rl]"
-      >
-        {book.title}
-      </span>
+    <Link href={`/books/${book.id}`} aria-label={label} title={label} className="group block outline-none">
+      <BookCover
+        title={book.title}
+        cover={book.cover}
+        sizes="(min-width: 40rem) 112px, 88px"
+        className="w-[5.5rem] transition-transform duration-[var(--duration-normal)] ease-[var(--ease-out-expo)] group-hover:-translate-y-2 group-focus-visible:-translate-y-2 group-focus-visible:ring-2 group-focus-visible:ring-ring sm:w-28"
+      />
     </Link>
   );
 }

@@ -1,6 +1,6 @@
 /**
  * Pure helpers behind the bookshelf: status transitions, reading progress,
- * and how the shelf groups and draws finished books. No I/O here — every
+ * and how the shelf groups finished books. No I/O here — every
  * date comes in as a `YYYY-MM-DD` string so the rules stay testable.
  */
 
@@ -84,14 +84,13 @@ function yearOf(date: string): number {
 }
 
 /**
- * One shelf per year, newest year on top. Inside a shelf the books stand in
- * the order they were finished, left to right, like books slotted in as
- * they're read.
+ * One shelf per year, newest year on top. Inside a shelf the most recently
+ * finished book comes first, so it's the one in view before the row scrolls.
  */
 export function groupFinishedByYear<T extends { finished_at: string | null }>(books: readonly T[]): ShelfRow<T>[] {
   const dated = books
     .filter((book): book is T & { finished_at: string } => book.finished_at !== null)
-    .toSorted((a, b) => a.finished_at.localeCompare(b.finished_at));
+    .toSorted((a, b) => b.finished_at.localeCompare(a.finished_at));
   const undated = books.filter((book) => book.finished_at === null);
 
   const years = [...new Set(dated.map((book) => yearOf(book.finished_at)))].toSorted((a, b) => b - a);
@@ -109,62 +108,6 @@ export function monthlyFinishedCounts(books: readonly { finished_at: string | nu
     const prefix = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
     return books.filter((book) => book.finished_at?.startsWith(prefix)).length;
   });
-}
-
-/** Page counts outside this range draw the same as its ends. */
-const SPINE_MIN_PAGES = 120;
-const SPINE_MAX_PAGES = 640;
-/** Drawn for a book whose length was never entered. */
-const SPINE_DEFAULT_PAGES = 320;
-
-const SPINE_MIN_HEIGHT_REM = 8.5;
-const SPINE_MAX_HEIGHT_REM = 12;
-const SPINE_MIN_WIDTH_REM = 1.75;
-const SPINE_MAX_WIDTH_REM = 3;
-
-/** Number of `--spine-N` color pairs defined in tokens.css. */
-export const SPINE_TONE_COUNT = 6;
-
-export interface SpineStyle {
-  heightRem: number;
-  widthRem: number;
-  /** 0-based index into the `--spine-N` tokens. */
-  tone: number;
-}
-
-function lerp(from: number, to: number, ratio: number): number {
-  return Math.round((from + (to - from) * ratio) * 100) / 100;
-}
-
-function hashTitle(title: string): number {
-  let hash = 0;
-  for (const char of title) {
-    hash = (hash * 31 + (char.codePointAt(0) ?? 0)) >>> 0;
-  }
-  return hash;
-}
-
-/**
- * A finished book's spine on the shelf: longer books stand taller and
- * thicker, and the color comes from the title so a book keeps the same
- * spine every time the page renders. Passing the left neighbor's tone
- * shifts a clashing color one step, so two alike spines never touch.
- */
-export function spineStyle(book: { title: string; total_pages: number | null }, previousTone?: number): SpineStyle {
-  const pages = Math.min(SPINE_MAX_PAGES, Math.max(SPINE_MIN_PAGES, book.total_pages ?? SPINE_DEFAULT_PAGES));
-  const ratio = (pages - SPINE_MIN_PAGES) / (SPINE_MAX_PAGES - SPINE_MIN_PAGES);
-  const ownTone = hashTitle(book.title) % SPINE_TONE_COUNT;
-
-  return {
-    heightRem: lerp(SPINE_MIN_HEIGHT_REM, SPINE_MAX_HEIGHT_REM, ratio),
-    widthRem: lerp(SPINE_MIN_WIDTH_REM, SPINE_MAX_WIDTH_REM, ratio),
-    tone: ownTone === previousTone ? (ownTone + 1) % SPINE_TONE_COUNT : ownTone,
-  };
-}
-
-/** Spine styles for one shelf row, left to right, each aware of its neighbor. */
-export function shelfSpineStyles(books: readonly { title: string; total_pages: number | null }[]): SpineStyle[] {
-  return books.reduce<SpineStyle[]>((styles, book) => [...styles, spineStyle(book, styles.at(-1)?.tone)], []);
 }
 
 const seoulDateFormatter = new Intl.DateTimeFormat('en-CA', {

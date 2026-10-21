@@ -228,7 +228,8 @@ create table if not exists public.books (
   total_pages  integer check (total_pages > 0),
   started_at   date,
   finished_at  date,
-  rating       smallint check (rating between 1 and 5),
+  -- 0.5점 단위 별점. 제약은 아래 alter 에서 건다.
+  rating       numeric(2, 1),
   -- 한 줄 감상.
   note         text not null default '',
   is_public    boolean not null default true,
@@ -238,6 +239,12 @@ create table if not exists public.books (
 );
 
 create index if not exists books_status_finished_idx on public.books (status, finished_at);
+
+-- 별점을 1점 단위(smallint)에서 0.5점 단위로 바꿨다. 이미 만들어진 테이블도 옮긴다.
+alter table public.books drop constraint if exists books_rating_check;
+alter table public.books alter column rating type numeric(2, 1);
+alter table public.books add constraint books_rating_check
+  check (rating between 0.5 and 5 and rating * 2 = trunc(rating * 2));
 
 -- 읽은 쪽수(책갈피)는 쓰지 않게 되어 뺐다. 이미 만들어진 테이블에서도 걷어낸다.
 alter table public.books drop constraint if exists books_current_page_within_total;

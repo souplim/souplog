@@ -47,6 +47,23 @@ const optionalInteger = (min: number, max: number, message: string) =>
     .transform((value) => (value ? Number(value) : null))
     .pipe(z.number(message).int(message).min(min, message).max(max, message).nullable());
 
+const RATING_MESSAGE = '별점은 0.5~5 사이, 0.5점 단위여야 합니다.';
+
+/** Half-star steps from 0.5 to 5; doubling turns each step into a whole number. */
+const optionalRating = z
+  .string()
+  .trim()
+  .optional()
+  .transform((value) => (value ? Number(value) : null))
+  .pipe(
+    z
+      .number(RATING_MESSAGE)
+      .min(0.5, RATING_MESSAGE)
+      .max(5, RATING_MESSAGE)
+      .refine((value) => Number.isInteger(value * 2), RATING_MESSAGE)
+      .nullable(),
+  );
+
 const optionalDate = z
   .union([z.literal(''), z.iso.date('날짜 형식이 올바르지 않습니다.')])
   .optional()
@@ -65,7 +82,7 @@ export const bookSchema = z
     totalPages: optionalInteger(1, MAX_BOOK_PAGES, '전체 쪽수를 확인하세요.'),
     startedAt: optionalDate,
     finishedAt: optionalDate,
-    rating: optionalInteger(1, 5, '별점은 1~5 사이여야 합니다.'),
+    rating: optionalRating,
     note: optionalText(500),
     isPublic: z.boolean(),
   })

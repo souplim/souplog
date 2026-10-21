@@ -57,45 +57,58 @@ export default async function BookPage({ params }: BookPageProps) {
         {shelfLabel}
       </Link>
 
-      <article className="mt-[var(--space-md)] grid gap-[var(--space-md)] sm:grid-cols-[11rem_1fr] sm:gap-[var(--space-lg)]">
-        <BookCover
-          title={book.title}
-          cover={book.cover}
-          sizes="(min-width: 40rem) 176px, 160px"
-          className="w-40 sm:w-44"
-          isPriority
-        />
+      <article className="mt-[var(--space-md)]">
+        <div className="grid gap-[var(--space-md)] sm:grid-cols-[11rem_1fr] sm:gap-[var(--space-lg)]">
+          <BookCover
+            title={book.title}
+            cover={book.cover}
+            sizes="(min-width: 40rem) 176px, 160px"
+            className="w-40 sm:w-44"
+            isPriority
+          />
 
-        <div className="min-w-0">
-          <div className="mb-[var(--space-2xs)] flex items-center gap-2">
-            <span className="text-xs font-semibold text-accent-foreground">{BOOK_STATUS_LABELS[book.status]}</span>
-            {isOwner && !book.is_public && <Badge variant="outline">숨김</Badge>}
-          </div>
-          <PageTitle>{book.title}</PageTitle>
-          {(book.author || book.publisher) && (
-            <p className="mt-2 text-[length:var(--text-base)] text-muted-foreground">
-              {[book.author, book.publisher].filter(Boolean).join(' · ')}
-            </p>
-          )}
-
-          <BookFacts book={book} />
-
-          {book.note && (
-            <blockquote className="mt-[var(--space-md)] border-l-2 border-[var(--color-accent)] pl-4 text-[length:var(--text-base)] leading-[var(--leading-relaxed)] text-pretty">
-              {book.note}
-            </blockquote>
-          )}
-
-          {isOwner && (
-            <div className="mt-[var(--space-lg)] space-y-4 border-t border-border pt-5">
-              <BookProgressControls bookId={book.id} status={book.status} />
-              <div className="flex items-center gap-1">
-                <EditIconLink href={`/admin/books/${book.id}/edit`} />
-                <DeleteBookButton bookId={book.id} />
+          <div className="min-w-0">
+            {/* Same as a post's byline: status on the left, owner actions flush right. */}
+            <div className="mb-[var(--space-2xs)] flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-accent-foreground">{BOOK_STATUS_LABELS[book.status]}</span>
+                {isOwner && !book.is_public && <Badge variant="outline">숨김</Badge>}
               </div>
+              {isOwner && (
+                <div className="-my-1 flex items-center gap-1">
+                  <EditIconLink href={`/admin/books/${book.id}/edit`} />
+                  <DeleteBookButton bookId={book.id} />
+                </div>
+              )}
             </div>
-          )}
+            <PageTitle>{book.title}</PageTitle>
+            {(book.author || book.publisher) && (
+              <p className="mt-2 text-[length:var(--text-base)] text-muted-foreground">
+                {[book.author, book.publisher].filter(Boolean).join(' · ')}
+              </p>
+            )}
+
+            <BookFacts book={book} />
+
+            {isOwner && book.status !== 'done' && (
+              <div className="mt-[var(--space-lg)]">
+                <BookProgressControls bookId={book.id} status={book.status} />
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* The note is the reader's own words, so it gets the full width below the facts instead of trailing them. */}
+        {book.note && (
+          <section aria-labelledby="book-note-heading" className="mt-[var(--space-lg)] border-t border-border pt-[var(--space-md)]">
+            <h2 id="book-note-heading" className="text-sm font-semibold text-muted-foreground">
+              한 줄 감상
+            </h2>
+            <p className="mt-3 text-[length:var(--text-base)] leading-[var(--leading-relaxed)] whitespace-pre-wrap text-pretty">
+              {book.note}
+            </p>
+          </section>
+        )}
       </article>
     </PageColumn>
   );

@@ -58,7 +58,17 @@ describe('bookSchema', () => {
     expect(parsed).toMatchObject({ started_at: null });
   });
 
-  it('rejects a rating outside one to five', () => {
+  it('rejects a rating outside half to five', () => {
     expect(bookSchema.safeParse({ ...FORM, status: 'done', rating: '6' }).success).toBe(false);
+    expect(bookSchema.safeParse({ ...FORM, status: 'done', rating: '0' }).success).toBe(false);
+  });
+
+  it('accepts a rating in half-star steps', () => {
+    expect(bookSchema.parse({ ...FORM, status: 'done', rating: '0.5' })).toMatchObject({ rating: 0.5 });
+    expect(bookSchema.parse({ ...FORM, status: 'done', rating: '3.5' })).toMatchObject({ rating: 3.5 });
+  });
+
+  it('rejects a rating between half steps', () => {
+    expect(firstError({ ...FORM, status: 'done', rating: '3.3' })).toBe('별점은 0.5~5 사이, 0.5점 단위여야 합니다.');
   });
 });

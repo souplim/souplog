@@ -13,22 +13,29 @@ import {
   todayInSeoul,
 } from '~/lib/book-shelf';
 import { getBooks } from '~/lib/books';
+import { getNavLabel } from '~/lib/menus';
 import { BookShelf } from '~/components/books/BookShelf';
 import { ShelfSummary } from '~/components/books/ShelfSummary';
-import { PageTitle } from '~/components/page/PageHeading';
 import { Button } from '~/components/ui/button';
 
-export const metadata: Metadata = {
-  title: '책장',
-  description: '읽고 싶은 책, 읽는 중인 책, 읽은 책',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: await getNavLabel('books'),
+    description: '읽고 싶은 책, 읽는 중인 책, 읽은 책',
+  };
+}
 
 interface BooksPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function BooksPage({ searchParams }: BooksPageProps) {
-  const [books, user, params] = await Promise.all([getBooks(), getCurrentUser(), searchParams]);
+  const [books, user, params, title] = await Promise.all([
+    getBooks(),
+    getCurrentUser(),
+    searchParams,
+    getNavLabel('books'),
+  ]);
   const today = todayInSeoul();
   const currentYear = Number(today.slice(0, 4));
   const years = summaryYears(books, currentYear);
@@ -41,19 +48,25 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
 
   return (
     <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-xl)] sm:px-6">
-      <header className="mb-[var(--space-lg)] flex items-end justify-between gap-4">
-        <PageTitle>책장</PageTitle>
-        {user && (
-          <Button asChild size="sm">
-            <Link href="/admin/books/new">
-              <Plus />
-              책 추가
-            </Link>
-          </Button>
-        )}
-      </header>
+      {/* The header nav already marks this page, so the name is only announced, not shown. */}
+      <h1 className="sr-only">{title}</h1>
 
-      <ShelfSummary books={books} year={summaryYear} years={years} currentYear={currentYear} />
+      <ShelfSummary
+        books={books}
+        year={summaryYear}
+        years={years}
+        currentYear={currentYear}
+        action={
+          user && (
+            <Button asChild size="sm">
+              <Link href="/admin/books/new">
+                <Plus />
+                책 추가
+              </Link>
+            </Button>
+          )
+        }
+      />
 
       <div className="mt-[var(--space-xl)] space-y-[var(--space-section)]">
         <ShelfSection id="reading" title={BOOK_STATUS_LABELS.reading} count={reading.length} empty={`${summaryYear}년에 읽기 시작한 책이 없어요.`}>

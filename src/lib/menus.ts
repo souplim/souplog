@@ -1,6 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
-import { resolveNavItems, type NavItem } from '~/lib/nav-items';
+import { DEFAULT_NAV_ITEMS, resolveNavItems, type NavItem, type NavItemKey } from '~/lib/nav-items';
 import { createClient } from '~/lib/supabase/server';
 import type { Menu } from '~/lib/supabase/types';
 
@@ -85,6 +85,16 @@ export const getNavItems = cache(async (): Promise<NavItem[]> => {
   if (error) throw new Error(`상단 메뉴를 불러오지 못했습니다: ${error.message}`);
   return resolveNavItems(data);
 });
+
+/**
+ * The owner's name for one top-level entry, so a page's own heading matches
+ * the header link that leads to it. Falls back to the default label the same
+ * way the Header does when the nav can't be read.
+ */
+export async function getNavLabel(key: NavItemKey): Promise<string> {
+  const navItems = await getNavItems().catch(() => DEFAULT_NAV_ITEMS);
+  return navItems.find((item) => item.key === key)?.label ?? key;
+}
 
 /**
  * Writes the whole top-level nav back in the given order. Always the full

@@ -29,7 +29,8 @@ export function SummaryYearSelect({ years, year, currentYear }: SummaryYearSelec
       <SelectTrigger size="sm" aria-label="요약 연도" className="tabular-nums">
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
+      {/* Drops below and opens leftward, so the list never covers the button beside it. */}
+      <SelectContent position="popper" align="end">
         {years.map((option) => (
           <SelectItem key={option} value={String(option)} className="tabular-nums">
             {option}년

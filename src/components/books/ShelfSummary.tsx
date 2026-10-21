@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { monthlyFinishedCounts, statusCountsInYear } from '~/lib/book-shelf';
 import type { Book } from '~/lib/supabase/types';
 
@@ -11,6 +12,8 @@ interface ShelfSummaryProps {
   /** Years the select offers, oldest first. */
   years: number[];
   currentYear: number;
+  /** The owner's controls, set beside the year picker. */
+  action?: ReactNode;
 }
 
 /**
@@ -18,7 +21,7 @@ interface ShelfSummaryProps {
  * jump links beneath it, and how its reading spread over its months — with a
  * picker over the chart to switch to another year.
  */
-export function ShelfSummary({ books, year, years, currentYear }: ShelfSummaryProps) {
+export function ShelfSummary({ books, year, years, currentYear, action }: ShelfSummaryProps) {
   const finished = books.filter((book) => book.status === 'done');
   const months = monthlyFinishedCounts(finished, year);
   const counts = statusCountsInYear(books, year);
@@ -26,7 +29,7 @@ export function ShelfSummary({ books, year, years, currentYear }: ShelfSummaryPr
   return (
     <div className="grid gap-[var(--space-md)] border-b border-border pb-[var(--space-md)] sm:grid-cols-[auto_1fr] sm:items-end sm:gap-[var(--space-lg)]">
       <div>
-        <p className="font-heading text-[length:var(--text-headline)] leading-none font-semibold tracking-[var(--tracking-display)] tabular-nums">
+        <p className="font-heading text-[length:var(--text-display)] leading-none font-semibold tracking-[var(--tracking-display)] tabular-nums">
           {year}
         </p>
         <dl className="mt-[var(--space-sm)] flex items-end gap-[var(--space-md)]">
@@ -37,10 +40,11 @@ export function ShelfSummary({ books, year, years, currentYear }: ShelfSummaryPr
       </div>
 
       <div className="min-w-0">
-        {/* With only one year to offer there's nothing to pick. */}
-        {years.length > 1 && (
-          <div className="mb-[var(--space-xs)] flex justify-end">
-            <SummaryYearSelect years={years} year={year} currentYear={currentYear} />
+        {/* The picker only shows with more than one year to offer. */}
+        {(years.length > 1 || action) && (
+          <div className="mb-[var(--space-xs)] flex items-center justify-end gap-[var(--space-xs)]">
+            {years.length > 1 && <SummaryYearSelect years={years} year={year} currentYear={currentYear} />}
+            {action}
           </div>
         )}
         <MonthlyFinishedChart months={months} year={year} />

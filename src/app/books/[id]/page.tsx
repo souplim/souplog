@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { getCurrentUser } from '~/lib/auth';
 import { BOOK_STATUS_LABELS, daysSince, todayInSeoul } from '~/lib/book-shelf';
 import { getBookById } from '~/lib/books';
+import { getNavLabel } from '~/lib/menus';
 import { formatDate } from '~/lib/date';
 import { getPostImageUrl } from '~/lib/images';
 import type { Book } from '~/lib/supabase/types';
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }: BookPageProps): Promise<Metad
 
 export default async function BookPage({ params }: BookPageProps) {
   const { id } = await params;
-  const [book, user] = await Promise.all([getBookById(id), getCurrentUser()]);
+  const [book, user, shelfLabel] = await Promise.all([getBookById(id), getCurrentUser(), getNavLabel('books')]);
   if (!book) notFound();
 
   const isOwner = Boolean(user);
@@ -53,7 +54,7 @@ export default async function BookPage({ params }: BookPageProps) {
         className="inline-flex items-center gap-1 rounded-xs text-sm text-muted-foreground outline-none transition-colors duration-[var(--duration-fast)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
-        책장
+        {shelfLabel}
       </Link>
 
       <article className="mt-[var(--space-md)] grid gap-[var(--space-md)] sm:grid-cols-[11rem_1fr] sm:gap-[var(--space-lg)]">

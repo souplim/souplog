@@ -100,7 +100,10 @@ export default async function BookPage({ params }: BookPageProps) {
 
         {/* The note is the reader's own words, so it gets the full width below the facts instead of trailing them. */}
         {book.note && (
-          <section aria-labelledby="book-note-heading" className="mt-[var(--space-lg)] border-t border-border pt-[var(--space-md)]">
+          <section
+            aria-labelledby="book-note-heading"
+            className="mt-[var(--space-lg)] border-t border-border pt-[var(--space-md)]"
+          >
             <h2 id="book-note-heading" className="text-sm font-semibold text-muted-foreground">
               한 줄 감상
             </h2>

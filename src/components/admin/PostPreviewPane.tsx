@@ -17,11 +17,7 @@ export function PostPreviewPane({ content, className }: PostPreviewPaneProps) {
   return (
     <aside
       aria-label="미리보기"
-      className={cn(
-        'min-h-0 overflow-y-auto bg-muted/50 md:border-l md:border-border',
-        EDITOR_PANE_PADDING,
-        className,
-      )}
+      className={cn('min-h-0 overflow-y-auto bg-muted/50 md:border-l md:border-border', EDITOR_PANE_PADDING, className)}
     >
       <PostContent content={content} />
     </aside>

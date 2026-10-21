@@ -3,7 +3,9 @@ import { toPlainPreview } from './markdown-preview';
 
 describe('toPlainPreview', () => {
   it('drops heading, emphasis and quote markers but keeps their text', () => {
-    expect(toPlainPreview('# 제목\n\n> 인용문\n\n**굵게**와 _기울임_, ~~취소~~')).toBe('제목 인용문 굵게와 기울임, 취소');
+    expect(toPlainPreview('# 제목\n\n> 인용문\n\n**굵게**와 _기울임_, ~~취소~~')).toBe(
+      '제목 인용문 굵게와 기울임, 취소',
+    );
   });
 
   it('keeps link text and drops the url', () => {

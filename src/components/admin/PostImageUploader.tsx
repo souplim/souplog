@@ -177,7 +177,12 @@ function AddButton({ onClick, variant }: AddButtonProps) {
 
   if (variant === 'tile') {
     return (
-      <button type="button" onClick={onClick} className={`${shared} aspect-square w-full rounded-lg`} aria-label="사진 추가">
+      <button
+        type="button"
+        onClick={onClick}
+        className={`${shared} aspect-square w-full rounded-lg`}
+        aria-label="사진 추가"
+      >
         <ImagePlus className="size-5" />
       </button>
     );

@@ -90,7 +90,11 @@ function PostMenuDropdown({ label, menus, pathname, isActive }: PostMenuDropdown
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className={cn(NAV_ITEM_CLASS, 'group cursor-pointer data-[state=open]:text-foreground', isActive && ACTIVE_NAV_ITEM_CLASS)}
+          className={cn(
+            NAV_ITEM_CLASS,
+            'group cursor-pointer data-[state=open]:text-foreground',
+            isActive && ACTIVE_NAV_ITEM_CLASS,
+          )}
         >
           {label}
           <ChevronDown

@@ -261,4 +261,4 @@ export type Book = Omit<BookRow, 'cover'> & {
   cover: PostImage | null;
 };
 
-export type PublicComment =Database['public']['Views']['comments_public']['Row'];
+export type PublicComment = Database['public']['Views']['comments_public']['Row'];

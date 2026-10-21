@@ -29,20 +29,17 @@ lib/<순수 함수>.ts        DB 없이 테스트 가능한 로직 (book-shelf, 
 순서를 지킨다.
 
 ```ts
-export async function createBookAction(
-  _prev: BookFormState | undefined,
-  formData: FormData,
-): Promise<BookFormState> {
+export async function createBookAction(_prev: BookFormState | undefined, formData: FormData): Promise<BookFormState> {
   await requireUser(); // 1. 권한 (RLS가 진짜 경계, 이건 이중 장치)
 
   const result = await parseBookForm(formData); // 2. zod safeParse → 첫 이슈 메시지
-  if ("error" in result) return result; //    실패는 throw가 아니라 { error } 반환
+  if ('error' in result) return result; //    실패는 throw가 아니라 { error } 반환
 
   let id: string;
   try {
     id = (await createBook(result.input)).id; // 3. 쓰기만 try 안에
   } catch (error: unknown) {
-    return { error: getErrorMessage(error, "책을 추가하지 못했습니다.") };
+    return { error: getErrorMessage(error, '책을 추가하지 못했습니다.') };
   }
 
   revalidatePath(SHELF_PATH); // 4. 영향받는 경로 모두

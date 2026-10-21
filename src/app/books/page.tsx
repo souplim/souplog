@@ -60,8 +60,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
           user && (
             <Button asChild size="sm">
               <Link href="/admin/books/new">
-                <Plus />
-                책 추가
+                <Plus />책 추가
               </Link>
             </Button>
           )
@@ -69,7 +68,12 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
       />
 
       <div className="mt-[var(--space-xl)] space-y-[var(--space-section)]">
-        <ShelfSection id="reading" title={BOOK_STATUS_LABELS.reading} count={reading.length} empty={`${summaryYear}년에 읽기 시작한 책이 없어요.`}>
+        <ShelfSection
+          id="reading"
+          title={BOOK_STATUS_LABELS.reading}
+          count={reading.length}
+          empty={`${summaryYear}년에 읽기 시작한 책이 없어요.`}
+        >
           <BookShelf
             books={reading}
             renderNote={(book) => (book.started_at ? `${daysSince(book.started_at, today)}일째` : null)}
@@ -77,7 +81,12 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
           />
         </ShelfSection>
 
-        <ShelfSection id="finished" title={BOOK_STATUS_LABELS.done} count={finished.length} empty={`${summaryYear}년에 다 읽은 책이 없어요.`}>
+        <ShelfSection
+          id="finished"
+          title={BOOK_STATUS_LABELS.done}
+          count={finished.length}
+          empty={`${summaryYear}년에 다 읽은 책이 없어요.`}
+        >
           <BookShelf books={finished} />
         </ShelfSection>
 
@@ -105,7 +114,10 @@ interface ShelfSectionProps {
 function ShelfSection({ id, title, count, empty, children }: ShelfSectionProps) {
   return (
     <section id={id} aria-labelledby={`${id}-heading`} className="scroll-mt-24">
-      <h2 id={`${id}-heading`} className="mb-[var(--space-md)] flex items-baseline gap-2 font-heading text-[length:var(--text-title)] tracking-[var(--tracking-tight)]">
+      <h2
+        id={`${id}-heading`}
+        className="mb-[var(--space-md)] flex items-baseline gap-2 font-heading text-[length:var(--text-title)] tracking-[var(--tracking-tight)]"
+      >
         {title}
         <span className="text-sm font-normal tabular-nums text-muted-foreground">{count}</span>
       </h2>

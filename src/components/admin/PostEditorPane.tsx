@@ -52,9 +52,7 @@ export function PostEditorPane({
   className,
 }: PostEditorPaneProps) {
   return (
-    <section
-      className={cn('flex min-h-0 flex-col overflow-y-auto', EDITOR_PANE_PADDING, className)}
-    >
+    <section className={cn('flex min-h-0 flex-col overflow-y-auto', EDITOR_PANE_PADDING, className)}>
       <Input
         name="title"
         value={title}
@@ -120,7 +118,14 @@ export function PostEditorPane({
           <Label htmlFor="excerpt" className="text-xs font-medium text-muted-foreground">
             요약 (목록과 공유 미리보기에 쓰입니다)
           </Label>
-          <Textarea id="excerpt" name="excerpt" defaultValue={defaultExcerpt} rows={2} maxLength={300} className="text-sm" />
+          <Textarea
+            id="excerpt"
+            name="excerpt"
+            defaultValue={defaultExcerpt}
+            rows={2}
+            maxLength={300}
+            className="text-sm"
+          />
         </div>
       </div>
     </section>

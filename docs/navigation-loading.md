@@ -33,15 +33,15 @@ page:             getMenuBySlug      → 쿼리 2   (캐시 밖이라 또 나간
 
 ## 조치 1 — `loading.tsx`
 
-| 파일 | 내용 |
-| --- | --- |
-| `src/components/ui/skeleton.tsx` | 프리미티브. `bg-border` + `motion-safe:animate-pulse` |
-| `src/components/post/PostListSkeleton.tsx` | `PostListItem`의 구분선·여백 리듬을 그대로 따라간다 |
-| `src/components/post/PostDetailSkeleton.tsx` | 글 상세의 헤더 + 본문 컬럼 |
-| `src/app/loading.tsx` | 홈 피드 |
-| `src/app/menu/[slug]/loading.tsx` | 메뉴 목록 |
-| `src/app/posts/[slug]/loading.tsx` | 글 상세 |
-| `src/app/login/loading.tsx` · `src/app/admin/loading.tsx` | 아래 참고 |
+| 파일                                                      | 내용                                                  |
+| --------------------------------------------------------- | ----------------------------------------------------- |
+| `src/components/ui/skeleton.tsx`                          | 프리미티브. `bg-border` + `motion-safe:animate-pulse` |
+| `src/components/post/PostListSkeleton.tsx`                | `PostListItem`의 구분선·여백 리듬을 그대로 따라간다   |
+| `src/components/post/PostDetailSkeleton.tsx`              | 글 상세의 헤더 + 본문 컬럼                            |
+| `src/app/loading.tsx`                                     | 홈 피드                                               |
+| `src/app/menu/[slug]/loading.tsx`                         | 메뉴 목록                                             |
+| `src/app/posts/[slug]/loading.tsx`                        | 글 상세                                               |
+| `src/app/login/loading.tsx` · `src/app/admin/loading.tsx` | 아래 참고                                             |
 
 스켈레톤 색은 `bg-muted`가 아니라 `bg-border`다. 99.2% 밝기 배경 위에서 97.3%인 muted 표면은 플레이스홀더로 읽히지 않을 만큼 흐리다.
 
@@ -55,11 +55,11 @@ page:             getMenuBySlug      → 쿼리 2   (캐시 밖이라 또 나간
 
 그래서 slug → menu 해석을 `getMenus()` 쪽으로 옮기고, `getPublicPosts`가 slug 대신 `menuId`를 받도록 바꿨다. 호출부가 menu를 이미 들고 있으니 내부에서 menus를 다시 조회할 이유가 없다. 쓰이지 않게 된 `getMenuBySlug`는 지웠다.
 
-| 라우트 | 전 | 후 |
-| --- | --- | --- |
-| `/menu/[slug]` | 추가 쿼리 4개, 대부분 직렬 | **1개** (글 목록만) |
-| `/posts/[slug]` | `Promise.all(post, user)` → `getMenus` 직렬 2단계 | `getMenus`를 같은 배치에 편입, **1단계** |
-| `/` | `getCurrentUser` → `Promise.all(posts, menus)` | 메뉴 목록이 auth 체크 뒤에 줄 서지 않는다 |
+| 라우트          | 전                                                | 후                                        |
+| --------------- | ------------------------------------------------- | ----------------------------------------- |
+| `/menu/[slug]`  | 추가 쿼리 4개, 대부분 직렬                        | **1개** (글 목록만)                       |
+| `/posts/[slug]` | `Promise.all(post, user)` → `getMenus` 직렬 2단계 | `getMenus`를 같은 배치에 편입, **1단계**  |
+| `/`             | `getCurrentUser` → `Promise.all(posts, menus)`    | 메뉴 목록이 auth 체크 뒤에 줄 서지 않는다 |
 
 `/`는 글 쿼리가 "누가 보는가"에 의존하므로(`includeDrafts`) auth 체크를 앞세우는 직렬 2단계가 남는다. 이건 구조상 어쩔 수 없다.
 
@@ -67,10 +67,10 @@ page:             getMenuBySlug      → 쿼리 2   (캐시 밖이라 또 나간
 
 프로덕션 빌드(`pnpm build && pnpm start`)에 Playwright로 홈 → 글 상세 이동을 3회씩. `loading.tsx` 5개를 뺀 빌드와 넣은 빌드를 같은 조건에서 비교했다.
 
-| | 첫 피드백 (URL 커밋 + 화면 변화) | 본문(`<h1>`) 도착 |
-| --- | --- | --- |
+|         | 첫 피드백 (URL 커밋 + 화면 변화)                 | 본문(`<h1>`) 도착  |
+| ------- | ------------------------------------------------ | ------------------ |
 | 적용 전 | 288 / 327 / 530 ms — 그때까지 화면 변화 **없음** | 292 / 332 / 535 ms |
-| 적용 후 | **85 / 99 / 114 ms** — 스켈레톤 표시 | 382 / 382 / 402 ms |
+| 적용 후 | **85 / 99 / 114 ms** — 스켈레톤 표시             | 382 / 382 / 402 ms |
 
 트레이드오프가 있다. 첫 피드백은 3배 가까이 빨라지지만 본문이 완성되기까지는 60ms쯤 늘어난다. 폴백을 한 번 그리고 스트리밍 결과로 교체하는 비용이다. 아무것도 없는 300ms보다 스켈레톤이 있는 390ms가 낫다고 판단했다.
 

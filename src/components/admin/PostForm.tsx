@@ -75,10 +75,7 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
           createdAt={post?.created_at}
           className={activeTab === 'edit' ? undefined : 'hidden md:flex'}
         />
-        <PostPreviewPane
-          content={content}
-          className={activeTab === 'preview' ? undefined : 'hidden md:block'}
-        />
+        <PostPreviewPane content={content} className={activeTab === 'preview' ? undefined : 'hidden md:block'} />
       </div>
 
       <div className="shrink-0 border-t border-border bg-background/85 backdrop-blur">

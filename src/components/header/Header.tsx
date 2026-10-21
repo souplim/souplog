@@ -29,7 +29,10 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-[var(--page-width)] items-center justify-between gap-4 px-4 sm:gap-8 sm:px-6">
-        <Link href="/" className="shrink-0 font-heading text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground">
+        <Link
+          href="/"
+          className="shrink-0 font-heading text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground"
+        >
           souplog
         </Link>
 

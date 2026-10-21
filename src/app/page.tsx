@@ -28,15 +28,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <FeedContainer>
       <SearchForm />
-      {query ? (
-        <SearchResultHeading query={query} count={posts.length} />
-      ) : (
-        <FeedHeading>최근 글</FeedHeading>
-      )}
+      {query ? <SearchResultHeading query={query} count={posts.length} /> : <FeedHeading>최근 글</FeedHeading>}
       {posts.length === 0 ? (
-        <FeedEmpty>
-          {query ? NO_SEARCH_RESULT_MESSAGE : '아직 공개된 글이 없습니다.'}
-        </FeedEmpty>
+        <FeedEmpty>{query ? NO_SEARCH_RESULT_MESSAGE : '아직 공개된 글이 없습니다.'}</FeedEmpty>
       ) : (
         <PostCardGrid>
           {posts.map((post, index) => (

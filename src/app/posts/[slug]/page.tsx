@@ -51,11 +51,7 @@ export default async function PostPage({ params }: PostPageProps) {
   // the post has a menu: it's request-cached and the Header has already asked
   // for it, so it costs nothing here but saves a round trip's wait when the
   // post does belong to one.
-  const [post, user, menus] = await Promise.all([
-    getPostBySlug(decodeSlugParam(slug)),
-    getCurrentUser(),
-    getMenus(),
-  ]);
+  const [post, user, menus] = await Promise.all([getPostBySlug(decodeSlugParam(slug)), getCurrentUser(), getMenus()]);
 
   // RLS already hides other people's private posts (getPostBySlug returns
   // null for them); this is a second line of defense against a page reached
@@ -76,11 +72,9 @@ export default async function PostPage({ params }: PostPageProps) {
         {/* Naver-blog style byline: date and visibility under the title, owner actions flush right. */}
         <div className="mt-3.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs tabular-nums text-muted-foreground">
-                        <span>{formatDate(post.created_at)}</span>
+            <span>{formatDate(post.created_at)}</span>
             {user && (
-              <Badge variant={post.is_public ? 'secondary' : 'outline'}>
-                {post.is_public ? '공개' : '비공개'}
-              </Badge>
+              <Badge variant={post.is_public ? 'secondary' : 'outline'}>{post.is_public ? '공개' : '비공개'}</Badge>
             )}
           </div>
 

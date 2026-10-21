@@ -41,9 +41,7 @@ export default async function MenuPage({ params, searchParams }: MenuPageProps) 
       <FeedTitle title={menu.name} />
       {query ? <SearchResultHeading query={query} count={posts.length} /> : null}
       {posts.length === 0 ? (
-        <FeedEmpty>
-          {query ? NO_SEARCH_RESULT_MESSAGE : '이 메뉴에는 아직 공개된 글이 없습니다.'}
-        </FeedEmpty>
+        <FeedEmpty>{query ? NO_SEARCH_RESULT_MESSAGE : '이 메뉴에는 아직 공개된 글이 없습니다.'}</FeedEmpty>
       ) : (
         <PostCardGrid>
           {posts.map((post, index) => (

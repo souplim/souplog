@@ -65,8 +65,7 @@ export function CoverPicker({ initialCover, suggested, onClearSuggested }: Cover
     if (inputRef.current) inputRef.current.value = '';
   }
 
-  const previewSrc =
-    picked?.previewUrl ?? suggested?.thumbnailUrl ?? (kept ? getPostImageUrl(kept.path) : null);
+  const previewSrc = picked?.previewUrl ?? suggested?.thumbnailUrl ?? (kept ? getPostImageUrl(kept.path) : null);
   const coverUrl = !picked && suggested ? suggested.coverUrl : '';
 
   return (

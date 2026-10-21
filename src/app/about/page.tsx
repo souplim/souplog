@@ -39,7 +39,9 @@ export default async function AboutPage() {
                 <PageEyebrow>About</PageEyebrow>
                 <PageTitle>{profile.name}</PageTitle>
                 {profile.tagline && (
-                  <p className="mt-2 text-[length:var(--text-lg)] text-pretty text-muted-foreground">{profile.tagline}</p>
+                  <p className="mt-2 text-[length:var(--text-lg)] text-pretty text-muted-foreground">
+                    {profile.tagline}
+                  </p>
                 )}
               </div>
             </header>

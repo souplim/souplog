@@ -92,7 +92,13 @@ describe('sortByFinishedDate', () => {
 describe('monthlyFinishedCounts', () => {
   it('counts finished books per month of the given year only', () => {
     const counts = monthlyFinishedCounts(
-      [{ finished_at: '2026-01-03' }, { finished_at: '2026-01-30' }, { finished_at: '2026-12-01' }, { finished_at: '2025-01-01' }, { finished_at: null }],
+      [
+        { finished_at: '2026-01-03' },
+        { finished_at: '2026-01-30' },
+        { finished_at: '2026-12-01' },
+        { finished_at: '2025-01-01' },
+        { finished_at: null },
+      ],
       2026,
     );
 

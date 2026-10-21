@@ -136,13 +136,9 @@ function readUint24LE(bytes: Uint8Array, offset: number): number {
 }
 
 function readUint32BE(bytes: Uint8Array, offset: number): number {
-  return (
-    bytes[offset] * 0x1000000 + ((bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3])
-  );
+  return bytes[offset] * 0x1000000 + ((bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3]);
 }
 
 function readUint32LE(bytes: Uint8Array, offset: number): number {
-  return (
-    bytes[offset] + (bytes[offset + 1] << 8) + (bytes[offset + 2] << 16) + bytes[offset + 3] * 0x1000000
-  );
+  return bytes[offset] + (bytes[offset + 1] << 8) + (bytes[offset + 2] << 16) + bytes[offset + 3] * 0x1000000;
 }

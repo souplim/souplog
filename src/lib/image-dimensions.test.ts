@@ -23,9 +23,19 @@ function uint32BE(value: number): number[] {
 
 function png(width: number, height: number): Uint8Array {
   return bytes(
-    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+    0x89,
+    0x50,
+    0x4e,
+    0x47,
+    0x0d,
+    0x0a,
+    0x1a,
+    0x0a,
     ...uint32BE(13),
-    0x49, 0x48, 0x44, 0x52,
+    0x49,
+    0x48,
+    0x44,
+    0x52,
     ...uint32BE(width),
     ...uint32BE(height),
   );
@@ -38,10 +48,24 @@ function gif(width: number, height: number): Uint8Array {
 /** SOI, an APP0 segment to skip over, then the SOF0 that carries the size. */
 function jpeg(width: number, height: number): Uint8Array {
   return bytes(
-    0xff, 0xd8,
-    0xff, 0xe0, ...uint16BE(6), 0x4a, 0x46, 0x49, 0x46,
-    0xff, 0xc0, ...uint16BE(11), 0x08, ...uint16BE(height), ...uint16BE(width), 0x03,
-    0xff, 0xd9,
+    0xff,
+    0xd8,
+    0xff,
+    0xe0,
+    ...uint16BE(6),
+    0x4a,
+    0x46,
+    0x49,
+    0x46,
+    0xff,
+    0xc0,
+    ...uint16BE(11),
+    0x08,
+    ...uint16BE(height),
+    ...uint16BE(width),
+    0x03,
+    0xff,
+    0xd9,
   );
 }
 
@@ -51,13 +75,7 @@ function riffHeader(chunk: string): number[] {
 }
 
 function lossyWebp(width: number, height: number): Uint8Array {
-  return bytes(
-    ...riffHeader('VP8 '),
-    0x00, 0x00, 0x00,
-    0x9d, 0x01, 0x2a,
-    ...uint16LE(width),
-    ...uint16LE(height),
-  );
+  return bytes(...riffHeader('VP8 '), 0x00, 0x00, 0x00, 0x9d, 0x01, 0x2a, ...uint16LE(width), ...uint16LE(height));
 }
 
 function losslessWebp(width: number, height: number): Uint8Array {
@@ -73,12 +91,7 @@ function losslessWebp(width: number, height: number): Uint8Array {
 }
 
 function extendedWebp(width: number, height: number): Uint8Array {
-  return bytes(
-    ...riffHeader('VP8X'),
-    0x10, 0x00, 0x00, 0x00,
-    ...uint24LE(width - 1),
-    ...uint24LE(height - 1),
-  );
+  return bytes(...riffHeader('VP8X'), 0x10, 0x00, 0x00, 0x00, ...uint24LE(width - 1), ...uint24LE(height - 1));
 }
 
 describe('readImageDimensions', () => {

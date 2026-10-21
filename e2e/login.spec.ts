@@ -18,9 +18,7 @@ test('테마 토글이 data-theme 속성을 바꾼다', async ({ page }) => {
 
   const before = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
   await toggle.click();
-  await expect
-    .poll(() => page.evaluate(() => document.documentElement.getAttribute('data-theme')))
-    .not.toBe(before);
+  await expect.poll(() => page.evaluate(() => document.documentElement.getAttribute('data-theme'))).not.toBe(before);
 });
 
 test('탭 키로 테마 토글과 로그인 링크에 접근할 수 있다', async ({ page }) => {

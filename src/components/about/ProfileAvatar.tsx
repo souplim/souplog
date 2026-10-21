@@ -14,10 +14,7 @@ interface ProfileAvatarProps {
 export function ProfileAvatar({ avatar, name, size, className }: ProfileAvatarProps) {
   return (
     <div
-      className={cn(
-        'relative shrink-0 overflow-hidden rounded-full bg-accent ring-1 ring-border',
-        className,
-      )}
+      className={cn('relative shrink-0 overflow-hidden rounded-full bg-accent ring-1 ring-border', className)}
       style={{ width: size, height: size }}
     >
       {avatar ? (

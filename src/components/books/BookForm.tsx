@@ -98,17 +98,36 @@ export function BookForm({ book, action }: BookFormProps) {
 
       <div className="space-y-2">
         <Label htmlFor="title">제목</Label>
-        <Input id="title" name="title" value={title} onChange={(event) => setTitle(event.target.value)} required maxLength={200} />
+        <Input
+          id="title"
+          name="title"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          required
+          maxLength={200}
+        />
       </div>
 
       <div className="grid gap-x-4 gap-y-8 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="author">저자</Label>
-          <Input id="author" name="author" value={author} onChange={(event) => setAuthor(event.target.value)} maxLength={200} />
+          <Input
+            id="author"
+            name="author"
+            value={author}
+            onChange={(event) => setAuthor(event.target.value)}
+            maxLength={200}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="publisher">출판사</Label>
-          <Input id="publisher" name="publisher" value={publisher} onChange={(event) => setPublisher(event.target.value)} maxLength={100} />
+          <Input
+            id="publisher"
+            name="publisher"
+            value={publisher}
+            onChange={(event) => setPublisher(event.target.value)}
+            maxLength={100}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="totalPages">전체 쪽수</Label>

@@ -1,3 +1,4 @@
+import { FeedContainer, FeedHeading } from '~/components/post/FeedLayout';
 import { PostListSkeleton } from '~/components/post/PostListSkeleton';
 import { SearchForm } from '~/components/search/SearchForm';
 
@@ -10,10 +11,10 @@ import { SearchForm } from '~/components/search/SearchForm';
  */
 export default function HomeLoading() {
   return (
-    <div className="mx-auto max-w-[var(--page-width)] px-4 pt-[var(--space-md)] pb-[var(--space-section)] sm:px-6 sm:pt-[var(--space-lg)]">
+    <FeedContainer>
       <SearchForm />
-      <h2 className="mb-4 text-xs font-normal tracking-normal text-muted-foreground">최근 글</h2>
+      <FeedHeading>최근 글</FeedHeading>
       <PostListSkeleton />
-    </div>
+    </FeedContainer>
   );
 }

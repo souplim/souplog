@@ -1,14 +1,16 @@
+import { FeedHeading } from '~/components/post/FeedLayout';
+
 interface SearchResultHeadingProps {
   query: string;
   count: number;
 }
 
-/** Same type scale as the feed's "최근 글" label it stands in for. */
+/** Stands in for the feed's "최근 글" label while a search is on. */
 export function SearchResultHeading({ query, count }: SearchResultHeadingProps) {
   return (
-    <h2 className="mb-4 text-xs font-normal tracking-normal text-muted-foreground">
+    <FeedHeading>
       <span className="font-medium text-foreground">‘{query}’</span> 검색 결과 {count}개
-    </h2>
+    </FeedHeading>
   );
 }
 

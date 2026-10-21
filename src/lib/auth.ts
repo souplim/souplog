@@ -4,15 +4,18 @@ import { cache } from 'react';
 import { createClient } from '~/lib/supabase/server';
 
 /**
- * Returns the signed-in owner, or `null` if no one is signed in. Cached per
- * request — Header, Footer, and a page body all ask independently.
+ * Returns the signed-in owner's JWT claims, or `null` if no one is signed in.
+ * Cached per request — Header, Footer, and a page body all ask independently.
+ *
+ * `getClaims` verifies the token's signature locally (the project signs with
+ * an asymmetric ES256 key), so unlike `getUser` it costs no auth-server round
+ * trip. The trade-off: a session revoked elsewhere stays valid here until its
+ * access token expires — Postgres still checks the same JWT through RLS.
  */
 export const getCurrentUser = cache(async () => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  const { data } = await supabase.auth.getClaims();
+  return data?.claims ?? null;
 });
 
 /**

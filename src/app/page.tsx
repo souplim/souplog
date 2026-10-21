@@ -14,14 +14,15 @@ interface HomePageProps {
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const query = normalizeSearchQuery((await searchParams).q);
-  // The post query depends on who's asking, so it can't start before the auth
-  // check resolves — the menu list doesn't, so it rides along with it instead
-  // of waiting its turn behind both.
-  const [user, menus] = await Promise.all([getCurrentUser(), getMenus()]);
+  // The post query depends on who's asking, so it chains off the auth check
+  // alone — not off the whole batch, or it would also wait for the menu list
+  // it doesn't need.
+  const userPromise = getCurrentUser();
+  const postsPromise = userPromise.then((user) =>
+    query ? searchPosts(query, { includeDrafts: Boolean(user) }) : getPublicPosts({ includeDrafts: Boolean(user) }),
+  );
+  const [user, menus, posts] = await Promise.all([userPromise, getMenus(), postsPromise]);
   const isOwner = Boolean(user);
-  const posts = query
-    ? await searchPosts(query, { includeDrafts: isOwner })
-    : await getPublicPosts({ includeDrafts: isOwner });
   const menuNameById = new Map(menus.map((menu) => [menu.id, menu.name]));
 
   return (

@@ -12,17 +12,19 @@ export async function Header() {
   // need during a Supabase outage — a menu-query failure here must not take
   // the whole site down, so it degrades to an empty nav instead of throwing.
   // The top-level entries fall back to their defaults the same way.
-  const [menusResult, navItemsResult, userResult] = await Promise.allSettled([
-    getMenus(),
-    getNavItems(),
-    getCurrentUser(),
+  //
+  // Only the owner sees the profile button, so visitors skip that query —
+  // chained off the auth check rather than awaited after the batch, so it
+  // overlaps the menu queries instead of waiting behind them. Same
+  // degrade-don't-throw rule: a failure just falls back to the icon.
+  const userPromise = getCurrentUser().catch(() => null);
+  const profilePromise = userPromise.then((user) => (user ? getProfile().catch(() => null) : null));
+  const [menus, navItems, user, profile] = await Promise.all([
+    getMenus().catch(() => []),
+    getNavItems().catch(() => [...DEFAULT_NAV_ITEMS]),
+    userPromise,
+    profilePromise,
   ]);
-  const menus = menusResult.status === 'fulfilled' ? menusResult.value : [];
-  const navItems = navItemsResult.status === 'fulfilled' ? navItemsResult.value : [...DEFAULT_NAV_ITEMS];
-  const user = userResult.status === 'fulfilled' ? userResult.value : null;
-  // Only the owner sees the profile button, so visitors skip this query. Same
-  // degrade-don't-throw rule as above: a failure just falls back to the icon.
-  const profile = user ? await getProfile().catch(() => null) : null;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">

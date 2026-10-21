@@ -7,7 +7,7 @@ import { getSupabaseAnonKey, getSupabaseUrl } from '~/lib/supabase/env';
  * Refreshes the Supabase session cookie on every request (Next.js 16 renamed
  * `middleware` to `proxy` — same execution model, see AGENTS.md) and issues a
  * per-request CSP nonce. This is an optimistic pass only: real authorization
- * happens per-request via RLS and `supabase.auth.getUser()` in each Server
+ * happens per-request via RLS and `getCurrentUser()` in each Server
  * Component/Action, never here.
  */
 export async function proxy(request: NextRequest) {
@@ -31,7 +31,10 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  // getClaims refreshes an expiring session like getUser does, but verifies
+  // the JWT locally against the project's ES256 key instead of asking the
+  // auth server — one less round trip on every request.
+  await supabase.auth.getClaims();
 
   response.headers.set('Content-Security-Policy', buildCsp(nonce));
   return response;

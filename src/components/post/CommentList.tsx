@@ -1,5 +1,6 @@
 import { formatDate } from '~/lib/date';
 import { getCommentsForPost } from '~/lib/comments';
+import { Skeleton } from '~/components/ui/skeleton';
 import { CommentDeleteForm } from './CommentDeleteForm';
 import { CommentForm } from './CommentForm';
 import { OwnerDeleteCommentButton } from './OwnerDeleteCommentButton';
@@ -8,6 +9,22 @@ interface CommentListProps {
   postId: string;
   postSlug: string;
   isOwner: boolean;
+}
+
+/** Same section frame and heading as `CommentList`, so the comments swap in under it. */
+export function CommentListSkeleton() {
+  return (
+    <section className="mt-[var(--space-xl)] border-t border-border pt-8" aria-labelledby="comments-heading">
+      <h2 id="comments-heading" className="font-heading text-[length:var(--text-base)]">
+        댓글
+      </h2>
+      <div role="status" className="mt-4 space-y-2.5">
+        <span className="sr-only">댓글을 불러오는 중입니다.</span>
+        <Skeleton className="h-3 w-[28%]" />
+        <Skeleton className="h-3 w-[72%]" />
+      </div>
+    </section>
+  );
 }
 
 export async function CommentList({ postId, postSlug, isOwner }: CommentListProps) {

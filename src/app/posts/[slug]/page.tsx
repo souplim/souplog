@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import { getCurrentUser } from '~/lib/auth';
 import { formatDate } from '~/lib/date';
 import { getPostImageUrl } from '~/lib/images';
@@ -7,7 +8,7 @@ import { getMenus } from '~/lib/menus';
 import { getPostBySlug } from '~/lib/posts';
 import { decodeSlugParam } from '~/lib/slugify';
 import { PostAttachments } from '~/components/post/PostAttachments';
-import { CommentList } from '~/components/post/CommentList';
+import { CommentList, CommentListSkeleton } from '~/components/post/CommentList';
 import { DeletePostButton } from '~/components/post/DeletePostButton';
 import { PostContent } from '~/components/post/PostContent';
 import { PostGallery } from '~/components/post/PostGallery';
@@ -110,7 +111,12 @@ export default async function PostPage({ params }: PostPageProps) {
 
       {post.is_public && (
         <div className="mx-auto mt-auto w-full max-w-[var(--content-width)]">
-          <CommentList postId={post.id} postSlug={post.slug} isOwner={Boolean(user)} />
+          {/* Comments need the post's id, so their query can only start once
+              the post is in — streaming them keeps that second round trip
+              from holding back the body above. */}
+          <Suspense fallback={<CommentListSkeleton />}>
+            <CommentList postId={post.id} postSlug={post.slug} isOwner={Boolean(user)} />
+          </Suspense>
         </div>
       )}
     </div>

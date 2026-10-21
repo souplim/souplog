@@ -21,7 +21,7 @@
 
   --color-danger: oklch(54% 0.16 25);
 
-  --font-body: var(--font-pretendard), Pretendard, -apple-system, sans-serif;
+  --font-body: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* 로드하는 굵기(400/600)만 쓴다 — v1의 700은 합성 볼드였다. */

@@ -226,7 +226,6 @@ create table if not exists public.books (
   cover        jsonb,
   status       text not null default 'want' check (status in ('want', 'reading', 'done')),
   total_pages  integer check (total_pages > 0),
-  current_page integer not null default 0 check (current_page >= 0),
   started_at   date,
   finished_at  date,
   rating       smallint check (rating between 1 and 5),
@@ -235,11 +234,14 @@ create table if not exists public.books (
   is_public    boolean not null default true,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now(),
-  constraint books_current_page_within_total check (total_pages is null or current_page <= total_pages),
   constraint books_finished_after_started check (finished_at is null or started_at is null or finished_at >= started_at)
 );
 
 create index if not exists books_status_finished_idx on public.books (status, finished_at);
+
+-- 읽은 쪽수(책갈피)는 쓰지 않게 되어 뺐다. 이미 만들어진 테이블에서도 걷어낸다.
+alter table public.books drop constraint if exists books_current_page_within_total;
+alter table public.books drop column if exists current_page;
 
 -- ---------------------------------------------------------------------------
 -- updated_at 자동 갱신

@@ -54,7 +54,6 @@ async function parseBookForm(formData: FormData): Promise<{ input: BookInput } |
     isbn: field(formData, 'isbn'),
     status: field(formData, 'status'),
     totalPages: field(formData, 'totalPages'),
-    currentPage: field(formData, 'currentPage'),
     startedAt: field(formData, 'startedAt'),
     finishedAt: field(formData, 'finishedAt'),
     rating: field(formData, 'rating'),
@@ -122,39 +121,11 @@ export async function changeBookStatusAction(bookId: string, next: BookStatus): 
   const book = await getBookById(bookId);
   if (!book) throw new Error('책을 찾을 수 없습니다.');
 
-  const { status, total_pages, current_page, started_at, finished_at } = applyStatusChange(book, next, todayInSeoul());
-  await updateBookProgress(bookId, { status, total_pages, current_page, started_at, finished_at });
+  const { status, started_at, finished_at } = applyStatusChange(book, next, todayInSeoul());
+  await updateBookProgress(bookId, { status, started_at, finished_at });
 
   revalidatePath(SHELF_PATH);
   revalidatePath(bookPath(bookId));
-}
-
-export async function updateBookPageAction(
-  bookId: string,
-  _prevState: BookFormState | undefined,
-  formData: FormData,
-): Promise<BookFormState> {
-  await requireUser();
-
-  const book = await getBookById(bookId);
-  if (!book) return { error: '책을 찾을 수 없습니다.' };
-
-  const page = Number(formData.get('currentPage'));
-  const lastPage = book.total_pages ?? Number.MAX_SAFE_INTEGER;
-  if (!Number.isInteger(page) || page < 0 || page > lastPage) {
-    return { error: book.total_pages ? `0~${book.total_pages} 사이로 입력하세요.` : '쪽수를 확인하세요.' };
-  }
-
-  try {
-    const { status, total_pages, started_at, finished_at } = book;
-    await updateBookProgress(bookId, { status, total_pages, current_page: page, started_at, finished_at });
-  } catch (error: unknown) {
-    return { error: getErrorMessage(error, '읽은 쪽수를 저장하지 못했습니다.') };
-  }
-
-  revalidatePath(SHELF_PATH);
-  revalidatePath(bookPath(bookId));
-  return {};
 }
 
 const MAX_SEARCH_QUERY_LENGTH = 100;

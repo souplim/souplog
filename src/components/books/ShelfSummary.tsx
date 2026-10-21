@@ -1,4 +1,4 @@
-import { monthlyFinishedCounts } from '~/lib/book-shelf';
+import { monthlyFinishedCounts, statusCountsInYear } from '~/lib/book-shelf';
 import type { Book } from '~/lib/supabase/types';
 
 import { MonthlyFinishedChart } from './MonthlyFinishedChart';
@@ -8,22 +8,20 @@ interface ShelfSummaryProps {
   books: Book[];
   /** The year being summarised. */
   year: number;
-  /** Years the select offers, newest first. */
+  /** Years the select offers, oldest first. */
   years: number[];
   currentYear: number;
 }
 
 /**
- * The shelf in one glance: the year up front, the three statuses as jump
- * links beneath it, and how that year's reading spread over its months —
- * with a picker over the chart to look back at an earlier year.
+ * The shelf in one glance: the year up front, that year's three statuses as
+ * jump links beneath it, and how its reading spread over its months — with a
+ * picker over the chart to switch to another year.
  */
 export function ShelfSummary({ books, year, years, currentYear }: ShelfSummaryProps) {
   const finished = books.filter((book) => book.status === 'done');
   const months = monthlyFinishedCounts(finished, year);
-  const finishedThisYear = months.reduce((sum, count) => sum + count, 0);
-  const readingCount = books.filter((book) => book.status === 'reading').length;
-  const wantCount = books.filter((book) => book.status === 'want').length;
+  const counts = statusCountsInYear(books, year);
 
   return (
     <div className="grid gap-[var(--space-md)] border-b border-border pb-[var(--space-md)] sm:grid-cols-[auto_1fr] sm:items-end sm:gap-[var(--space-lg)]">
@@ -32,9 +30,9 @@ export function ShelfSummary({ books, year, years, currentYear }: ShelfSummaryPr
           {year}
         </p>
         <dl className="mt-[var(--space-sm)] flex items-end gap-[var(--space-md)]">
-          <SummaryLink href="#finished" label="읽은 책" count={finishedThisYear} />
-          <SummaryLink href="#reading" label="읽는 중" count={readingCount} />
-          <SummaryLink href="#wishlist" label="읽고 싶은" count={wantCount} />
+          <SummaryLink href="#finished" label="읽은 책" count={counts.done} />
+          <SummaryLink href="#reading" label="읽는 중" count={counts.reading} />
+          <SummaryLink href="#wishlist" label="읽고 싶은" count={counts.want} />
         </dl>
       </div>
 

@@ -1,6 +1,6 @@
 /**
- * Pure helpers behind the bookshelf: status transitions, reading progress,
- * and how the shelf groups finished books. No I/O here — every
+ * Pure helpers behind the bookshelf: status transitions, reading dates, and
+ * how the shelf groups finished books. No I/O here — every
  * date comes in as a `YYYY-MM-DD` string so the rules stay testable.
  */
 
@@ -16,8 +16,6 @@ export const BOOK_STATUS_LABELS: Record<BookStatus, string> = {
 /** The fields a status change touches. */
 export interface BookProgress {
   status: BookStatus;
-  total_pages: number | null;
-  current_page: number;
   started_at: string | null;
   finished_at: string | null;
 }
@@ -30,7 +28,7 @@ export interface BookProgress {
 export function sanitizeForStatus<T extends BookProgress>(book: T): T {
   switch (book.status) {
     case 'want':
-      return { ...book, current_page: 0, started_at: null, finished_at: null };
+      return { ...book, started_at: null, finished_at: null };
     case 'reading':
       return { ...book, finished_at: null };
     case 'done':
@@ -40,8 +38,7 @@ export function sanitizeForStatus<T extends BookProgress>(book: T): T {
 
 /**
  * The one-tap transitions on the book page: starting stamps today as the
- * start date (unless one is already set), finishing stamps the finish date
- * and moves the bookmark to the last page.
+ * start date (unless one is already set), finishing stamps the finish date.
  */
 export function applyStatusChange<T extends BookProgress>(book: T, next: BookStatus, today: string): T {
   switch (next) {
@@ -50,19 +47,8 @@ export function applyStatusChange<T extends BookProgress>(book: T, next: BookSta
     case 'reading':
       return { ...book, status: next, started_at: book.started_at ?? today, finished_at: null };
     case 'done':
-      return {
-        ...book,
-        status: next,
-        finished_at: book.finished_at ?? today,
-        current_page: book.total_pages ?? book.current_page,
-      };
+      return { ...book, status: next, finished_at: book.finished_at ?? today };
   }
-}
-
-/** Whole-number percent read, or `null` when the book's length is unknown. */
-export function progressPercent(currentPage: number, totalPages: number | null): number | null {
-  if (!totalPages) return null;
-  return Math.min(100, Math.round((currentPage / totalPages) * 100));
 }
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -110,13 +96,50 @@ export function monthlyFinishedCounts(books: readonly { finished_at: string | nu
   });
 }
 
+/** The fields that decide which year a book counts toward in the summary. */
+export interface SummaryBook {
+  status: BookStatus;
+  started_at: string | null;
+  finished_at: string | null;
+  /** A UTC timestamp, unlike the `YYYY-MM-DD` reading dates. */
+  created_at: string;
+}
+
 /**
- * Years the shelf summary can show: every year a book was finished in, plus
- * the current year even before its first book, newest first.
+ * The year a book counts toward in the shelf summary: a finished book by its
+ * finish date, a book being read by when it was started, a wished book by
+ * when it went on the shelf (in Seoul). A book missing its reading date falls
+ * back to when it was added, so filtering by year never hides it entirely.
  */
-export function summaryYears(books: readonly { finished_at: string | null }[], currentYear: number): number[] {
-  const finishedYears = books.flatMap((book) => (book.finished_at ? [yearOf(book.finished_at)] : []));
-  return [...new Set([currentYear, ...finishedYears])].toSorted((a, b) => b - a);
+export function summaryYearOf(book: SummaryBook): number {
+  const addedYear = yearOf(todayInSeoul(new Date(book.created_at)));
+  switch (book.status) {
+    case 'done':
+      return book.finished_at ? yearOf(book.finished_at) : addedYear;
+    case 'reading':
+      return book.started_at ? yearOf(book.started_at) : addedYear;
+    case 'want':
+      return addedYear;
+  }
+}
+
+/**
+ * Years the shelf summary can show: every year any book counts toward, plus
+ * the current year even before its first book, oldest first.
+ */
+export function summaryYears(books: readonly SummaryBook[], currentYear: number): number[] {
+  const bookYears = books.map(summaryYearOf);
+  return [...new Set([currentYear, ...bookYears])].toSorted((a, b) => a - b);
+}
+
+/** How many books of each status count toward `year`. */
+export function statusCountsInYear(books: readonly SummaryBook[], year: number): Record<BookStatus, number> {
+  const inYear = books.filter((book) => summaryYearOf(book) === year);
+  return {
+    want: inYear.filter((book) => book.status === 'want').length,
+    reading: inYear.filter((book) => book.status === 'reading').length,
+    done: inYear.filter((book) => book.status === 'done').length,
+  };
 }
 
 /** The `?year=` param when it names an offered year, else `fallback`. */

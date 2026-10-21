@@ -9,7 +9,6 @@ const FORM = {
   isbn: '',
   status: 'reading',
   totalPages: '248',
-  currentPage: '120',
   startedAt: '2026-10-01',
   finishedAt: '',
   rating: '',
@@ -31,7 +30,6 @@ describe('bookSchema', () => {
       isbn: null,
       status: 'reading',
       total_pages: 248,
-      current_page: 120,
       started_at: '2026-10-01',
       finished_at: null,
       rating: null,
@@ -42,15 +40,11 @@ describe('bookSchema', () => {
 
   it('treats fields the form did not render as empty', () => {
     const parsed = bookSchema.parse({ title: '데미안', status: 'want', isPublic: true });
-    expect(parsed).toMatchObject({ total_pages: null, current_page: 0, started_at: null, rating: null });
+    expect(parsed).toMatchObject({ total_pages: null, started_at: null, rating: null });
   });
 
   it('requires a title', () => {
     expect(firstError({ ...FORM, title: '  ' })).toBe('제목을 입력하세요.');
-  });
-
-  it('rejects a bookmark past the last page', () => {
-    expect(firstError({ ...FORM, currentPage: '300' })).toBe('읽은 쪽수가 전체 쪽수보다 많습니다.');
   });
 
   it('rejects a finish date before the start date', () => {
@@ -59,9 +53,9 @@ describe('bookSchema', () => {
     );
   });
 
-  it('ignores a stale bookmark on a wished book instead of rejecting it', () => {
-    const parsed = bookSchema.parse({ ...FORM, status: 'want', currentPage: '999' });
-    expect(parsed).toMatchObject({ current_page: 0, started_at: null });
+  it('ignores a stale start date on a wished book instead of rejecting it', () => {
+    const parsed = bookSchema.parse({ ...FORM, status: 'want' });
+    expect(parsed).toMatchObject({ started_at: null });
   });
 
   it('rejects a rating outside one to five', () => {

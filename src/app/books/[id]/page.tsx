@@ -11,7 +11,6 @@ import type { Book } from '~/lib/supabase/types';
 import { BookCover } from '~/components/books/BookCover';
 import { BookProgressControls } from '~/components/books/BookProgressControls';
 import { DeleteBookButton } from '~/components/books/DeleteBookButton';
-import { ReadingProgress } from '~/components/books/ReadingProgress';
 import { StarRating } from '~/components/books/StarRating';
 import { Badge } from '~/components/ui/badge';
 import { EditIconLink } from '~/components/owner/OwnerActions';
@@ -88,12 +87,7 @@ export default async function BookPage({ params }: BookPageProps) {
 
           {isOwner && (
             <div className="mt-[var(--space-lg)] space-y-4 border-t border-border pt-5">
-              <BookProgressControls
-                bookId={book.id}
-                status={book.status}
-                currentPage={book.current_page}
-                totalPages={book.total_pages}
-              />
+              <BookProgressControls bookId={book.id} status={book.status} />
               <div className="flex items-center gap-1">
                 <EditIconLink href={`/admin/books/${book.id}/edit`} />
                 <DeleteBookButton bookId={book.id} />
@@ -112,14 +106,6 @@ function BookFacts({ book }: { book: Book }) {
 
   return (
     <dl className="mt-[var(--space-md)] grid grid-cols-[auto_1fr] gap-x-6 gap-y-2.5 text-sm">
-      {book.status === 'reading' && (
-        <>
-          <dt className="text-muted-foreground">진행</dt>
-          <dd className="max-w-64">
-            <ReadingProgress currentPage={book.current_page} totalPages={book.total_pages} />
-          </dd>
-        </>
-      )}
       {book.started_at && (
         <>
           <dt className="text-muted-foreground">시작한 날</dt>

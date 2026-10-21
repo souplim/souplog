@@ -31,7 +31,6 @@ export function BookForm({ book, action }: BookFormProps) {
   const [status, setStatus] = useState<BookStatus>(book?.status ?? 'want');
   const [startedAt, setStartedAt] = useState(book?.started_at ?? '');
   const [finishedAt, setFinishedAt] = useState(book?.finished_at ?? '');
-  const [currentPage, setCurrentPage] = useState(String(book?.current_page ?? 0));
   const [rating, setRating] = useState(book?.rating ?? 0);
   const [isPublic, setIsPublic] = useState(book?.is_public ?? true);
   // A new book starts from Kakao search; the form opens once one is picked or the owner opts to type it in.
@@ -150,21 +149,7 @@ export function BookForm({ book, action }: BookFormProps) {
               onChange={(event) => setStartedAt(event.target.value)}
             />
           </div>
-          {status === 'reading' ? (
-            <div className="space-y-2">
-              <Label htmlFor="currentPage">읽은 쪽수</Label>
-              <Input
-                id="currentPage"
-                name="currentPage"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                value={currentPage}
-                onChange={(event) => setCurrentPage(event.target.value)}
-                className="tabular-nums"
-              />
-            </div>
-          ) : (
+          {status === 'done' && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="finishedAt">다 읽은 날</Label>

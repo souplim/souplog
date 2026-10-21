@@ -63,7 +63,6 @@ export const bookSchema = z
     isbn: optionalText(20),
     status: z.enum(BOOK_STATUSES),
     totalPages: optionalInteger(1, MAX_BOOK_PAGES, '전체 쪽수를 확인하세요.'),
-    currentPage: optionalInteger(0, MAX_BOOK_PAGES, '읽은 쪽수를 확인하세요.'),
     startedAt: optionalDate,
     finishedAt: optionalDate,
     rating: optionalInteger(1, 5, '별점은 1~5 사이여야 합니다.'),
@@ -78,7 +77,6 @@ export const bookSchema = z
       isbn: input.isbn || null,
       status: input.status,
       total_pages: input.totalPages,
-      current_page: input.currentPage ?? 0,
       started_at: input.startedAt,
       finished_at: input.finishedAt,
       rating: input.status === 'done' ? input.rating : null,
@@ -86,9 +84,6 @@ export const bookSchema = z
       is_public: input.isPublic,
     }),
   )
-  .refine((book) => book.total_pages === null || book.current_page <= book.total_pages, {
-    message: '읽은 쪽수가 전체 쪽수보다 많습니다.',
-  })
   .refine((book) => !book.started_at || !book.finished_at || book.finished_at >= book.started_at, {
     message: '다 읽은 날이 읽기 시작한 날보다 앞섭니다.',
   });

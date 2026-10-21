@@ -109,7 +109,6 @@ export interface Database {
           cover: unknown;
           status: BookStatus;
           total_pages: number | null;
-          current_page: number;
           // date columns arrive as `YYYY-MM-DD`.
           started_at: string | null;
           finished_at: string | null;
@@ -128,7 +127,6 @@ export interface Database {
           cover?: PostImage | null;
           status?: BookStatus;
           total_pages?: number | null;
-          current_page?: number;
           started_at?: string | null;
           finished_at?: string | null;
           rating?: number | null;

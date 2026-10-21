@@ -2,14 +2,13 @@ import Link from 'next/link';
 import { daysSince } from '~/lib/book-shelf';
 import type { Book } from '~/lib/supabase/types';
 import { BookCover } from './BookCover';
-import { ReadingProgress } from './ReadingProgress';
 
 interface ReadingListProps {
   books: Book[];
   today: string;
 }
 
-/** Books in progress, each with its bookmark — the shelf's "right now". */
+/** Books in progress, each with how long it's been open — the shelf's "right now". */
 export function ReadingList({ books, today }: ReadingListProps) {
   return (
     <ul className="grid gap-x-[var(--space-lg)] gap-y-[var(--space-md)] sm:grid-cols-2">
@@ -31,14 +30,11 @@ export function ReadingList({ books, today }: ReadingListProps) {
                 {book.title}
               </p>
               {book.author && <p className="mt-1 truncate text-xs text-muted-foreground">{book.author}</p>}
-              <div className="mt-auto space-y-1 pt-3">
-                <ReadingProgress currentPage={book.current_page} totalPages={book.total_pages} />
-                {book.started_at && (
-                  <p className="text-xs tabular-nums text-muted-foreground">
-                    {daysSince(book.started_at, today)}일째
-                  </p>
-                )}
-              </div>
+              {book.started_at && (
+                <p className="mt-auto pt-3 text-xs tabular-nums text-muted-foreground">
+                  {daysSince(book.started_at, today)}일째
+                </p>
+              )}
             </div>
           </Link>
         </li>

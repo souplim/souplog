@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   applyStatusChange,
   daysSince,
-  groupFinishedByYear,
   monthlyFinishedCounts,
   resolveSummaryYear,
   sanitizeForStatus,
+  sortByFinishedDate,
   statusCountsInYear,
   summaryYearOf,
   summaryYears,
@@ -75,27 +75,17 @@ describe('daysSince', () => {
   });
 });
 
-describe('groupFinishedByYear', () => {
+describe('sortByFinishedDate', () => {
   const book = (id: string, finished_at: string | null) => ({ id, finished_at });
 
-  it('puts the newest year first and shelves each year newest to oldest', () => {
-    const groups = groupFinishedByYear([
-      book('a', '2025-03-01'),
-      book('b', '2026-09-01'),
-      book('c', '2026-01-15'),
-    ]);
-
-    expect(groups.map((group) => group.year)).toEqual([2026, 2025]);
-    expect(groups[0]?.books.map((entry) => entry.id)).toEqual(['b', 'c']);
+  it('puts the most recently finished book first', () => {
+    const sorted = sortByFinishedDate([book('a', '2026-01-15'), book('b', '2026-09-01'), book('c', '2026-03-01')]);
+    expect(sorted.map((entry) => entry.id)).toEqual(['b', 'c', 'a']);
   });
 
-  it('collects books without a finish date in a last, undated group', () => {
-    const groups = groupFinishedByYear([book('a', null), book('b', '2026-09-01')]);
-    expect(groups.map((group) => group.year)).toEqual([2026, null]);
-  });
-
-  it('returns no groups for an empty shelf', () => {
-    expect(groupFinishedByYear([])).toEqual([]);
+  it('puts books without a finish date last', () => {
+    const sorted = sortByFinishedDate([book('a', null), book('b', '2026-09-01')]);
+    expect(sorted.map((entry) => entry.id)).toEqual(['b', 'a']);
   });
 });
 

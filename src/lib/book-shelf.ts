@@ -59,33 +59,21 @@ export function daysSince(startDate: string, today: string): number {
   return Math.floor(elapsed / MS_PER_DAY) + 1;
 }
 
-export interface ShelfRow<T> {
-  /** `null` collects finished books whose finish date was never recorded. */
-  year: number | null;
-  books: T[];
-}
-
 function yearOf(date: string): number {
   return Number(date.slice(0, 4));
 }
 
 /**
- * One shelf per year, newest year on top. Inside a shelf the most recently
- * finished book comes first, so it's the one in view before the row scrolls.
+ * The most recently finished book first, so it's the one in view before the
+ * shelf scrolls. Books whose finish date was never recorded go last.
  */
-export function groupFinishedByYear<T extends { finished_at: string | null }>(books: readonly T[]): ShelfRow<T>[] {
-  const dated = books
-    .filter((book): book is T & { finished_at: string } => book.finished_at !== null)
-    .toSorted((a, b) => b.finished_at.localeCompare(a.finished_at));
-  const undated = books.filter((book) => book.finished_at === null);
-
-  const years = [...new Set(dated.map((book) => yearOf(book.finished_at)))].toSorted((a, b) => b - a);
-  const rows: ShelfRow<T>[] = years.map((year) => ({
-    year,
-    books: dated.filter((book) => yearOf(book.finished_at) === year),
-  }));
-
-  return undated.length > 0 ? [...rows, { year: null, books: undated }] : rows;
+export function sortByFinishedDate<T extends { finished_at: string | null }>(books: readonly T[]): T[] {
+  return books.toSorted((a, b) => {
+    if (a.finished_at === b.finished_at) return 0;
+    if (a.finished_at === null) return 1;
+    if (b.finished_at === null) return -1;
+    return b.finished_at.localeCompare(a.finished_at);
+  });
 }
 
 /** Books finished in each month of `year`, January first. */

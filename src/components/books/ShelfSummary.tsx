@@ -26,7 +26,7 @@ export function ShelfSummary({ books, year, years, currentYear }: ShelfSummaryPr
   return (
     <div className="grid gap-[var(--space-md)] border-b border-border pb-[var(--space-md)] sm:grid-cols-[auto_1fr] sm:items-end sm:gap-[var(--space-lg)]">
       <div>
-        <p className="font-heading text-[length:var(--text-display)] leading-none font-semibold tracking-[var(--tracking-display)] tabular-nums">
+        <p className="font-heading text-[length:var(--text-headline)] leading-none font-semibold tracking-[var(--tracking-display)] tabular-nums">
           {year}
         </p>
         <dl className="mt-[var(--space-sm)] flex items-end gap-[var(--space-md)]">

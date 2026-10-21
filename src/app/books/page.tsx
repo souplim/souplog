@@ -3,12 +3,18 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { getCurrentUser } from '~/lib/auth';
-import { BOOK_STATUS_LABELS, resolveSummaryYear, summaryYearOf, summaryYears, todayInSeoul } from '~/lib/book-shelf';
+import {
+  BOOK_STATUS_LABELS,
+  daysSince,
+  resolveSummaryYear,
+  sortByFinishedDate,
+  summaryYearOf,
+  summaryYears,
+  todayInSeoul,
+} from '~/lib/book-shelf';
 import { getBooks } from '~/lib/books';
 import { BookShelf } from '~/components/books/BookShelf';
-import { ReadingList } from '~/components/books/ReadingList';
 import { ShelfSummary } from '~/components/books/ShelfSummary';
-import { Wishlist } from '~/components/books/Wishlist';
 import { PageTitle } from '~/components/page/PageHeading';
 import { Button } from '~/components/ui/button';
 
@@ -30,7 +36,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
   // The sections below follow the year picked in the summary.
   const booksInYear = books.filter((book) => summaryYearOf(book) === summaryYear);
   const reading = booksInYear.filter((book) => book.status === 'reading');
-  const finished = booksInYear.filter((book) => book.status === 'done');
+  const finished = sortByFinishedDate(booksInYear.filter((book) => book.status === 'done'));
   const wishlist = booksInYear.filter((book) => book.status === 'want');
 
   return (
@@ -51,7 +57,11 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
 
       <div className="mt-[var(--space-xl)] space-y-[var(--space-section)]">
         <ShelfSection id="reading" title={BOOK_STATUS_LABELS.reading} count={reading.length} empty={`${summaryYear}년에 읽기 시작한 책이 없어요.`}>
-          <ReadingList books={reading} today={today} />
+          <BookShelf
+            books={reading}
+            renderNote={(book) => (book.started_at ? `${daysSince(book.started_at, today)}일째` : null)}
+            isPriority
+          />
         </ShelfSection>
 
         <ShelfSection id="finished" title={BOOK_STATUS_LABELS.done} count={finished.length} empty={`${summaryYear}년에 다 읽은 책이 없어요.`}>
@@ -64,7 +74,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
           count={wishlist.length}
           empty={`${summaryYear}년에 꽂아둔 읽고 싶은 책이 없어요.`}
         >
-          <Wishlist books={wishlist} />
+          <BookShelf books={wishlist} />
         </ShelfSection>
       </div>
     </div>

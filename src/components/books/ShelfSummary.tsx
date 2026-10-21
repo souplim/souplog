@@ -8,6 +8,8 @@ interface ShelfSummaryProps {
 
 /** Bars never shrink below this, so an empty month still reads as a month. */
 const MIN_BAR_PERCENT = 4;
+/** Months named under the chart — enough to read the rest by counting. */
+const LABELED_MONTHS = [1, 6, 12];
 
 /**
  * The shelf in one glance: this year's count up front, the other two
@@ -50,10 +52,13 @@ export function ShelfSummary({ books, year }: ShelfSummaryProps) {
             </li>
           ))}
         </ol>
-        <figcaption className="mt-1.5 flex justify-between text-[0.6875rem] tabular-nums text-muted-foreground" aria-hidden="true">
-          <span>1월</span>
-          <span>6월</span>
-          <span>12월</span>
+        {/* Same 12 cells as the bars, so each label sits under its own month rather than at an even third of the width. */}
+        <figcaption className="mt-1.5 flex gap-1 text-[0.6875rem] tabular-nums text-muted-foreground" aria-hidden="true">
+          {months.map((_, index) => (
+            <span key={index} className="flex-1 text-center whitespace-nowrap">
+              {LABELED_MONTHS.includes(index + 1) && `${index + 1}월`}
+            </span>
+          ))}
         </figcaption>
       </figure>
     </div>

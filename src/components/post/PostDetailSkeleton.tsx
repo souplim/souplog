@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '~/lib/utils';
 import { Skeleton } from '~/components/ui/skeleton';
 
 /** Body placeholder lines, shortest last so the block reads as a paragraph. */
@@ -27,8 +27,9 @@ export function PostDetailSkeleton() {
       </header>
 
       <div className="mx-auto w-full max-w-[var(--content-width)] space-y-3">
-        {BODY_LINES.map((width) => (
-          <Skeleton key={width} className={cn('h-4', width)} />
+        {/* Widths repeat, so they can't be keys; the list is static, so the index is stable. */}
+        {BODY_LINES.map((width, index) => (
+          <Skeleton key={index} className={cn('h-4', width)} />
         ))}
       </div>
     </div>

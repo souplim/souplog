@@ -110,6 +110,26 @@ export function monthlyFinishedCounts(books: readonly { finished_at: string | nu
   });
 }
 
+/**
+ * Years the shelf summary can show: every year a book was finished in, plus
+ * the current year even before its first book, newest first.
+ */
+export function summaryYears(books: readonly { finished_at: string | null }[], currentYear: number): number[] {
+  const finishedYears = books.flatMap((book) => (book.finished_at ? [yearOf(book.finished_at)] : []));
+  return [...new Set([currentYear, ...finishedYears])].toSorted((a, b) => b - a);
+}
+
+/** The `?year=` param when it names an offered year, else `fallback`. */
+export function resolveSummaryYear(
+  param: string | string[] | undefined,
+  years: readonly number[],
+  fallback: number,
+): number {
+  if (typeof param !== 'string') return fallback;
+  const year = Number(param);
+  return years.includes(year) ? year : fallback;
+}
+
 const seoulDateFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Seoul',
   year: 'numeric',

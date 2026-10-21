@@ -2,17 +2,23 @@ import { monthlyFinishedCounts } from '~/lib/book-shelf';
 import type { Book } from '~/lib/supabase/types';
 
 import { MonthlyFinishedChart } from './MonthlyFinishedChart';
+import { SummaryYearSelect } from './SummaryYearSelect';
 
 interface ShelfSummaryProps {
   books: Book[];
+  /** The year being summarised. */
   year: number;
+  /** Years the select offers, newest first. */
+  years: number[];
+  currentYear: number;
 }
 
 /**
- * The shelf in one glance: this year's count up front, the other two
- * statuses as jump links, and how the year's reading spread over its months.
+ * The shelf in one glance: the year up front, the three statuses as jump
+ * links beneath it, and how that year's reading spread over its months —
+ * with a picker over the chart to look back at an earlier year.
  */
-export function ShelfSummary({ books, year }: ShelfSummaryProps) {
+export function ShelfSummary({ books, year, years, currentYear }: ShelfSummaryProps) {
   const finished = books.filter((book) => book.status === 'done');
   const months = monthlyFinishedCounts(finished, year);
   const finishedThisYear = months.reduce((sum, count) => sum + count, 0);
@@ -20,20 +26,27 @@ export function ShelfSummary({ books, year }: ShelfSummaryProps) {
   const wantCount = books.filter((book) => book.status === 'want').length;
 
   return (
-    <div className="grid gap-[var(--space-md)] border-y border-border py-[var(--space-md)] sm:grid-cols-[auto_1fr] sm:items-end sm:gap-[var(--space-lg)]">
-      <dl className="flex items-end gap-[var(--space-md)]">
-        <div>
-          <dt className="text-xs text-muted-foreground">{year}년에 읽은 책</dt>
-          <dd className="mt-1 font-heading text-[length:var(--text-display)] leading-none font-semibold tracking-[var(--tracking-display)] tabular-nums">
-            {finishedThisYear}
-            <span className="ml-1 text-[length:var(--text-base)] font-normal text-muted-foreground">권</span>
-          </dd>
-        </div>
-        <SummaryLink href="#reading" label="읽는 중" count={readingCount} />
-        <SummaryLink href="#wishlist" label="읽고 싶은" count={wantCount} />
-      </dl>
+    <div className="grid gap-[var(--space-md)] border-b border-border pb-[var(--space-md)] sm:grid-cols-[auto_1fr] sm:items-end sm:gap-[var(--space-lg)]">
+      <div>
+        <p className="font-heading text-[length:var(--text-display)] leading-none font-semibold tracking-[var(--tracking-display)] tabular-nums">
+          {year}
+        </p>
+        <dl className="mt-[var(--space-sm)] flex items-end gap-[var(--space-md)]">
+          <SummaryLink href="#finished" label="읽은 책" count={finishedThisYear} />
+          <SummaryLink href="#reading" label="읽는 중" count={readingCount} />
+          <SummaryLink href="#wishlist" label="읽고 싶은" count={wantCount} />
+        </dl>
+      </div>
 
-      <MonthlyFinishedChart months={months} year={year} />
+      <div className="min-w-0">
+        {/* With only one year to offer there's nothing to pick. */}
+        {years.length > 1 && (
+          <div className="mb-[var(--space-xs)] flex justify-end">
+            <SummaryYearSelect years={years} year={year} currentYear={currentYear} />
+          </div>
+        )}
+        <MonthlyFinishedChart months={months} year={year} />
+      </div>
     </div>
   );
 }

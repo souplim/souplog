@@ -5,7 +5,9 @@ import {
   groupFinishedByYear,
   monthlyFinishedCounts,
   progressPercent,
+  resolveSummaryYear,
   sanitizeForStatus,
+  summaryYears,
   todayInSeoul,
   type BookProgress,
 } from './book-shelf';
@@ -132,6 +134,36 @@ describe('monthlyFinishedCounts', () => {
     expect(counts[0]).toBe(2);
     expect(counts[11]).toBe(1);
     expect(counts.reduce((sum, count) => sum + count, 0)).toBe(3);
+  });
+});
+
+describe('summaryYears', () => {
+  it('lists every year with a finished book plus the current one, newest first', () => {
+    const years = summaryYears(
+      [{ finished_at: '2024-05-01' }, { finished_at: '2022-01-09' }, { finished_at: '2024-11-30' }, { finished_at: null }],
+      2026,
+    );
+
+    expect(years).toEqual([2026, 2024, 2022]);
+  });
+
+  it('offers only the current year when nothing has been finished', () => {
+    expect(summaryYears([], 2026)).toEqual([2026]);
+  });
+});
+
+describe('resolveSummaryYear', () => {
+  const years = [2026, 2024];
+
+  it('accepts a year that is on offer', () => {
+    expect(resolveSummaryYear('2024', years, 2026)).toBe(2024);
+  });
+
+  it('falls back for a missing, malformed, or unoffered year', () => {
+    expect(resolveSummaryYear(undefined, years, 2026)).toBe(2026);
+    expect(resolveSummaryYear('abc', years, 2026)).toBe(2026);
+    expect(resolveSummaryYear('2025', years, 2026)).toBe(2026);
+    expect(resolveSummaryYear(['2024', '2026'], years, 2026)).toBe(2026);
   });
 });
 

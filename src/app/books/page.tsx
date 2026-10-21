@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { getCurrentUser } from '~/lib/auth';
-import { BOOK_STATUS_LABELS, todayInSeoul } from '~/lib/book-shelf';
+import { BOOK_STATUS_LABELS, resolveSummaryYear, summaryYears, todayInSeoul } from '~/lib/book-shelf';
 import { getBooks } from '~/lib/books';
 import { BookShelf } from '~/components/books/BookShelf';
 import { ReadingList } from '~/components/books/ReadingList';
@@ -17,9 +17,16 @@ export const metadata: Metadata = {
   description: '읽고 싶은 책, 읽는 중인 책, 읽은 책',
 };
 
-export default async function BooksPage() {
-  const [books, user] = await Promise.all([getBooks(), getCurrentUser()]);
+interface BooksPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function BooksPage({ searchParams }: BooksPageProps) {
+  const [books, user, params] = await Promise.all([getBooks(), getCurrentUser(), searchParams]);
   const today = todayInSeoul();
+  const currentYear = Number(today.slice(0, 4));
+  const years = summaryYears(books, currentYear);
+  const summaryYear = resolveSummaryYear(params.year, years, currentYear);
   const reading = books.filter((book) => book.status === 'reading');
   const finished = books.filter((book) => book.status === 'done');
   const wishlist = books.filter((book) => book.status === 'want');
@@ -38,7 +45,7 @@ export default async function BooksPage() {
         )}
       </header>
 
-      <ShelfSummary books={books} year={Number(today.slice(0, 4))} />
+      <ShelfSummary books={books} year={summaryYear} years={years} currentYear={currentYear} />
 
       <div className="mt-[var(--space-xl)] space-y-[var(--space-section)]">
         <ShelfSection id="reading" title={BOOK_STATUS_LABELS.reading} count={reading.length} empty="지금 읽는 책이 없어요.">

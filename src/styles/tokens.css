@@ -41,6 +41,8 @@
 
   --tracking-tight: -0.025em;
   --tracking-normal: -0.01em;
+  /* 페이지 제목처럼 큰 글자 전용 — 글자가 클수록 자간을 더 좁힌다. */
+  --tracking-display: -0.03em;
 
   --space-3xs: 0.25rem;
   --space-2xs: 0.5rem;

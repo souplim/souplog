@@ -15,6 +15,8 @@ import { ReadingProgress } from '~/components/books/ReadingProgress';
 import { StarRating } from '~/components/books/StarRating';
 import { Badge } from '~/components/ui/badge';
 import { EditIconLink } from '~/components/owner/OwnerActions';
+import { PageColumn } from '~/components/page/PageColumn';
+import { PageTitle } from '~/components/page/PageHeading';
 
 interface BookPageProps {
   params: Promise<{ id: string }>;
@@ -46,65 +48,61 @@ export default async function BookPage({ params }: BookPageProps) {
   const isOwner = Boolean(user);
 
   return (
-    <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-lg)] sm:px-6">
-      <div className="mx-auto w-full max-w-[var(--content-width)]">
-        <Link
-          href="/books"
-          className="inline-flex items-center gap-1 rounded-xs text-sm text-muted-foreground outline-none transition-colors duration-[var(--duration-fast)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
-        >
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          책장
-        </Link>
+    <PageColumn className="py-[var(--space-xl)]">
+      <Link
+        href="/books"
+        className="inline-flex items-center gap-1 rounded-xs text-sm text-muted-foreground outline-none transition-colors duration-[var(--duration-fast)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+      >
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        책장
+      </Link>
 
-        <article className="mt-[var(--space-md)] grid gap-[var(--space-md)] sm:grid-cols-[11rem_1fr] sm:gap-[var(--space-lg)]">
-          <BookCover
-            title={book.title}
-            cover={book.cover}
-            sizes="(min-width: 40rem) 176px, 160px"
-            className="w-40 sm:w-44"
-            isPriority
-          />
+      <article className="mt-[var(--space-md)] grid gap-[var(--space-md)] sm:grid-cols-[11rem_1fr] sm:gap-[var(--space-lg)]">
+        <BookCover
+          title={book.title}
+          cover={book.cover}
+          sizes="(min-width: 40rem) 176px, 160px"
+          className="w-40 sm:w-44"
+          isPriority
+        />
 
-          <div className="min-w-0">
-            <div className="mb-2 flex items-center gap-2">
-              <span className="text-xs font-semibold text-accent-foreground">{BOOK_STATUS_LABELS[book.status]}</span>
-              {isOwner && !book.is_public && <Badge variant="outline">숨김</Badge>}
-            </div>
-            <h1 className="font-heading text-[length:var(--text-display)] leading-[var(--leading-tight)] tracking-[-0.03em] text-balance">
-              {book.title}
-            </h1>
-            {(book.author || book.publisher) && (
-              <p className="mt-2 text-[length:var(--text-base)] text-muted-foreground">
-                {[book.author, book.publisher].filter(Boolean).join(' · ')}
-              </p>
-            )}
-
-            <BookFacts book={book} />
-
-            {book.note && (
-              <blockquote className="mt-[var(--space-md)] border-l-2 border-[var(--color-accent)] pl-4 text-[length:var(--text-base)] leading-[var(--leading-relaxed)] text-pretty">
-                {book.note}
-              </blockquote>
-            )}
-
-            {isOwner && (
-              <div className="mt-[var(--space-lg)] space-y-4 border-t border-border pt-5">
-                <BookProgressControls
-                  bookId={book.id}
-                  status={book.status}
-                  currentPage={book.current_page}
-                  totalPages={book.total_pages}
-                />
-                <div className="flex items-center gap-1">
-                  <EditIconLink href={`/admin/books/${book.id}/edit`} />
-                  <DeleteBookButton bookId={book.id} />
-                </div>
-              </div>
-            )}
+        <div className="min-w-0">
+          <div className="mb-[var(--space-2xs)] flex items-center gap-2">
+            <span className="text-xs font-semibold text-accent-foreground">{BOOK_STATUS_LABELS[book.status]}</span>
+            {isOwner && !book.is_public && <Badge variant="outline">숨김</Badge>}
           </div>
-        </article>
-      </div>
-    </div>
+          <PageTitle>{book.title}</PageTitle>
+          {(book.author || book.publisher) && (
+            <p className="mt-2 text-[length:var(--text-base)] text-muted-foreground">
+              {[book.author, book.publisher].filter(Boolean).join(' · ')}
+            </p>
+          )}
+
+          <BookFacts book={book} />
+
+          {book.note && (
+            <blockquote className="mt-[var(--space-md)] border-l-2 border-[var(--color-accent)] pl-4 text-[length:var(--text-base)] leading-[var(--leading-relaxed)] text-pretty">
+              {book.note}
+            </blockquote>
+          )}
+
+          {isOwner && (
+            <div className="mt-[var(--space-lg)] space-y-4 border-t border-border pt-5">
+              <BookProgressControls
+                bookId={book.id}
+                status={book.status}
+                currentPage={book.current_page}
+                totalPages={book.total_pages}
+              />
+              <div className="flex items-center gap-1">
+                <EditIconLink href={`/admin/books/${book.id}/edit`} />
+                <DeleteBookButton bookId={book.id} />
+              </div>
+            </div>
+          )}
+        </div>
+      </article>
+    </PageColumn>
   );
 }
 

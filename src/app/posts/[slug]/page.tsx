@@ -13,6 +13,7 @@ import { PostContent } from '~/components/post/PostContent';
 import { PostGallery } from '~/components/post/PostGallery';
 import { Badge } from '~/components/ui/badge';
 import { EditIconLink } from '~/components/owner/OwnerActions';
+import { PageEyebrow, PageTitle } from '~/components/page/PageHeading';
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;
@@ -67,13 +68,9 @@ export default async function PostPage({ params }: PostPageProps) {
     <div className="mx-auto flex min-h-[calc(100dvh-4rem-3.5rem)] max-w-[var(--page-width)] flex-col px-4 py-[var(--space-xl)] sm:px-6">
       {/* w-full: mx-auto cancels the flex parent's stretch, so without it the
           header shrinks to fit the title and no longer lines up with the body. */}
-      <header className="mx-auto mb-8 w-full max-w-[var(--content-width)] border-b border-border pb-7">
-        <div className="mb-2.5 text-xs font-semibold text-accent-foreground">
-          <span>{menuName ?? '글'}</span>
-        </div>
-        <h1 className="font-heading text-[length:var(--text-display)] tracking-[-0.03em] text-balance">
-          {post.title}
-        </h1>
+      <header className="mx-auto mb-[var(--space-lg)] w-full max-w-[var(--content-width)] border-b border-border pb-[var(--space-lg)]">
+        <PageEyebrow>{menuName ?? '글'}</PageEyebrow>
+        <PageTitle>{post.title}</PageTitle>
 
         {/* Naver-blog style byline: date and visibility under the title, owner actions flush right. */}
         <div className="mt-3.5 flex items-center justify-between gap-3">

@@ -28,7 +28,7 @@ export function ShelfSummary({ books, year }: ShelfSummaryProps) {
       <dl className="flex items-end gap-[var(--space-md)]">
         <div>
           <dt className="text-xs text-muted-foreground">{year}년에 읽은 책</dt>
-          <dd className="mt-1 font-heading text-[length:var(--text-display)] leading-none font-semibold tracking-[-0.03em] tabular-nums">
+          <dd className="mt-1 font-heading text-[length:var(--text-display)] leading-none font-semibold tracking-[var(--tracking-display)] tabular-nums">
             {finishedThisYear}
             <span className="ml-1 text-[length:var(--text-base)] font-normal text-muted-foreground">권</span>
           </dd>

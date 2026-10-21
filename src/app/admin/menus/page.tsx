@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { getMenus, getNavItems } from '~/lib/menus';
 import { MenuManager } from '~/components/admin/MenuManager';
 import { NavItemRow } from '~/components/admin/NavItemRow';
+import { AdminPageTitle } from '~/components/page/PageHeading';
 
 export const metadata: Metadata = { title: '메뉴 관리' };
 
@@ -11,7 +12,7 @@ export default async function AdminMenusPage() {
 
   return (
     <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-lg)] sm:px-6">
-      <h1 className="mb-[var(--space-lg)] font-heading text-3xl">메뉴 관리</h1>
+      <AdminPageTitle>메뉴 관리</AdminPageTitle>
 
       <div className="divide-y divide-border">
         <MenuSection

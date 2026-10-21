@@ -17,8 +17,8 @@ export function PostDetailSkeleton() {
     >
       <span className="sr-only">글을 불러오는 중입니다.</span>
 
-      <header className="mx-auto mb-8 w-full max-w-[var(--content-width)] border-b border-border pb-7">
-        <Skeleton className="mb-2.5 h-3 w-16" />
+      <header className="mx-auto mb-[var(--space-lg)] w-full max-w-[var(--content-width)] border-b border-border pb-[var(--space-lg)]">
+        <Skeleton className="mb-[var(--space-2xs)] h-3 w-16" />
         {/* Two lines at `--text-display`'s cap height. Full-height bars read as
             image placeholders rather than as a headline. */}
         <Skeleton className="h-7 w-[78%]" />

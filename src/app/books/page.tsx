@@ -9,6 +9,7 @@ import { BookShelf } from '~/components/books/BookShelf';
 import { ReadingList } from '~/components/books/ReadingList';
 import { ShelfSummary } from '~/components/books/ShelfSummary';
 import { Wishlist } from '~/components/books/Wishlist';
+import { PageTitle } from '~/components/page/PageHeading';
 import { Button } from '~/components/ui/button';
 
 export const metadata: Metadata = {
@@ -25,11 +26,8 @@ export default async function BooksPage() {
 
   return (
     <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-xl)] sm:px-6">
-      <header className="mb-[var(--space-md)] flex items-end justify-between gap-4">
-        <div>
-          <p className="mb-2 text-xs font-semibold text-accent-foreground">Bookshelf</p>
-          <h1 className="font-heading text-[length:var(--text-display)] tracking-[-0.03em]">책장</h1>
-        </div>
+      <header className="mb-[var(--space-lg)] flex items-end justify-between gap-4">
+        <PageTitle>책장</PageTitle>
         {user && (
           <Button asChild size="sm">
             <Link href="/admin/books/new">

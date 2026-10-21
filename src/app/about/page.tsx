@@ -6,7 +6,7 @@ import { getPostImageUrl } from '~/lib/images';
 import { getProfile } from '~/lib/profile';
 import { ProfileAvatar } from '~/components/about/ProfileAvatar';
 import { PostContent } from '~/components/post/PostContent';
-import { EditIconLink } from '~/components/owner/OwnerActions';
+import { PageEyebrow, PageTitle } from '~/components/page/PageHeading';
 import { Button } from '~/components/ui/button';
 
 const AVATAR_SIZE = 112;
@@ -33,22 +33,19 @@ export default async function AboutPage() {
       <article className="mx-auto w-full max-w-[var(--content-width)]">
         {profile ? (
           <>
-            <header className="flex flex-col items-start gap-6 border-b border-border pb-8 sm:flex-row sm:items-center">
+            <header className="flex flex-col items-start gap-6 border-b border-border pb-[var(--space-lg)] sm:flex-row sm:items-center">
               <ProfileAvatar avatar={profile.avatar} name={profile.name} size={AVATAR_SIZE} />
               <div className="min-w-0 flex-1">
-                <p className="mb-2 text-xs font-semibold text-accent-foreground">About</p>
-                <h1 className="font-heading text-[length:var(--text-display)] tracking-[-0.03em] text-balance">
-                  {profile.name}
-                </h1>
+                <PageEyebrow>About</PageEyebrow>
+                <PageTitle>{profile.name}</PageTitle>
                 {profile.tagline && (
                   <p className="mt-2 text-[length:var(--text-lg)] text-pretty text-muted-foreground">{profile.tagline}</p>
                 )}
               </div>
-              {isOwner && <EditButton />}
             </header>
 
             {profile.content.trim() && (
-              <div className="mt-8">
+              <div className="mt-[var(--space-lg)]">
                 <PostContent content={profile.content} />
               </div>
             )}
@@ -67,14 +64,6 @@ export default async function AboutPage() {
           </div>
         )}
       </article>
-    </div>
-  );
-}
-
-function EditButton() {
-  return (
-    <div className="sm:self-start">
-      <EditIconLink href="/admin/about" />
     </div>
   );
 }

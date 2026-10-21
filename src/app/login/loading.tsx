@@ -14,7 +14,7 @@ export default function LoginLoading() {
       <span className="sr-only">로그인 화면을 불러오는 중입니다.</span>
       <div className="flex w-full max-w-[340px] flex-col gap-7">
         <div className="flex flex-col gap-1.5">
-          <h1 className="font-heading text-[1.625rem] tracking-[-0.03em]">로그인</h1>
+          <h1 className="font-heading text-[length:var(--text-title)] tracking-[var(--tracking-display)]">로그인</h1>
           <p className="text-sm text-muted-foreground">관리자 계정으로만 로그인할 수 있습니다.</p>
         </div>
         <div className="flex flex-col gap-4">

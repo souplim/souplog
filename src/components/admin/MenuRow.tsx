@@ -1,21 +1,12 @@
 'use client';
 
-import { useActionState, useState, useTransition } from 'react';
-import { ChevronDown, ChevronUp, Pencil, Trash2, X } from 'lucide-react';
+import { useActionState, useState } from 'react';
+import { ChevronDown, ChevronUp, Pencil, X } from 'lucide-react';
 import { deleteMenuAction, moveMenuAction, updateMenuAction } from '~/lib/actions/menus';
 import type { Menu } from '~/lib/supabase/types';
+import { ConfirmDeleteDialog } from '~/components/owner/ConfirmDeleteDialog';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '~/components/ui/alert-dialog';
 
 interface MenuRowProps {
   menu: Menu;
@@ -26,15 +17,6 @@ interface MenuRowProps {
 export function MenuRow({ menu, isFirst, isLast }: MenuRowProps) {
   const [editing, setEditing] = useState(false);
   const [state, formAction, pending] = useActionState(updateMenuAction.bind(null, menu.id), undefined);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deletePending, startDeleteTransition] = useTransition();
-
-  const handleDelete = () => {
-    startDeleteTransition(async () => {
-      await deleteMenuAction(menu.id);
-      setDeleteOpen(false);
-    });
-  };
 
   return (
     <div className="flex items-center gap-3 p-3">
@@ -93,36 +75,11 @@ export function MenuRow({ menu, isFirst, isLast }: MenuRowProps) {
         >
           {editing ? <X /> : <Pencil />}
         </Button>
-        <AlertDialog open={deleteOpen} onOpenChange={(next) => !deletePending && setDeleteOpen(next)}>
-          <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className="text-destructive hover:text-destructive"
-              aria-label="삭제"
-            >
-              <Trash2 />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>&ldquo;{menu.name}&rdquo; 메뉴를 삭제할까요?</AlertDialogTitle>
-              <AlertDialogDescription>이 메뉴의 글은 미분류로 남습니다.</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={deletePending}>취소</AlertDialogCancel>
-              <Button
-                type="button"
-                variant="destructive"
-                disabled={deletePending}
-                onClick={handleDelete}
-              >
-                {deletePending ? '삭제 중…' : '삭제'}
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmDeleteDialog
+          title={<>&ldquo;{menu.name}&rdquo; 메뉴를 삭제할까요?</>}
+          description="이 메뉴의 글은 미분류로 남습니다."
+          onConfirm={() => deleteMenuAction(menu.id)}
+        />
       </div>
     </div>
   );

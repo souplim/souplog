@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Pencil } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { getCurrentUser } from '~/lib/auth';
 import { BOOK_STATUS_LABELS, daysSince, todayInSeoul } from '~/lib/book-shelf';
 import { getBookById } from '~/lib/books';
@@ -14,7 +14,7 @@ import { DeleteBookButton } from '~/components/books/DeleteBookButton';
 import { ReadingProgress } from '~/components/books/ReadingProgress';
 import { StarRating } from '~/components/books/StarRating';
 import { Badge } from '~/components/ui/badge';
-import { Button } from '~/components/ui/button';
+import { EditIconLink } from '~/components/owner/OwnerActions';
 
 interface BookPageProps {
   params: Promise<{ id: string }>;
@@ -96,12 +96,7 @@ export default async function BookPage({ params }: BookPageProps) {
                   totalPages={book.total_pages}
                 />
                 <div className="flex items-center gap-1">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/admin/books/${book.id}/edit`}>
-                      <Pencil />
-                      수정
-                    </Link>
-                  </Button>
+                  <EditIconLink href={`/admin/books/${book.id}/edit`} />
                   <DeleteBookButton bookId={book.id} />
                 </div>
               </div>

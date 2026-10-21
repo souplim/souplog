@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Pencil, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { getCurrentUser } from '~/lib/auth';
 import { getPostImageUrl } from '~/lib/images';
 import { getProfile } from '~/lib/profile';
 import { ProfileAvatar } from '~/components/about/ProfileAvatar';
 import { PostContent } from '~/components/post/PostContent';
+import { EditIconLink } from '~/components/owner/OwnerActions';
 import { Button } from '~/components/ui/button';
 
 const AVATAR_SIZE = 112;
@@ -72,11 +73,8 @@ export default async function AboutPage() {
 
 function EditButton() {
   return (
-    <Button variant="outline" size="sm" asChild className="sm:self-start">
-      <Link href="/admin/about">
-        <Pencil />
-        수정
-      </Link>
-    </Button>
+    <div className="sm:self-start">
+      <EditIconLink href="/admin/about" />
+    </div>
   );
 }

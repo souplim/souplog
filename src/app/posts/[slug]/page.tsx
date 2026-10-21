@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Pencil } from 'lucide-react';
 import { getCurrentUser } from '~/lib/auth';
 import { formatDate } from '~/lib/date';
 import { getPostImageUrl } from '~/lib/images';
@@ -14,7 +12,7 @@ import { DeletePostButton } from '~/components/post/DeletePostButton';
 import { PostContent } from '~/components/post/PostContent';
 import { PostGallery } from '~/components/post/PostGallery';
 import { Badge } from '~/components/ui/badge';
-import { Button } from '~/components/ui/button';
+import { EditIconLink } from '~/components/owner/OwnerActions';
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;
@@ -90,12 +88,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
           {user && (
             <div className="flex items-center gap-1">
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/admin/posts/${post.id}/edit`}>
-                  <Pencil />
-                  수정
-                </Link>
-              </Button>
+              <EditIconLink href={`/admin/posts/${post.id}/edit`} />
               <DeletePostButton postId={post.id} />
             </div>
           )}

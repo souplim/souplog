@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ImageIcon, Paperclip, Pencil } from 'lucide-react';
+import { ImageIcon, Paperclip } from 'lucide-react';
 import { formatDate } from '~/lib/date';
 import { getPostImageUrl } from '~/lib/images';
 import type { PostSummary } from '~/lib/supabase/types';
 import { Badge } from '~/components/ui/badge';
-import { Button } from '~/components/ui/button';
+import { EditIconLink } from '~/components/owner/OwnerActions';
 import { DeletePostButton } from './DeletePostButton';
 
 /** Two columns from `sm` up, inside the 64rem page container. */
@@ -65,12 +65,7 @@ export function PostCard({ post, menuName, isOwner = false, isPriority = false }
 
             {isOwner && (
               <div className="relative z-10 ml-auto flex shrink-0 items-center gap-1">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/admin/posts/${post.id}/edit`}>
-                    <Pencil />
-                    수정
-                  </Link>
-                </Button>
+                <EditIconLink href={`/admin/posts/${post.id}/edit`} />
                 <DeletePostButton postId={post.id} />
               </div>
             )}

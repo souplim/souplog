@@ -26,9 +26,12 @@ export function ShelfSummary({ books, year, years, currentYear, action }: ShelfS
   const months = monthlyFinishedCounts(finished, year);
   const counts = statusCountsInYear(books, year);
 
+  // Narrow: the controls sit beside the year and the chart runs full width
+  // below. Wide: year and counts hold the left column, controls over chart on
+  // the right.
   return (
-    <div className="grid gap-[var(--space-md)] border-b border-border pb-[var(--space-md)] sm:grid-cols-[auto_1fr] sm:items-end sm:gap-[var(--space-lg)]">
-      <div>
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-[var(--space-sm)] gap-y-[var(--space-md)] border-b border-border pb-[var(--space-md)] sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-x-[var(--space-lg)] sm:gap-y-[var(--space-xs)]">
+      <div className="col-start-1 row-start-1 sm:row-span-2 sm:self-end">
         <p className="font-heading text-[length:var(--text-display)] leading-none font-semibold tracking-[var(--tracking-display)] tabular-nums">
           {year}
         </p>
@@ -39,14 +42,15 @@ export function ShelfSummary({ books, year, years, currentYear, action }: ShelfS
         </dl>
       </div>
 
-      <div className="min-w-0">
-        {/* The picker only shows with more than one year to offer. */}
-        {(years.length > 1 || action) && (
-          <div className="mb-[var(--space-xs)] flex items-center justify-end gap-[var(--space-xs)]">
-            {years.length > 1 && <SummaryYearSelect years={years} year={year} currentYear={currentYear} />}
-            {action}
-          </div>
-        )}
+      {/* The picker only shows with more than one year to offer. */}
+      {(years.length > 1 || action) && (
+        <div className="col-start-2 row-start-1 flex flex-wrap items-center justify-end gap-[var(--space-xs)] self-start sm:self-end">
+          {years.length > 1 && <SummaryYearSelect years={years} year={year} currentYear={currentYear} />}
+          {action}
+        </div>
+      )}
+
+      <div className="col-span-2 row-start-2 min-w-0 sm:col-span-1 sm:col-start-2">
         <MonthlyFinishedChart months={months} year={year} />
       </div>
     </div>

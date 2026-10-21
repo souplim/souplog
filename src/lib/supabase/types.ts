@@ -56,6 +56,27 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['posts']['Insert']>;
         Relationships: [];
       };
+      profile: {
+        Row: {
+          id: boolean;
+          name: string;
+          tagline: string;
+          content: string;
+          // jsonb — shape is enforced on read by parsePostImage.
+          avatar: unknown;
+          updated_at: string;
+        };
+        Insert: {
+          id?: boolean;
+          name?: string;
+          tagline?: string;
+          content?: string;
+          avatar?: PostImage | null;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['profile']['Insert']>;
+        Relationships: [];
+      };
       comments: {
         Row: {
           id: string;
@@ -165,4 +186,11 @@ export type PostSummary = Omit<PostListRow, 'content_preview' | 'cover_image'> &
   preview: string;
   coverImage: PostImage | null;
 };
-export type PublicComment =Database['public']['Views']['comments_public']['Row'];
+export type ProfileRow = Database['public']['Tables']['profile']['Row'];
+
+/** The About page's content, with the avatar jsonb already validated. */
+export type Profile = Omit<ProfileRow, 'id' | 'avatar'> & {
+  avatar: PostImage | null;
+};
+
+export type PublicComment = Database['public']['Views']['comments_public']['Row'];

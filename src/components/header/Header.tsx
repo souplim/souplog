@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import { getCurrentUser } from '~/lib/auth';
-import { logout } from '~/lib/actions/auth';
+import { getPostImageUrl } from '~/lib/images';
 import { getMenus } from '~/lib/menus';
+import { getProfile } from '~/lib/profile';
 import { MenuNav } from '~/components/header/MenuNav';
 import { AdminMenu } from '~/components/header/AdminMenu';
-import { ADMIN_LINKS } from '~/components/header/adminLinks';
 import { ThemeToggle } from '~/components/theme/ThemeToggle';
-import { Button } from '~/components/ui/button';
 
 export async function Header() {
   // Header renders on every page, including the login page a visitor would
@@ -15,6 +14,9 @@ export async function Header() {
   const [menusResult, userResult] = await Promise.allSettled([getMenus(), getCurrentUser()]);
   const menus = menusResult.status === 'fulfilled' ? menusResult.value : [];
   const user = userResult.status === 'fulfilled' ? userResult.value : null;
+  // Only the owner sees the profile button, so visitors skip this query. Same
+  // degrade-don't-throw rule as above: a failure just falls back to the icon.
+  const profile = user ? await getProfile().catch(() => null) : null;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
@@ -25,27 +27,13 @@ export async function Header() {
 
         <MenuNav menus={menus} />
 
-        {/* shrink-0: the admin actions must never eat into the nav's width —
-            below md they collapse into a single icon so the menus stay
-            readable on a phone. */}
         <div className="flex shrink-0 items-center gap-1">
           <ThemeToggle />
           {user ? (
-            <>
-              <div className="hidden items-center gap-1 md:flex">
-                {ADMIN_LINKS.map((link) => (
-                  <Button key={link.href} variant="ghost" size="sm" className="shrink-0" asChild>
-                    <Link href={link.href}>{link.label}</Link>
-                  </Button>
-                ))}
-                <form action={logout} className="shrink-0">
-                  <Button variant="ghost" size="sm" type="submit">
-                    로그아웃
-                  </Button>
-                </form>
-              </div>
-              <AdminMenu className="md:hidden" />
-            </>
+            <AdminMenu
+              name={profile?.name || null}
+              avatarUrl={profile?.avatar ? getPostImageUrl(profile.avatar.path) : null}
+            />
           ) : null}
         </div>
       </div>

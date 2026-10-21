@@ -19,6 +19,12 @@ export const menuSchema = z.object({
   slug: z.string().trim().max(50),
 });
 
+export const profileSchema = z.object({
+  name: z.string().trim().min(1, '이름을 입력하세요.').max(50),
+  tagline: z.string().trim().max(160),
+  content: z.string().max(20_000),
+});
+
 export const commentSchema = z.object({
   postId: z.uuid(),
   authorName: z.string().trim().min(1, '닉네임을 입력하세요.').max(40),
@@ -34,4 +40,5 @@ export const deleteCommentSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>;
 export type PostFormInput = z.infer<typeof postSchema>;
 export type MenuFormInput = z.infer<typeof menuSchema>;
+export type ProfileFormInput = z.infer<typeof profileSchema>;
 export type CommentFormInput = z.infer<typeof commentSchema>;

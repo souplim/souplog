@@ -36,10 +36,26 @@ export function parsePostImages(value: unknown): PostImage[] {
   if (!Array.isArray(value)) return [];
 
   return value
-    .map((entry) => postImageSchema.safeParse(entry))
-    .filter((result) => result.success)
-    .map((result) => result.data)
+    .map(parsePostImage)
+    .filter((image): image is PostImage => image !== null)
     .slice(0, MAX_POST_IMAGES);
+}
+
+/** A single stored image (e.g. the About page's profile photo), or `null` if absent or malformed. */
+export function parsePostImage(value: unknown): PostImage | null {
+  const result = postImageSchema.safeParse(value);
+  return result.success ? result.data : null;
+}
+
+/** Same as `parsePostImage`, for the JSON string a form posts back. */
+export function parsePostImageJson(value: unknown): PostImage | null {
+  if (typeof value !== 'string' || value.length === 0) return null;
+
+  try {
+    return parsePostImage(JSON.parse(value));
+  } catch {
+    return null;
+  }
 }
 
 /** Same normalization for the JSON string the post form posts back. */

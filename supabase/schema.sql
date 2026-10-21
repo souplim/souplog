@@ -171,6 +171,24 @@ revoke all on function public.search_posts(text) from public;
 grant execute on function public.search_posts(text) to anon, authenticated, service_role;
 
 -- ---------------------------------------------------------------------------
+-- About (글쓴이 소개 — 행이 하나뿐인 테이블)
+-- ---------------------------------------------------------------------------
+-- id 를 true 로 고정해 두 번째 행이 생길 수 없게 한다. 저장은 항상 upsert 다.
+
+create table if not exists public.profile (
+  id         boolean primary key default true check (id),
+  name       text not null default '',
+  -- 이름 아래 한 줄 소개.
+  tagline    text not null default '',
+  -- 하고 싶은 말. 글 본문처럼 마크다운이다.
+  content    text not null default '',
+  -- 프로필 사진. posts.images 의 한 항목과 같은 모양 — {"path": "<uuid>.webp", "width": 400, "height": 400}
+  -- 파일은 post-images 버킷에 함께 둔다.
+  avatar     jsonb,
+  updated_at timestamptz not null default now()
+);
+
+-- ---------------------------------------------------------------------------
 -- updated_at 자동 갱신
 -- ---------------------------------------------------------------------------
 
@@ -187,6 +205,11 @@ $$;
 drop trigger if exists menus_touch_updated_at on public.menus;
 create trigger menus_touch_updated_at
   before update on public.menus
+  for each row execute function public.touch_updated_at();
+
+drop trigger if exists profile_touch_updated_at on public.profile;
+create trigger profile_touch_updated_at
+  before update on public.profile
   for each row execute function public.touch_updated_at();
 
 drop trigger if exists posts_touch_updated_at on public.posts;
@@ -290,6 +313,7 @@ grant execute on function public.delete_comment(uuid, text) to anon, authenticat
 alter table public.menus    enable row level security;
 alter table public.posts    enable row level security;
 alter table public.comments enable row level security;
+alter table public.profile  enable row level security;
 
 -- 2026-10-30 부터 Supabase 는 public 에 새로 만든 테이블에 Data API 권한을
 -- 자동으로 주지 않는다. 새 프로젝트에 이 스크립트를 처음 실행해도 동작하도록
@@ -302,12 +326,15 @@ grant select, insert, update, delete on public.menus, public.posts to authentica
 revoke all on public.comments from anon;
 grant select, delete on public.comments to authenticated;
 
+grant select on public.profile to anon;
+grant select, insert, update on public.profile to authenticated;
+
 grant select on public.comments_public to anon, authenticated;
 -- posts_list 는 security_invoker 뷰라 실제로 보이는 행은 posts 의 RLS 가 정한다.
 grant select on public.posts_list to anon, authenticated;
 
 grant select, insert, update, delete
-  on public.menus, public.posts, public.comments to service_role;
+  on public.menus, public.posts, public.comments, public.profile to service_role;
 grant select on public.comments_public, public.posts_list to service_role;
 
 drop policy if exists "anyone_reads_menus" on public.menus;
@@ -316,6 +343,14 @@ create policy "anyone_reads_menus" on public.menus
 
 drop policy if exists "owner_writes_menus" on public.menus;
 create policy "owner_writes_menus" on public.menus
+  for all to authenticated using (true) with check (true);
+
+drop policy if exists "anyone_reads_profile" on public.profile;
+create policy "anyone_reads_profile" on public.profile
+  for select to anon, authenticated using (true);
+
+drop policy if exists "owner_writes_profile" on public.profile;
+create policy "owner_writes_profile" on public.profile
   for all to authenticated using (true) with check (true);
 
 drop policy if exists "public_posts_are_readable" on public.posts;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_POST_IMAGES, parsePostImages, parsePostImagesJson } from './images';
+import { MAX_POST_IMAGES, parsePostImage, parsePostImageJson, parsePostImages, parsePostImagesJson } from './images';
 
 const PATH = '0a1b2c3d-4e5f-6071-8293-a4b5c6d7e8f9.webp';
 const OTHER_PATH = '11111111-2222-3333-4444-555555555555.jpg';
@@ -54,5 +54,28 @@ describe('parsePostImagesJson', () => {
     expect(parsePostImagesJson('not json')).toEqual([]);
     expect(parsePostImagesJson('')).toEqual([]);
     expect(parsePostImagesJson(null)).toEqual([]);
+  });
+});
+
+describe('parsePostImage', () => {
+  it('returns a well-formed entry as-is', () => {
+    expect(parsePostImage({ path: PATH, width: 400, height: 400 })).toEqual({ path: PATH, width: 400, height: 400 });
+  });
+
+  it('returns null for a missing or foreign entry', () => {
+    expect(parsePostImage(null)).toBeNull();
+    expect(parsePostImage({ path: '../avatar.png' })).toBeNull();
+  });
+});
+
+describe('parsePostImageJson', () => {
+  it('reads one entry back from the form field', () => {
+    expect(parsePostImageJson(JSON.stringify({ path: PATH }))).toEqual({ path: PATH });
+  });
+
+  it('returns null for an empty field or broken JSON', () => {
+    expect(parsePostImageJson('')).toBeNull();
+    expect(parsePostImageJson('{not json')).toBeNull();
+    expect(parsePostImageJson(undefined)).toBeNull();
   });
 });

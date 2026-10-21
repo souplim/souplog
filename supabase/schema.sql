@@ -241,6 +241,23 @@ alter table public.menus    enable row level security;
 alter table public.posts    enable row level security;
 alter table public.comments enable row level security;
 
+-- 2026-10-30 부터 Supabase 는 public 에 새로 만든 테이블에 Data API 권한을
+-- 자동으로 주지 않는다. 새 프로젝트에 이 스크립트를 처음 실행해도 동작하도록
+-- 권한을 명시한다. 범위는 아래 RLS 정책이 실제로 허용하는 만큼으로 맞춘다.
+grant select on public.menus, public.posts to anon;
+grant select, insert, update, delete on public.menus, public.posts to authenticated;
+
+-- comments 는 anon 이 뷰(comments_public)와 RPC 로만 접근하므로 테이블 권한을 주지 않는다.
+-- 예전 자동 부여로 남아 있을 수 있는 권한도 함께 걷어낸다.
+revoke all on public.comments from anon;
+grant select, delete on public.comments to authenticated;
+
+grant select on public.comments_public to anon, authenticated;
+
+grant select, insert, update, delete
+  on public.menus, public.posts, public.comments to service_role;
+grant select on public.comments_public to service_role;
+
 drop policy if exists "anyone_reads_menus" on public.menus;
 create policy "anyone_reads_menus" on public.menus
   for select to anon, authenticated using (true);

@@ -120,6 +120,29 @@ from public.comments c
 join public.posts p on p.id = c.post_id
 where p.is_public = true;
 
+-- 글 목록 전용 뷰. 목록은 본문 전체와 사진·첨부 배열이 필요 없으므로
+-- 본문은 앞부분만, 사진·첨부는 개수와 대표 사진(첫 장)만 내려보낸다.
+-- comments_public 과 달리 security_invoker 를 켠다 — posts 의 RLS 가 그대로
+-- 적용되어야 비공개 글이 주인에게만 보인다.
+-- content_preview 는 마크다운 원문이다. 기호를 걷어내는 건 앱(lib/markdown-preview.ts)
+-- 몫이라, 걷어낸 뒤에도 카드 몇 줄을 채울 만큼 넉넉히 자른다.
+create or replace view public.posts_list
+with (security_invoker = true) as
+select
+  p.id,
+  p.title,
+  p.slug,
+  p.excerpt,
+  p.is_public,
+  p.menu_id,
+  p.created_at,
+  p.updated_at,
+  left(p.content, 400) as content_preview,
+  case when jsonb_typeof(p.images) = 'array' then jsonb_array_length(p.images) else 0 end as image_count,
+  case when jsonb_typeof(p.attachments) = 'array' then jsonb_array_length(p.attachments) else 0 end as attachment_count,
+  p.images -> 0 as cover_image
+from public.posts p;
+
 -- ---------------------------------------------------------------------------
 -- updated_at 자동 갱신
 -- ---------------------------------------------------------------------------
@@ -253,10 +276,12 @@ revoke all on public.comments from anon;
 grant select, delete on public.comments to authenticated;
 
 grant select on public.comments_public to anon, authenticated;
+-- posts_list 는 security_invoker 뷰라 실제로 보이는 행은 posts 의 RLS 가 정한다.
+grant select on public.posts_list to anon, authenticated;
 
 grant select, insert, update, delete
   on public.menus, public.posts, public.comments to service_role;
-grant select on public.comments_public to service_role;
+grant select on public.comments_public, public.posts_list to service_role;
 
 drop policy if exists "anyone_reads_menus" on public.menus;
 create policy "anyone_reads_menus" on public.menus

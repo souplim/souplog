@@ -2,8 +2,9 @@ import 'server-only';
 import { cache } from 'react';
 import { parsePostAttachments, type PostAttachment } from '~/lib/attachments';
 import { parsePostImages, type PostImage } from '~/lib/images';
+import { toPostSummary } from '~/lib/post-summary';
 import { createClient } from '~/lib/supabase/server';
-import type { Post, PostRow } from '~/lib/supabase/types';
+import type { Post, PostRow, PostSummary } from '~/lib/supabase/types';
 
 export interface PostInput {
   title: string;
@@ -32,10 +33,13 @@ export interface PostListOptions {
  * posts appear inline instead of only being reachable from the admin
  * dashboard — RLS still limits which private rows come back to the owner's
  * own posts.
+ *
+ * Reads the `posts_list` view, not `posts`: a card needs a preview line and
+ * photo/attachment counts, not every post's full body and file lists.
  */
-export async function getPublicPosts(options?: PostListOptions): Promise<Post[]> {
+export async function getPublicPosts(options?: PostListOptions): Promise<PostSummary[]> {
   const supabase = await createClient();
-  let query = supabase.from('posts').select('*').order('created_at', { ascending: false });
+  let query = supabase.from('posts_list').select('*').order('created_at', { ascending: false });
 
   if (!options?.includeDrafts) {
     query = query.eq('is_public', true);
@@ -47,7 +51,7 @@ export async function getPublicPosts(options?: PostListOptions): Promise<Post[]>
 
   const { data, error } = await query;
   if (error) throw new Error(`글 목록을 불러오지 못했습니다: ${error.message}`);
-  return data.map(toPost);
+  return data.map(toPostSummary);
 }
 
 /**

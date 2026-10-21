@@ -81,6 +81,25 @@ export interface Database {
         };
         Relationships: [];
       };
+      posts_list: {
+        Row: {
+          id: string;
+          title: string;
+          slug: string;
+          excerpt: string;
+          is_public: boolean;
+          menu_id: string | null;
+          created_at: string;
+          updated_at: string;
+          // Markdown source, cut to a fixed length — not yet safe to show as-is.
+          content_preview: string;
+          image_count: number;
+          attachment_count: number;
+          // jsonb — first entry of posts.images, or null. Validated on read.
+          cover_image: unknown;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       create_comment: {
@@ -123,4 +142,15 @@ export type Post = Omit<PostRow, 'images' | 'attachments'> & {
   images: PostImage[];
   attachments: PostAttachment[];
 };
-export type PublicComment = Database['public']['Views']['comments_public']['Row'];
+export type PostListRow = Database['public']['Views']['posts_list']['Row'];
+
+/**
+ * A post as the list cards need it: counts instead of the photo/attachment
+ * arrays, and one plain-text preview line instead of the full body.
+ */
+export type PostSummary = Omit<PostListRow, 'content_preview' | 'cover_image'> & {
+  /** The author's excerpt when written, otherwise the start of the body as plain text. */
+  preview: string;
+  coverImage: PostImage | null;
+};
+export type PublicComment =Database['public']['Views']['comments_public']['Row'];

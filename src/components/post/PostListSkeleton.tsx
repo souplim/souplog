@@ -1,16 +1,17 @@
 import { cn } from 'cn';
 import { Skeleton } from '~/components/ui/skeleton';
+import { POST_CARD_GRID_CLASS } from './PostCardGrid';
 
 /**
- * One entry per placeholder row. The widths vary on purpose — a column of
+ * One entry per placeholder card. The widths vary on purpose — a grid of
  * identical bars reads as a broken layout rather than as text that hasn't
- * arrived yet. Four rows is about one screen; the fallback never needs to
- * cover the whole feed.
+ * arrived yet. Four cards is two rows, about one screen; the fallback never
+ * needs to cover the whole feed.
  *
  * Classes are written out rather than interpolated because Tailwind only sees
  * literal strings in the source.
  */
-const ROWS = [
+const CARDS = [
   { title: 'w-[68%]', excerpt: 'w-[92%]', tail: 'w-[41%]' },
   { title: 'w-[52%]', excerpt: 'w-[74%]', tail: 'w-[28%]' },
   { title: 'w-[76%]', excerpt: 'w-[84%]', tail: 'w-[47%]' },
@@ -18,24 +19,29 @@ const ROWS = [
 ];
 
 /**
- * Mirrors `PostListItem`'s rhythm — meta line, title, two excerpt lines inside
- * a `border-b py-6` row — so the real list swaps in without shifting.
+ * Mirrors `PostCard`'s rhythm — 16:9 cover, meta line, title, preview lines —
+ * inside the same grid, so the real cards swap in without shifting.
  */
 export function PostListSkeleton() {
   return (
     <div role="status">
       <span className="sr-only">글 목록을 불러오는 중입니다.</span>
-      {ROWS.map((row) => (
-        <div key={row.title} className="border-b border-border py-6">
-          <div className="flex items-center gap-2.5">
-            <Skeleton className="h-3 w-14" />
-            <Skeleton className="h-3 w-20" />
+      <div className={POST_CARD_GRID_CLASS}>
+        {CARDS.map((card) => (
+          <div key={card.title} className="overflow-hidden rounded-xl border border-border">
+            <Skeleton className="aspect-[16/9] w-full rounded-none" />
+            <div className="px-5 pt-4 pb-5">
+              <div className="flex items-center gap-2.5">
+                <Skeleton className="h-3 w-14" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+              <Skeleton className={cn('mt-3 h-5', card.title)} />
+              <Skeleton className={cn('mt-3.5 h-3.5', card.excerpt)} />
+              <Skeleton className={cn('mt-2 h-3.5', card.tail)} />
+            </div>
           </div>
-          <Skeleton className={cn('mt-3 h-5', row.title)} />
-          <Skeleton className={cn('mt-3.5 h-3.5', row.excerpt)} />
-          <Skeleton className={cn('mt-2 h-3.5', row.tail)} />
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

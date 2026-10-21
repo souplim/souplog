@@ -1,7 +1,8 @@
 import { getCurrentUser } from '~/lib/auth';
 import { getMenus } from '~/lib/menus';
 import { getPublicPosts } from '~/lib/posts';
-import { PostListItem } from '~/components/post/PostListItem';
+import { PostCard } from '~/components/post/PostCard';
+import { PostCardGrid, PRIORITY_CARD_COUNT } from '~/components/post/PostCardGrid';
 
 export default async function HomePage() {
   // The post query depends on who's asking, so it can't start before the auth
@@ -21,18 +22,20 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[var(--content-width)] px-4 py-[var(--space-section)] sm:px-6">
-      <h2 className="mb-2 text-xs font-normal tracking-normal text-muted-foreground">최근 글</h2>
-      <div>
-        {posts.map((post) => (
-          <PostListItem
-            key={post.id}
-            post={post}
-            menuName={post.menu_id ? menuNameById.get(post.menu_id) : undefined}
-            isOwner={isOwner}
-          />
+    <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-section)] sm:px-6">
+      <h2 className="mb-4 text-xs font-normal tracking-normal text-muted-foreground">최근 글</h2>
+      <PostCardGrid>
+        {posts.map((post, index) => (
+          <li key={post.id}>
+            <PostCard
+              post={post}
+              menuName={post.menu_id ? menuNameById.get(post.menu_id) : undefined}
+              isOwner={isOwner}
+              isPriority={index < PRIORITY_CARD_COUNT}
+            />
+          </li>
         ))}
-      </div>
+      </PostCardGrid>
     </div>
   );
 }

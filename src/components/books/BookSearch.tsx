@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useTransition, type KeyboardEvent } from 'react';
-import { BookImage, Search } from 'lucide-react';
+import { useRef, useState, useTransition, type KeyboardEvent } from 'react';
+import { BookImage, LoaderCircle, X } from 'lucide-react';
 import { searchBooksAction, type BookSearchState } from '~/lib/actions/books';
 import type { BookSearchResult } from '~/lib/book-search';
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
+import { SEARCH_FIELD_ACTION_CLASS, SearchField } from '~/components/search/SearchField';
 
 interface BookSearchProps {
   onPick: (result: BookSearchResult) => void;
@@ -21,6 +20,7 @@ export function BookSearch({ onPick, autoFocus = false }: BookSearchProps) {
   const [query, setQuery] = useState('');
   const [state, setState] = useState<BookSearchState | null>(null);
   const [pending, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function search() {
     startTransition(async () => setState(await searchBooksAction(query)));
@@ -32,6 +32,12 @@ export function BookSearch({ onPick, autoFocus = false }: BookSearchProps) {
     search();
   }
 
+  function clear() {
+    setQuery('');
+    setState(null);
+    inputRef.current?.focus();
+  }
+
   function pick(result: BookSearchResult) {
     onPick(result);
     setState(null);
@@ -39,23 +45,18 @@ export function BookSearch({ onPick, autoFocus = false }: BookSearchProps) {
 
   return (
     <section aria-label="책 검색" className="rounded-md bg-muted/60 p-4 sm:p-5">
-      <div className="flex gap-2">
-        <Input
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="제목, 저자, ISBN으로 찾아 채우기"
-          aria-label="검색어"
-          maxLength={100}
-          autoFocus={autoFocus}
-          className="bg-background"
-        />
-        <Button type="button" variant="outline" onClick={search} disabled={pending} className="shrink-0 bg-background">
-          <Search />
-          {pending ? '찾는 중…' : '검색'}
-        </Button>
-      </div>
+      <SearchField
+        ref={inputRef}
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="제목, 저자, ISBN으로 찾아 채우기"
+        aria-label="책 검색어"
+        aria-busy={pending}
+        maxLength={100}
+        autoFocus={autoFocus}
+        trailing={<SearchTrailing pending={pending} hasQuery={query !== ''} onClear={clear} />}
+      />
 
       {state && 'error' in state && (
         <p role="alert" className="mt-3 text-sm text-destructive">
@@ -79,6 +80,30 @@ export function BookSearch({ onPick, autoFocus = false }: BookSearchProps) {
         </div>
       )}
     </section>
+  );
+}
+
+interface SearchTrailingProps {
+  pending: boolean;
+  hasQuery: boolean;
+  onClear: () => void;
+}
+
+/** There's no search button — Enter searches — so the right edge shows the search running, or clears it. */
+function SearchTrailing({ pending, hasQuery, onClear }: SearchTrailingProps) {
+  if (pending) {
+    return (
+      <span role="status" className={SEARCH_FIELD_ACTION_CLASS}>
+        <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+        <span className="sr-only">찾는 중</span>
+      </span>
+    );
+  }
+  if (!hasQuery) return null;
+  return (
+    <button type="button" onClick={onClear} aria-label="검색 지우기" className={SEARCH_FIELD_ACTION_CLASS}>
+      <X className="size-4" />
+    </button>
   );
 }
 

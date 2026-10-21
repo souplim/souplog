@@ -33,7 +33,8 @@ export default async function BooksPage() {
         {user && (
           <Button asChild size="sm">
             <Link href="/admin/books/new">
-              <Plus />책 추가
+              <Plus />
+              책 추가
             </Link>
           </Button>
         )}

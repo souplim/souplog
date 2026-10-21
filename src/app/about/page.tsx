@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Pencil } from 'lucide-react';
+import { Pencil, Plus } from 'lucide-react';
 import { getCurrentUser } from '~/lib/auth';
 import { getPostImageUrl } from '~/lib/images';
 import { getProfile } from '~/lib/profile';
@@ -57,7 +57,10 @@ export default async function AboutPage() {
             <p className="text-muted-foreground">아직 소개가 없습니다.</p>
             {isOwner && (
               <Button asChild className="mt-4">
-                <Link href="/admin/about">소개 작성하기</Link>
+                <Link href="/admin/about">
+                  <Plus />
+                  소개 작성
+                </Link>
               </Button>
             )}
           </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import { Plus } from 'lucide-react';
 import { createMenuAction } from '~/lib/actions/menus';
 import type { Menu } from '~/lib/supabase/types';
 import { MenuRow } from './MenuRow';
@@ -21,6 +22,7 @@ export function MenuManager({ menus }: MenuManagerProps) {
         <Input name="name" placeholder="메뉴 이름" required maxLength={50} className="w-40" />
         <Input name="slug" placeholder="슬러그 (선택)" maxLength={50} className="w-40" />
         <Button type="submit" disabled={pending}>
+          <Plus />
           {pending ? '추가 중…' : '메뉴 추가'}
         </Button>
         {state?.error && (

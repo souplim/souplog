@@ -49,11 +49,18 @@ create table if not exists public.posts (
   -- 원본 비율 그대로 자리를 잡기 위한 값이라, 없으면 사진이 잘리거나 레이아웃이 밀린다.
   images            jsonb not null default '[]'::jsonb,
 
+  -- 글에 붙는 첨부 파일들. [{"path": "<uuid>.pdf", "name": "발표자료.pdf", "size": 20480}, ...]
+  -- path 는 서버가 만든 저장 키이고, name 은 원래 파일 이름 — 화면 표시와
+  -- 다운로드 파일명으로만 쓴다.
+  attachments       jsonb not null default '[]'::jsonb,
+
   created_at        timestamptz not null default now(),
   updated_at        timestamptz not null default now()
 );
 
 create index if not exists posts_menu_idx on public.posts (menu_id);
+-- 첨부 파일 컬럼이 생기기 전에 만든 DB 용.
+alter table public.posts add column if not exists attachments jsonb not null default '[]'::jsonb;
 -- 글 날짜는 created_at 하나만 쓴다 — 예전 published_at 컬럼과 인덱스를 걷어낸다.
 drop index if exists public.posts_is_public_published_idx;
 alter table public.posts drop column if exists published_at;
@@ -294,3 +301,49 @@ create policy "owner_updates_post_images" on storage.objects
 drop policy if exists "owner_deletes_post_images" on storage.objects;
 create policy "owner_deletes_post_images" on storage.objects
   for delete to authenticated using (bucket_id = 'post-images');
+
+-- ---------------------------------------------------------------------------
+-- 글 첨부 파일 스토리지
+-- ---------------------------------------------------------------------------
+-- 허용 형식은 src/lib/attachments.ts 의 ATTACHMENT_CONTENT_TYPES 와 맞춘다.
+-- html·svg 처럼 브라우저가 문서로 렌더링하는 형식은 넣지 않는다.
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'post-attachments',
+  'post-attachments',
+  true,
+  10485760,
+  array[
+    'application/pdf',
+    'text/plain',
+    'text/markdown',
+    'text/csv',
+    'application/json',
+    'application/zip',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/x-hwp',
+    'application/hwp+zip'
+  ]
+)
+on conflict (id) do update
+  set public             = excluded.public,
+      file_size_limit    = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "anyone_reads_post_attachments" on storage.objects;
+create policy "anyone_reads_post_attachments" on storage.objects
+  for select to anon, authenticated using (bucket_id = 'post-attachments');
+
+drop policy if exists "owner_writes_post_attachments" on storage.objects;
+create policy "owner_writes_post_attachments" on storage.objects
+  for insert to authenticated with check (bucket_id = 'post-attachments');
+
+drop policy if exists "owner_deletes_post_attachments" on storage.objects;
+create policy "owner_deletes_post_attachments" on storage.objects
+  for delete to authenticated using (bucket_id = 'post-attachments');

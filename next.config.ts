@@ -6,6 +6,13 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: import.meta.dirname,
   },
+  experimental: {
+    serverActions: {
+      // Photos and attachments ride along in the post form's Server Action,
+      // whose body is capped at 1MB by default — too small for one attached PDF.
+      bodySizeLimit: '20mb',
+    },
+  },
   images: {
     remotePatterns: [
       {

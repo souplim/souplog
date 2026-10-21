@@ -63,6 +63,7 @@ export function PostForm({ menus, post, action, submitLabel, cancelHref }: PostF
           onContentChange={setContent}
           defaultExcerpt={post?.excerpt}
           images={post?.images ?? []}
+          attachments={post?.attachments ?? []}
           createdAt={post?.created_at}
           className={activeTab === 'edit' ? undefined : 'hidden md:flex'}
         />

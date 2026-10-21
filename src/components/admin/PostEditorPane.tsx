@@ -2,8 +2,10 @@
 
 import { formatDate } from '~/lib/date';
 import { cn } from '~/lib/utils';
+import type { PostAttachment } from '~/lib/attachments';
 import type { PostImage } from '~/lib/images';
 import type { Menu } from '~/lib/supabase/types';
+import { PostAttachmentUploader } from './PostAttachmentUploader';
 import { PostImageUploader } from './PostImageUploader';
 import { EDITOR_PANE_PADDING, EDITOR_TITLE_CLASS, NO_MENU_VALUE } from './postEditorStyles';
 import { Input } from '~/components/ui/input';
@@ -24,6 +26,7 @@ interface PostEditorPaneProps {
   onContentChange: (value: string) => void;
   defaultExcerpt?: string;
   images: PostImage[];
+  attachments: PostAttachment[];
   createdAt?: string;
   className?: string;
 }
@@ -44,6 +47,7 @@ export function PostEditorPane({
   onContentChange,
   defaultExcerpt,
   images,
+  attachments,
   createdAt,
   className,
 }: PostEditorPaneProps) {
@@ -105,6 +109,11 @@ export function PostEditorPane({
         <div className="space-y-2">
           <span className="text-xs font-medium text-muted-foreground">사진</span>
           <PostImageUploader initialImages={images} />
+        </div>
+
+        <div className="space-y-2">
+          <span className="text-xs font-medium text-muted-foreground">첨부 파일</span>
+          <PostAttachmentUploader initialAttachments={attachments} />
         </div>
 
         <div className="space-y-1.5">

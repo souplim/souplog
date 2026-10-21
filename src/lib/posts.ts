@@ -1,5 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
+import { parsePostAttachments, type PostAttachment } from '~/lib/attachments';
 import { parsePostImages, type PostImage } from '~/lib/images';
 import { createClient } from '~/lib/supabase/server';
 import type { Post, PostRow } from '~/lib/supabase/types';
@@ -11,11 +12,12 @@ export interface PostInput {
   excerpt: string;
   menuId: string | null;
   images: PostImage[];
+  attachments: PostAttachment[];
 }
 
-/** Single place the `images` jsonb column is validated on its way in. */
+/** Single place the jsonb columns are validated on their way in. */
 function toPost(row: PostRow): Post {
-  return { ...row, images: parsePostImages(row.images) };
+  return { ...row, images: parsePostImages(row.images), attachments: parsePostAttachments(row.attachments) };
 }
 
 export interface PostListOptions {
@@ -90,6 +92,7 @@ export async function createPost(input: PostInput, isPublic: boolean): Promise<P
       excerpt: input.excerpt,
       menu_id: input.menuId,
       images: input.images,
+      attachments: input.attachments,
       is_public: isPublic,
     })
     .select('*')
@@ -110,6 +113,7 @@ export async function updatePost(id: string, input: PostInput, isPublic: boolean
       excerpt: input.excerpt,
       menu_id: input.menuId,
       images: input.images,
+      attachments: input.attachments,
       is_public: isPublic,
     })
     .eq('id', id)

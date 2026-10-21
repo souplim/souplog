@@ -3,6 +3,16 @@
 import { randomUUID } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import {
+  ATTACHMENT_CONTENT_TYPES,
+  getAttachmentExtension,
+  MAX_ATTACHMENT_BYTES,
+  MAX_POST_ATTACHMENTS,
+  normalizeAttachmentName,
+  parsePostAttachmentsJson,
+  POST_ATTACHMENT_BUCKET,
+  type PostAttachment,
+} from '~/lib/attachments';
 import { requireUser } from '~/lib/auth';
 import { IMAGE_HEADER_BYTES, readImageDimensions } from '~/lib/image-dimensions';
 import { MAX_POST_IMAGES, parsePostImagesJson, POST_IMAGE_BUCKET, type PostImage } from '~/lib/images';
@@ -60,8 +70,54 @@ async function resolvePostImages(formData: FormData): Promise<PostImage[]> {
   return [...kept, ...uploaded];
 }
 
+async function uploadPostAttachment(file: File): Promise<PostAttachment> {
+  const name = normalizeAttachmentName(file.name);
+  // The extension picks both the storage key's suffix and the content type,
+  // so neither is built from the browser's say-so.
+  const extension = getAttachmentExtension(name);
+  if (!extension) throw new Error(`첨부할 수 없는 파일 형식입니다: ${name || file.name}`);
+  if (file.size > MAX_ATTACHMENT_BYTES) {
+    throw new Error(`첨부 파일은 ${MAX_ATTACHMENT_BYTES / 1024 / 1024}MB 이하만 올릴 수 있습니다: ${name}`);
+  }
+
+  const supabase = await createClient();
+  const path = `${randomUUID()}.${extension}`;
+
+  const { error } = await supabase.storage.from(POST_ATTACHMENT_BUCKET).upload(path, file, {
+    contentType: ATTACHMENT_CONTENT_TYPES[extension],
+  });
+
+  if (error) throw new Error(`첨부 파일을 업로드하지 못했습니다: ${error.message}`);
+  return { path, name, size: file.size };
+}
+
+/** Same as `resolvePostImages`, for the post's attached files. */
+async function resolvePostAttachments(formData: FormData): Promise<PostAttachment[]> {
+  const kept = parsePostAttachmentsJson(formData.get('keptAttachments'));
+  const files = formData
+    .getAll('attachments')
+    .filter((value): value is File => value instanceof File && value.size > 0);
+
+  if (kept.length + files.length > MAX_POST_ATTACHMENTS) {
+    throw new Error(`첨부 파일은 한 글에 최대 ${MAX_POST_ATTACHMENTS}개까지 올릴 수 있습니다.`);
+  }
+
+  const uploaded = await Promise.all(files.map(uploadPostAttachment));
+  return [...kept, ...uploaded];
+}
+
+interface PostFiles {
+  images: PostImage[];
+  attachments: PostAttachment[];
+}
+
+async function resolvePostFiles(formData: FormData): Promise<PostFiles> {
+  const [images, attachments] = await Promise.all([resolvePostImages(formData), resolvePostAttachments(formData)]);
+  return { images, attachments };
+}
+
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : '사진을 처리하지 못했습니다.';
+  return error instanceof Error ? error.message : '파일을 처리하지 못했습니다.';
 }
 
 function parsePostForm(formData: FormData) {
@@ -89,9 +145,9 @@ export async function createPostAction(
   const baseSlug = parsed.data.slug.length > 0 ? slugify(parsed.data.slug) : slugify(parsed.data.title);
   const slug = await ensureUniqueSlug(baseSlug, (candidate) => postSlugExists(candidate));
 
-  let images: PostImage[];
+  let files: PostFiles;
   try {
-    images = await resolvePostImages(formData);
+    files = await resolvePostFiles(formData);
   } catch (error: unknown) {
     return { error: getErrorMessage(error) };
   }
@@ -103,7 +159,7 @@ export async function createPostAction(
       content: parsed.data.content,
       excerpt: parsed.data.excerpt,
       menuId: parsed.data.menuId,
-      images,
+      ...files,
     },
     parsed.data.isPublic,
   );
@@ -128,9 +184,9 @@ export async function updatePostAction(
   const baseSlug = parsed.data.slug.length > 0 ? slugify(parsed.data.slug) : slugify(parsed.data.title);
   const slug = await ensureUniqueSlug(baseSlug, (candidate) => postSlugExists(candidate, postId));
 
-  let images: PostImage[];
+  let files: PostFiles;
   try {
-    images = await resolvePostImages(formData);
+    files = await resolvePostFiles(formData);
   } catch (error: unknown) {
     return { error: getErrorMessage(error) };
   }
@@ -143,7 +199,7 @@ export async function updatePostAction(
       content: parsed.data.content,
       excerpt: parsed.data.excerpt,
       menuId: parsed.data.menuId,
-      images,
+      ...files,
     },
     parsed.data.isPublic,
   );

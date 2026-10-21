@@ -1,3 +1,4 @@
+import type { PostAttachment } from '~/lib/attachments';
 import type { PostImage } from '~/lib/images';
 
 export interface Database {
@@ -34,6 +35,8 @@ export interface Database {
           menu_id: string | null;
           // jsonb — shape is enforced on read by parsePostImages, not by the DB.
           images: unknown;
+          // jsonb — shape is enforced on read by parsePostAttachments.
+          attachments: unknown;
           created_at: string;
           updated_at: string;
         };
@@ -46,6 +49,7 @@ export interface Database {
           is_public?: boolean;
           menu_id?: string | null;
           images?: PostImage[];
+          attachments?: PostAttachment[];
           created_at?: string;
           updated_at?: string;
         };
@@ -112,8 +116,11 @@ export type Menu = Database['public']['Tables']['menus']['Row'];
 export type PostRow = Database['public']['Tables']['posts']['Row'];
 
 /**
- * What the app passes around: the raw row with its `images` jsonb already
- * validated, so no component has to re-check the column's shape.
+ * What the app passes around: the raw row with its jsonb columns already
+ * validated, so no component has to re-check their shape.
  */
-export type Post = Omit<PostRow, 'images'> & { images: PostImage[] };
+export type Post = Omit<PostRow, 'images' | 'attachments'> & {
+  images: PostImage[];
+  attachments: PostAttachment[];
+};
 export type PublicComment = Database['public']['Views']['comments_public']['Row'];

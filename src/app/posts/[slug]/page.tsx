@@ -8,6 +8,7 @@ import { getPostImageUrl } from '~/lib/images';
 import { getMenus } from '~/lib/menus';
 import { getPostBySlug } from '~/lib/posts';
 import { decodeSlugParam } from '~/lib/slugify';
+import { PostAttachments } from '~/components/post/PostAttachments';
 import { CommentList } from '~/components/post/CommentList';
 import { DeletePostButton } from '~/components/post/DeletePostButton';
 import { PostContent } from '~/components/post/PostContent';
@@ -110,6 +111,12 @@ export default async function PostPage({ params }: PostPageProps) {
       <div className="mx-auto w-full max-w-[var(--content-width)]">
         <PostContent content={post.content} />
       </div>
+
+      {post.attachments.length > 0 && (
+        <div className="mx-auto mt-10 w-full max-w-[var(--content-width)]">
+          <PostAttachments attachments={post.attachments} />
+        </div>
+      )}
 
       {post.is_public && (
         <div className="mx-auto mt-auto w-full max-w-[var(--content-width)]">

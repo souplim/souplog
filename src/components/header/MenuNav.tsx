@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import { cn } from 'cn';
-import type { NavItem } from '~/lib/nav-items';
+import type { NavItem, NavItemKey } from '~/lib/nav-items';
 import type { Menu } from '~/lib/supabase/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
@@ -23,57 +24,148 @@ const NAV_ITEM_CLASS =
   'inline-flex h-9 items-center gap-1 rounded-xs text-sm whitespace-nowrap text-muted-foreground outline-none transition-colors duration-[var(--duration-fast)] hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50';
 const ACTIVE_NAV_ITEM_CLASS = 'font-semibold text-foreground';
 
-const ABOUT_HREF = '/about';
-const BOOKS_HREF = '/books';
+/** Every entry but `posts` is a plain link to a fixed page. */
+const PAGE_HREFS: Readonly<Record<Exclude<NavItemKey, 'posts'>, string>> = {
+  about: '/about',
+  books: '/books',
+  stats: '/stats',
+};
 const ALL_POSTS_HREF = '/';
 const MENU_PATH_PREFIX = '/menu/';
 
+function isPageActive(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 /**
  * The top-level entries come from 메뉴 관리, where the owner names, orders,
- * and hides them. About and the bookshelf are fixed pages, so they stay plain
- * links; the post categories fold into one dropdown so the nav keeps at most
- * three entries no matter how many menus exist.
+ * and hides them. The fixed pages stay plain links; the post categories fold
+ * into one dropdown so the row doesn't grow with the number of menus.
+ *
+ * Four entries don't fit beside the logo on a phone, so below `sm` the whole
+ * row folds into a single 메뉴 dropdown holding the same links.
  */
 export function MenuNav({ navItems, menus }: MenuNavProps) {
   const pathname = usePathname();
   const visibleMenus = menus.filter((menu) => menu.is_visible);
+  const visibleItems = navItems.filter((item) => item.isVisible && (item.key !== 'posts' || visibleMenus.length > 0));
 
   return (
     <nav aria-label="메인 내비게이션" className="min-w-0 flex-1">
-      <ul className="flex items-center gap-5">
-        {navItems
-          .filter((item) => item.isVisible)
-          .map((item) => {
-            if (item.key === 'posts') {
-              if (visibleMenus.length === 0) return null;
-              return (
-                <li key={item.key} className="shrink-0">
-                  <PostMenuDropdown
-                    label={item.label}
-                    menus={visibleMenus}
-                    pathname={pathname}
-                    isActive={pathname.startsWith(MENU_PATH_PREFIX)}
-                  />
-                </li>
-              );
-            }
-
-            const href = item.key === 'about' ? ABOUT_HREF : BOOKS_HREF;
-            const isActive = pathname === href || pathname.startsWith(`${href}/`);
+      <ul className="hidden items-center gap-5 sm:flex">
+        {visibleItems.map((item) => {
+          if (item.key === 'posts') {
             return (
               <li key={item.key} className="shrink-0">
-                <Link
-                  href={href}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={cn(NAV_ITEM_CLASS, isActive && ACTIVE_NAV_ITEM_CLASS)}
-                >
-                  {item.label}
-                </Link>
+                <PostMenuDropdown
+                  label={item.label}
+                  menus={visibleMenus}
+                  pathname={pathname}
+                  isActive={pathname.startsWith(MENU_PATH_PREFIX)}
+                />
               </li>
             );
-          })}
+          }
+
+          const href = PAGE_HREFS[item.key];
+          const isActive = isPageActive(pathname, href);
+          return (
+            <li key={item.key} className="shrink-0">
+              <Link
+                href={href}
+                aria-current={isActive ? 'page' : undefined}
+                className={cn(NAV_ITEM_CLASS, isActive && ACTIVE_NAV_ITEM_CLASS)}
+              >
+                {item.label}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
+
+      <div className="sm:hidden">
+        <CompactNav items={visibleItems} menus={visibleMenus} pathname={pathname} />
+      </div>
     </nav>
+  );
+}
+
+interface CompactNavProps {
+  items: NavItem[];
+  menus: Menu[];
+  pathname: string;
+}
+
+/** The phone layout: one 메뉴 button, with the post categories as a labelled group inside. */
+function CompactNav({ items, menus, pathname }: CompactNavProps) {
+  if (items.length === 0) return null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button type="button" className={cn(NAV_ITEM_CLASS, 'group cursor-pointer data-[state=open]:text-foreground')}>
+          메뉴
+          <ChevronDown
+            aria-hidden
+            className="size-3.5 transition-transform duration-[var(--duration-fast)] group-data-[state=open]:rotate-180"
+          />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-44">
+        {items.map((item, index) => {
+          if (item.key === 'posts') {
+            return (
+              <div key={item.key}>
+                {index > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                  {item.label}
+                </DropdownMenuLabel>
+                <PostMenuItems menus={menus} pathname={pathname} />
+                {index < items.length - 1 && <DropdownMenuSeparator />}
+              </div>
+            );
+          }
+
+          const href = PAGE_HREFS[item.key];
+          return (
+            <MenuLinkItem key={item.key} href={href} label={item.label} isCurrent={isPageActive(pathname, href)} />
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+interface MenuLinkItemProps {
+  href: string;
+  label: string;
+  isCurrent: boolean;
+}
+
+function MenuLinkItem({ href, label, isCurrent }: MenuLinkItemProps) {
+  return (
+    <DropdownMenuItem asChild>
+      <Link
+        href={href}
+        aria-current={isCurrent ? 'page' : undefined}
+        className={cn(isCurrent && 'font-semibold text-foreground')}
+      >
+        {label}
+      </Link>
+    </DropdownMenuItem>
+  );
+}
+
+/** 전체 글, then each visible category — shared by the wide dropdown and the phone menu. */
+function PostMenuItems({ menus, pathname }: { menus: Menu[]; pathname: string }) {
+  return (
+    <>
+      <MenuLinkItem href={ALL_POSTS_HREF} label="전체 글" isCurrent={pathname === ALL_POSTS_HREF} />
+      {menus.map((menu) => {
+        const href = `${MENU_PATH_PREFIX}${menu.slug}`;
+        return <MenuLinkItem key={menu.id} href={href} label={menu.name} isCurrent={pathname === href} />;
+      })}
+    </>
   );
 }
 
@@ -104,30 +196,11 @@ function PostMenuDropdown({ label, menus, pathname, isActive }: PostMenuDropdown
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-40">
-        <DropdownMenuItem asChild>
-          <Link
-            href={ALL_POSTS_HREF}
-            aria-current={pathname === ALL_POSTS_HREF ? 'page' : undefined}
-            className={cn(pathname === ALL_POSTS_HREF && 'font-semibold text-foreground')}
-          >
-            전체 글
-          </Link>
-        </DropdownMenuItem>
+        <MenuLinkItem href={ALL_POSTS_HREF} label="전체 글" isCurrent={pathname === ALL_POSTS_HREF} />
         <DropdownMenuSeparator />
         {menus.map((menu) => {
           const href = `${MENU_PATH_PREFIX}${menu.slug}`;
-          const isCurrent = pathname === href;
-          return (
-            <DropdownMenuItem key={menu.id} asChild>
-              <Link
-                href={href}
-                aria-current={isCurrent ? 'page' : undefined}
-                className={cn(isCurrent && 'font-semibold text-foreground')}
-              >
-                {menu.name}
-              </Link>
-            </DropdownMenuItem>
-          );
+          return <MenuLinkItem key={menu.id} href={href} label={menu.name} isCurrent={pathname === href} />;
         })}
       </DropdownMenuContent>
     </DropdownMenu>

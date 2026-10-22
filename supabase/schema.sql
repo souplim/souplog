@@ -28,22 +28,27 @@ create index if not exists menus_sort_order_idx on public.menus (sort_order);
 alter table public.menus add column if not exists is_visible boolean not null default true;
 
 -- ---------------------------------------------------------------------------
--- 상단 메뉴 (About · 게시글 · 책장)
+-- 상단 메뉴 (About · 게시글 · 책장 · Dashboard)
 -- ---------------------------------------------------------------------------
 -- 각 항목이 가리키는 페이지는 고정이라 key 집합도 닫혀 있다 — 이름·순서·표시
 -- 여부만 바꾼다. 허용 key 는 src/lib/nav-items.ts 의 NAV_ITEM_KEYS 와 맞춘다.
 -- 행이 없으면 앱이 기본값으로 채워 보여 주므로 아래 기본 행은 출발점일 뿐이다.
 
 create table if not exists public.nav_items (
-  key        text primary key check (key in ('about', 'posts', 'books')),
+  key        text primary key check (key in ('about', 'posts', 'books', 'stats')),
   label      text not null,
   sort_order integer not null default 0,
   is_visible boolean not null default true,
   updated_at timestamptz not null default now()
 );
 
+-- 이미 만들어진 DB 는 위 create 가 건너뛰므로 허용 key 목록을 여기서 다시 건다.
+alter table public.nav_items drop constraint if exists nav_items_key_check;
+alter table public.nav_items add constraint nav_items_key_check
+  check (key in ('about', 'posts', 'books', 'stats'));
+
 insert into public.nav_items (key, label, sort_order)
-values ('about', 'About', 0), ('posts', '게시글', 1), ('books', '책장', 2)
+values ('about', 'About', 0), ('posts', '게시글', 1), ('books', '책장', 2), ('stats', 'Dashboard', 3)
 on conflict (key) do nothing;
 
 -- ---------------------------------------------------------------------------

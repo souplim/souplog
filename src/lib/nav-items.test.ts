@@ -17,13 +17,14 @@ describe('resolveNavItems', () => {
       { key: 'books', label: '서재', isVisible: true },
       { key: 'posts', label: '글', isVisible: true },
       { key: 'about', label: '소개', isVisible: false },
+      { key: 'stats', label: 'Dashboard', isVisible: true },
     ]);
   });
 
   it('appends keys that have no stored row with their defaults', () => {
     const result = resolveNavItems([{ key: 'books', label: '서재', sort_order: 0, is_visible: true }]);
 
-    expect(result.map((item) => item.key)).toEqual(['books', 'about', 'posts']);
+    expect(result.map((item) => item.key)).toEqual(['books', 'about', 'posts', 'stats']);
     expect(result[1]).toEqual({ key: 'about', label: 'About', isVisible: true });
   });
 
@@ -34,7 +35,7 @@ describe('resolveNavItems', () => {
       { key: 'about', label: '중복', sort_order: 2, is_visible: true },
     ]);
 
-    expect(result.map((item) => item.key)).toEqual(['about', 'posts', 'books']);
+    expect(result.map((item) => item.key)).toEqual(['about', 'posts', 'books', 'stats']);
     expect(result[0].label).toBe('소개');
   });
 
@@ -49,6 +50,7 @@ describe('isNavItemKey', () => {
     expect(isNavItemKey('about')).toBe(true);
     expect(isNavItemKey('posts')).toBe(true);
     expect(isNavItemKey('books')).toBe(true);
+    expect(isNavItemKey('stats')).toBe(true);
     expect(isNavItemKey('admin')).toBe(false);
     expect(isNavItemKey(undefined)).toBe(false);
   });

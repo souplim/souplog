@@ -3,7 +3,7 @@
  * `posts`, the category dropdown), so the set of keys is closed — the owner
  * can rename, reorder, and hide them, but never add or delete one.
  */
-export const NAV_ITEM_KEYS = ['about', 'posts', 'books'] as const;
+export const NAV_ITEM_KEYS = ['about', 'posts', 'books', 'stats'] as const;
 
 export type NavItemKey = (typeof NAV_ITEM_KEYS)[number];
 
@@ -18,6 +18,7 @@ export const DEFAULT_NAV_ITEMS: readonly NavItem[] = [
   { key: 'about', label: 'About', isVisible: true },
   { key: 'posts', label: '게시글', isVisible: true },
   { key: 'books', label: '책장', isVisible: true },
+  { key: 'stats', label: 'Dashboard', isVisible: true },
 ];
 
 /** Where each entry leads, shown next to it on the admin screen. */
@@ -25,6 +26,7 @@ export const NAV_ITEM_DESTINATIONS: Readonly<Record<NavItemKey, string>> = {
   about: '/about',
   posts: '게시글 메뉴 드롭다운',
   books: '/books',
+  stats: '/stats',
 };
 
 export function isNavItemKey(value: unknown): value is NavItemKey {

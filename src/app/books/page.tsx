@@ -14,6 +14,7 @@ import {
 } from '~/lib/book-shelf';
 import { getBooks } from '~/lib/books';
 import { getNavLabel } from '~/lib/menus';
+import { PageEyebrow, PageTitle } from '~/components/page/PageHeading';
 import { BookShelf } from '~/components/books/BookShelf';
 import { ShelfSummary } from '~/components/books/ShelfSummary';
 import { Button } from '~/components/ui/button';
@@ -30,12 +31,7 @@ interface BooksPageProps {
 }
 
 export default async function BooksPage({ searchParams }: BooksPageProps) {
-  const [books, user, params, title] = await Promise.all([
-    getBooks(),
-    getCurrentUser(),
-    searchParams,
-    getNavLabel('books'),
-  ]);
+  const [books, user, params] = await Promise.all([getBooks(), getCurrentUser(), searchParams]);
   const today = todayInSeoul();
   const currentYear = Number(today.slice(0, 4));
   const years = summaryYears(books, currentYear);
@@ -48,24 +44,28 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
 
   return (
     <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-xl)] sm:px-6">
-      {/* The header nav already marks this page, so the name is only announced, not shown. */}
-      <h1 className="sr-only">{title}</h1>
-
-      <ShelfSummary
-        books={books}
-        year={summaryYear}
-        years={years}
-        currentYear={currentYear}
-        action={
-          user && (
-            <Button asChild size="sm">
+      {/* Adding a book is about the whole shelf, not the year, so it sits by the title, outside the summary card.
+          Centred on the title rather than the label, since the button is taller than the label. */}
+      <header>
+        <PageEyebrow>책장</PageEyebrow>
+        <div className="flex items-center justify-between gap-[var(--space-sm)]">
+          <PageTitle>한 해의 책장</PageTitle>
+          {user && (
+            <Button asChild size="sm" className="shrink-0">
               <Link href="/admin/books/new">
                 <Plus />책 추가
               </Link>
             </Button>
-          )
-        }
-      />
+          )}
+        </div>
+        <p className="mt-[var(--space-sm)] max-w-[var(--content-width)] text-muted-foreground text-pretty">
+          읽고 싶은 책, 읽는 중인 책, 다 읽은 책을 한 해씩 꽂아 둡니다.
+        </p>
+      </header>
+
+      <div className="mt-[var(--space-xl)]">
+        <ShelfSummary books={books} year={summaryYear} years={years} currentYear={currentYear} />
+      </div>
 
       <div className="mt-[var(--space-xl)] space-y-[var(--space-section)]">
         <ShelfSection

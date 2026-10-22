@@ -72,7 +72,7 @@ function buildSteps(summary: AboutSummary<Book>, latestPost: PostSummary | undef
       title: '쓴다',
       description: '읽고 겪은 것을 오래 남길 수 있는 글로 정리합니다.',
       preview: <LatestPostPreview post={latestPost} />,
-      href: '/',
+      href: '/posts',
       linkLabel: `${labels.posts} 읽기`,
     },
     labels.stats
@@ -170,7 +170,7 @@ export default async function AboutPage() {
         links={profile.links}
         facts={profile.facts}
         content={profile.content}
-        primaryLink={{ href: '/', label: '글 읽으러 가기' }}
+        primaryLink={{ href: '/posts', label: '글 읽으러 가기' }}
         secondaryLink={labels.books ? { href: '/books', label: `${labels.books} 보기` } : null}
         isOwner={isOwner}
       />
@@ -186,7 +186,7 @@ export default async function AboutPage() {
           heading="최근에 쓴 글"
           action={
             <Link
-              href="/"
+              href="/posts"
               className="inline-flex items-center gap-[var(--space-3xs)] rounded-xs text-sm font-semibold text-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               전체 보기

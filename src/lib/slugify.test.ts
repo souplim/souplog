@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ensureUniqueSlug, slugify } from './slugify';
+import { ensureUniqueSlug, isReservedPostSlug, slugify } from './slugify';
 
 describe('slugify', () => {
   it('lowercases and hyphenates an English title', () => {
@@ -33,5 +33,16 @@ describe('ensureUniqueSlug', () => {
     const taken = new Set(['hello-world', 'hello-world-2', 'hello-world-3']);
     const result = await ensureUniqueSlug('hello-world', async (candidate) => taken.has(candidate));
     expect(result).toBe('hello-world-4');
+  });
+});
+
+describe('isReservedPostSlug', () => {
+  it('reserves the segment the menu pages live under', () => {
+    expect(isReservedPostSlug('menu')).toBe(true);
+  });
+
+  it('allows ordinary slugs, including ones that only start with a reserved word', () => {
+    expect(isReservedPostSlug('menu-2')).toBe(false);
+    expect(isReservedPostSlug('오늘의-기록')).toBe(false);
   });
 });

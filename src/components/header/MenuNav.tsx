@@ -30,8 +30,8 @@ const PAGE_HREFS: Readonly<Record<Exclude<NavItemKey, 'posts'>, string>> = {
   books: '/books',
   stats: '/stats',
 };
-const ALL_POSTS_HREF = '/';
-const MENU_PATH_PREFIX = '/menu/';
+const ALL_POSTS_HREF = '/posts';
+const MENU_PATH_PREFIX = '/posts/menu/';
 
 function isPageActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -61,7 +61,7 @@ export function MenuNav({ navItems, menus }: MenuNavProps) {
                   label={item.label}
                   menus={visibleMenus}
                   pathname={pathname}
-                  isActive={pathname.startsWith(MENU_PATH_PREFIX)}
+                  isActive={isPageActive(pathname, ALL_POSTS_HREF)}
                 />
               </li>
             );

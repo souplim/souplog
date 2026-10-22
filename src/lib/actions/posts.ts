@@ -17,7 +17,7 @@ import { requireUser } from '~/lib/auth';
 import { uploadPostImage } from '~/lib/image-upload';
 import { MAX_POST_IMAGES, parsePostImagesJson, type PostImage } from '~/lib/images';
 import { createPost, deletePost, postSlugExists, updatePost } from '~/lib/posts';
-import { ensureUniqueSlug, slugify } from '~/lib/slugify';
+import { ensureUniqueSlug, isReservedPostSlug, slugify } from '~/lib/slugify';
 import { createClient } from '~/lib/supabase/server';
 import { postSchema } from '~/lib/validation';
 
@@ -117,7 +117,10 @@ export async function createPostAction(
   }
 
   const baseSlug = parsed.data.slug.length > 0 ? slugify(parsed.data.slug) : slugify(parsed.data.title);
-  const slug = await ensureUniqueSlug(baseSlug, (candidate) => postSlugExists(candidate));
+  const slug = await ensureUniqueSlug(
+    baseSlug,
+    async (candidate) => isReservedPostSlug(candidate) || postSlugExists(candidate),
+  );
 
   let files: PostFiles;
   try {
@@ -138,7 +141,8 @@ export async function createPostAction(
     parsed.data.isPublic,
   );
 
-  revalidatePath('/');
+  revalidatePath('/posts');
+  revalidatePath('/about');
   revalidatePath(`/posts/${slug}`);
   redirect(`/posts/${encodeURIComponent(slug)}`);
 }
@@ -156,7 +160,10 @@ export async function updatePostAction(
   }
 
   const baseSlug = parsed.data.slug.length > 0 ? slugify(parsed.data.slug) : slugify(parsed.data.title);
-  const slug = await ensureUniqueSlug(baseSlug, (candidate) => postSlugExists(candidate, postId));
+  const slug = await ensureUniqueSlug(
+    baseSlug,
+    async (candidate) => isReservedPostSlug(candidate) || postSlugExists(candidate, postId),
+  );
 
   let files: PostFiles;
   try {
@@ -178,7 +185,8 @@ export async function updatePostAction(
     parsed.data.isPublic,
   );
 
-  revalidatePath('/');
+  revalidatePath('/posts');
+  revalidatePath('/about');
   revalidatePath(`/posts/${slug}`);
   redirect(`/posts/${encodeURIComponent(slug)}`);
 }
@@ -186,6 +194,7 @@ export async function updatePostAction(
 export async function deletePostAction(postId: string): Promise<void> {
   await requireUser();
   await deletePost(postId);
-  revalidatePath('/');
-  redirect('/');
+  revalidatePath('/posts');
+  revalidatePath('/about');
+  redirect('/posts');
 }

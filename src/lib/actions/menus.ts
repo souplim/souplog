@@ -44,7 +44,7 @@ export async function createMenuAction(
   await createMenu({ name: parsed.data.name, slug }, existing.length);
 
   revalidatePath('/admin/menus');
-  revalidatePath('/');
+  revalidatePath('/posts');
   return {};
 }
 
@@ -70,7 +70,7 @@ export async function updateMenuAction(
   await updateMenu(menuId, { name: parsed.data.name, slug });
 
   revalidatePath('/admin/menus');
-  revalidatePath('/');
+  revalidatePath('/posts');
   return {};
 }
 
@@ -78,13 +78,13 @@ export async function deleteMenuAction(menuId: string): Promise<void> {
   await requireUser();
   await deleteMenu(menuId);
   revalidatePath('/admin/menus');
-  revalidatePath('/');
+  revalidatePath('/posts');
 }
 
 export async function setMenuVisibilityAction(menuId: string, isVisible: boolean): Promise<void> {
   await requireUser();
   await setMenuVisibility(menuId, isVisible === true);
-  // The dropdown lives in the header on every page, not just the home page.
+  // The dropdown lives in the header on every page, not just the post feed.
   revalidatePath('/', 'layout');
 }
 
@@ -100,11 +100,11 @@ export async function moveMenuAction(menuId: string, direction: 'up' | 'down'): 
 
   await reorderMenus(reordered.map((menu) => menu.id));
   revalidatePath('/admin/menus');
-  revalidatePath('/');
+  revalidatePath('/posts');
 }
 
 // The top-level nav is in the header on every page, so its changes
-// revalidate the whole layout rather than just the home page.
+// revalidate the whole layout rather than just the post feed.
 async function persistNavItems(items: readonly NavItem[]): Promise<void> {
   await saveNavItems(items);
   revalidatePath('/', 'layout');

@@ -9,7 +9,7 @@ import { SEARCH_FIELD_ACTION_CLASS, SearchField } from './SearchField';
 
 /**
  * Sits above a post list and searches *that* list: it submits to the current
- * route (`action=""`), so the home feed searches every post and a menu page
+ * route (`action=""`), so the all-posts feed searches every post and a menu page
  * searches within its menu, and the results replace the list underneath while
  * the field stays where it is.
  *

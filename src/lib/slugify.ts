@@ -58,3 +58,13 @@ export async function ensureUniqueSlug(
 
   return candidate;
 }
+
+/**
+ * Static segments under `/posts` that would shadow a post with the same slug
+ * (`/posts/menu/...` holds the menu pages), so no post may take them.
+ */
+const RESERVED_POST_SLUGS: ReadonlySet<string> = new Set(['menu']);
+
+export function isReservedPostSlug(slug: string): boolean {
+  return RESERVED_POST_SLUGS.has(slug);
+}

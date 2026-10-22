@@ -6,11 +6,8 @@ import { SearchForm } from '~/components/search/SearchForm';
 /**
  * Container matches `page.tsx` exactly, heading included — the heading is real
  * text either way, so rendering it here means only the rows swap.
- *
- * Every sibling segment that isn't the feed (`/login`, `/admin`) carries its
- * own `loading.tsx`; without those this file would be their fallback too.
  */
-export default function HomeLoading() {
+export default function PostsLoading() {
   return (
     <FeedContainer>
       <Skeleton className="mb-[var(--space-2xs)] h-4 w-12" />

@@ -22,6 +22,23 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        // The site opens on the owner's introduction; the post feed lives at /posts.
+        // Temporary, so browsers don't cache it if the home page changes again.
+        source: '/',
+        destination: '/about',
+        permanent: false,
+      },
+      {
+        // Menu pages moved under /posts; keeps links shared before the move working.
+        source: '/menu/:slug',
+        destination: '/posts/menu/:slug',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

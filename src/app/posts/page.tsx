@@ -9,11 +9,11 @@ import { PostCardGrid, PRIORITY_CARD_COUNT } from '~/components/post/PostCardGri
 import { SearchForm } from '~/components/search/SearchForm';
 import { NO_SEARCH_RESULT_MESSAGE, SearchResultHeading } from '~/components/search/SearchResultHeading';
 
-interface HomePageProps {
+interface PostsPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function HomePage({ searchParams }: HomePageProps) {
+export default async function PostsPage({ searchParams }: PostsPageProps) {
   const query = normalizeSearchQuery((await searchParams).q);
   // The post query depends on who's asking, so it chains off the auth check
   // alone — not off the whole batch, or it would also wait for the menu list

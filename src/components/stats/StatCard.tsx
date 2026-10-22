@@ -13,8 +13,8 @@ interface StatCardProps {
 
 /**
  * One indicator: what it measures, the latest number large, the history
- * beneath, and where it came from. Separated from its neighbours by a rule,
- * not a box.
+ * beneath, and where it came from. A bordered card like `PostCard` — no
+ * shadow, per the token rules.
  */
 export function StatCard({ card }: StatCardProps) {
   const { result } = card;
@@ -23,7 +23,7 @@ export function StatCard({ card }: StatCardProps) {
   return (
     <section
       aria-labelledby={headingId}
-      className="flex min-w-0 flex-col border-t border-border pt-[var(--space-md)] pb-[var(--space-lg)]"
+      className="flex min-w-0 flex-col rounded-xl border border-border bg-card p-[var(--space-md)]"
     >
       <h2 id={headingId} className="font-heading text-[length:var(--text-lg)] font-semibold">
         {card.title}

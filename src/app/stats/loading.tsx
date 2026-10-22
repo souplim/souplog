@@ -2,7 +2,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 
 const CARD_COUNT = 6;
 
-/** Follows `page.tsx`'s header and two-column rule grid, so the cards swap in without a shift. */
+/** Follows `page.tsx`'s header and two-column card grid, so the cards swap in without a shift. */
 export default function StatsLoading() {
   return (
     <div role="status" className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-xl)] sm:px-6">
@@ -14,9 +14,9 @@ export default function StatsLoading() {
         <Skeleton className="mt-2 h-5 w-3/4" />
       </div>
 
-      <div className="mt-[var(--space-xl)] grid gap-x-[var(--space-xl)] sm:grid-cols-2">
+      <div className="mt-[var(--space-xl)] grid gap-[var(--space-md)] sm:grid-cols-2">
         {Array.from({ length: CARD_COUNT }, (_, index) => (
-          <div key={index} className="border-t border-border pt-[var(--space-md)] pb-[var(--space-lg)]">
+          <div key={index} className="rounded-xl border border-border bg-card p-[var(--space-md)]">
             <Skeleton className="h-6 w-32" />
             <Skeleton className="mt-[var(--space-3xs)] h-4 w-4/5" />
             <Skeleton className="mt-[var(--space-md)] h-7 w-24" />

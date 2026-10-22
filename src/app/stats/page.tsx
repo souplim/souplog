@@ -22,7 +22,7 @@ export default async function StatsPage() {
         </p>
       </header>
 
-      <div className="mt-[var(--space-xl)] grid gap-x-[var(--space-xl)] sm:grid-cols-2">
+      <div className="mt-[var(--space-xl)] grid gap-[var(--space-md)] sm:grid-cols-2">
         {cards.map((card) => (
           <StatCard key={card.id} card={card} />
         ))}

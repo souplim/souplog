@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { BOOK_STATUSES, sanitizeForStatus } from '~/lib/book-shelf';
+import { MAX_PROFILE_FACTS, MAX_PROFILE_LINKS, profileFactSchema, profileLinkSchema } from '~/lib/profile-fields';
 
 export const loginSchema = z.object({
   email: z.email(),
@@ -28,6 +29,8 @@ export const profileSchema = z.object({
   name: z.string().trim().min(1, '이름을 입력하세요.').max(50),
   tagline: z.string().trim().max(160),
   content: z.string().max(20_000),
+  facts: z.array(profileFactSchema).max(MAX_PROFILE_FACTS, `항목은 ${MAX_PROFILE_FACTS}개까지 쓸 수 있어요.`),
+  links: z.array(profileLinkSchema).max(MAX_PROFILE_LINKS, `링크는 ${MAX_PROFILE_LINKS}개까지 쓸 수 있어요.`),
 });
 
 /** A form field that may be absent — the book form only renders the fields its status needs. */

@@ -2,7 +2,16 @@
 
 import { startTransition, useActionState, type FormEvent } from 'react';
 import type { ProfileFormState } from '~/lib/actions/profile';
+import {
+  MAX_FACT_VALUE_LENGTH,
+  MAX_LINK_URL_LENGTH,
+  MAX_PAIR_LABEL_LENGTH,
+  MAX_PROFILE_FACTS,
+  MAX_PROFILE_LINKS,
+  copyTextOf,
+} from '~/lib/profile-fields';
 import type { Profile } from '~/lib/supabase/types';
+import { PairListField } from './PairListField';
 import { AvatarPicker } from './AvatarPicker';
 import { FormActions } from '~/components/form/FormActions';
 import { Alert, AlertDescription } from '~/components/ui/alert';
@@ -46,6 +55,21 @@ export function AboutForm({ profile, action }: AboutFormProps) {
         />
       </div>
 
+      <PairListField
+        legend="이런 사람입니다"
+        description="하는 일, 사는 곳, 요즘 관심사처럼 짧은 항목으로 소개해요."
+        initialRows={(profile?.facts ?? []).map(({ label, value }) => ({ first: label, second: value }))}
+        first={{ name: 'factLabel', label: '항목 이름', placeholder: '하는 일', maxLength: MAX_PAIR_LABEL_LENGTH }}
+        second={{
+          name: 'factValue',
+          label: '항목 내용',
+          placeholder: '데이터를 읽고 글을 씁니다',
+          maxLength: MAX_FACT_VALUE_LENGTH,
+        }}
+        maxRows={MAX_PROFILE_FACTS}
+        itemName="항목"
+      />
+
       <div className="space-y-2">
         <Label htmlFor="content">하고 싶은 말</Label>
         <Textarea
@@ -57,6 +81,22 @@ export function AboutForm({ profile, action }: AboutFormProps) {
           className="min-h-64 font-mono text-sm leading-[var(--leading-relaxed)] md:text-sm"
         />
       </div>
+
+      <PairListField
+        legend="연락처"
+        description="이메일 주소나 https:// 로 시작하는 주소를 적어요. 방문자는 버튼을 눌러 주소를 복사해요."
+        // Emails are stored as mailto: links; the owner sees and edits the plain address.
+        initialRows={(profile?.links ?? []).map(({ label, url }) => ({ first: label, second: copyTextOf(url) }))}
+        first={{ name: 'linkLabel', label: '링크 이름', placeholder: '이메일', maxLength: MAX_PAIR_LABEL_LENGTH }}
+        second={{
+          name: 'linkUrl',
+          label: '링크 주소',
+          placeholder: 'me@example.com',
+          maxLength: MAX_LINK_URL_LENGTH,
+        }}
+        maxRows={MAX_PROFILE_LINKS}
+        itemName="링크"
+      />
 
       {state?.error && (
         <Alert variant="destructive">

@@ -214,6 +214,18 @@ create table if not exists public.profile (
   updated_at timestamptz not null default now()
 );
 
+-- About 을 랜딩 페이지처럼 꾸미며 늘린 칸들. 이미 만들어진 테이블에도 붙인다.
+-- "이런 사람입니다" 목록 — [{"label": "하는 일", "value": "..."}]
+alter table public.profile add column if not exists facts jsonb not null default '[]'::jsonb;
+-- 연락처 링크 — [{"label": "이메일", "url": "mailto:..."}]. 주소 형식은 앱이 읽을 때 다시 거른다.
+alter table public.profile add column if not exists links jsonb not null default '[]'::jsonb;
+-- 첫 화면 큰 사진(hero_image)은 잠깐 두었다가 프로필 사진 하나로 되돌렸다. 이미 만든 DB에서도 걷어낸다.
+alter table public.profile drop column if exists hero_image;
+alter table public.profile drop constraint if exists profile_facts_is_array;
+alter table public.profile add constraint profile_facts_is_array check (jsonb_typeof(facts) = 'array');
+alter table public.profile drop constraint if exists profile_links_is_array;
+alter table public.profile add constraint profile_links_is_array check (jsonb_typeof(links) = 'array');
+
 -- ---------------------------------------------------------------------------
 -- 책장 (읽고 싶은 책 / 읽는 중 / 읽은 책)
 -- ---------------------------------------------------------------------------

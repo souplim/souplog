@@ -6,6 +6,7 @@ import { requireUser } from '~/lib/auth';
 import { uploadPostImage } from '~/lib/image-upload';
 import { parsePostImageJson, type PostImage } from '~/lib/images';
 import { saveProfile } from '~/lib/profile';
+import { collectPairs } from '~/lib/profile-fields';
 import { profileSchema } from '~/lib/validation';
 
 export interface ProfileFormState {
@@ -32,6 +33,14 @@ export async function updateProfileAction(
     name: formData.get('name'),
     tagline: formData.get('tagline'),
     content: formData.get('content'),
+    facts: collectPairs(formData.getAll('factLabel'), formData.getAll('factValue')).map(([label, value]) => ({
+      label,
+      value,
+    })),
+    links: collectPairs(formData.getAll('linkLabel'), formData.getAll('linkUrl')).map(([label, url]) => ({
+      label,
+      url,
+    })),
   });
 
   if (!parsed.success) {
@@ -45,7 +54,11 @@ export async function updateProfileAction(
     return { error: error instanceof Error ? error.message : '사진을 처리하지 못했습니다.' };
   }
 
-  await saveProfile({ ...parsed.data, avatar });
+  try {
+    await saveProfile({ ...parsed.data, avatar });
+  } catch (error: unknown) {
+    return { error: error instanceof Error ? error.message : '소개를 저장하지 못했습니다.' };
+  }
 
   revalidatePath('/about');
   redirect('/about');

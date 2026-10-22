@@ -1,6 +1,7 @@
 import type { PostAttachment } from '~/lib/attachments';
 import type { BookStatus } from '~/lib/book-shelf';
 import type { PostImage } from '~/lib/images';
+import type { ProfileFact, ProfileLink } from '~/lib/profile-fields';
 
 export interface Database {
   public: {
@@ -85,6 +86,9 @@ export interface Database {
           content: string;
           // jsonb — shape is enforced on read by parsePostImage.
           avatar: unknown;
+          // jsonb arrays — entries are validated on read by lib/profile-fields.
+          facts: unknown;
+          links: unknown;
           updated_at: string;
         };
         Insert: {
@@ -93,6 +97,8 @@ export interface Database {
           tagline?: string;
           content?: string;
           avatar?: PostImage | null;
+          facts?: ProfileFact[];
+          links?: ProfileLink[];
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['profile']['Insert']>;
@@ -250,8 +256,10 @@ export type PostSummary = Omit<PostListRow, 'content_preview' | 'cover_image'> &
 export type ProfileRow = Database['public']['Tables']['profile']['Row'];
 
 /** The About page's content, with the avatar jsonb already validated. */
-export type Profile = Omit<ProfileRow, 'id' | 'avatar'> & {
+export type Profile = Omit<ProfileRow, 'id' | 'avatar' | 'facts' | 'links'> & {
   avatar: PostImage | null;
+  facts: ProfileFact[];
+  links: ProfileLink[];
 };
 
 export type BookRow = Database['public']['Tables']['books']['Row'];

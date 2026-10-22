@@ -4,7 +4,8 @@ import { getCurrentUser } from '~/lib/auth';
 import { getMenus } from '~/lib/menus';
 import { getPublicPosts, searchPosts } from '~/lib/posts';
 import { normalizeSearchQuery } from '~/lib/search';
-import { FeedContainer, FeedEmpty, FeedTitle } from '~/components/post/FeedLayout';
+import { PageEyebrow } from '~/components/page/PageHeading';
+import { FeedContainer, FeedEmpty } from '~/components/post/FeedLayout';
 import { PostCard } from '~/components/post/PostCard';
 import { PostCardGrid, PRIORITY_CARD_COUNT } from '~/components/post/PostCardGrid';
 import { SearchForm } from '~/components/search/SearchForm';
@@ -37,8 +38,8 @@ export default async function MenuPage({ params, searchParams }: MenuPageProps) 
 
   return (
     <FeedContainer>
+      <PageEyebrow as="h1">{menu.name}</PageEyebrow>
       <SearchForm />
-      <FeedTitle title={menu.name} />
       {query ? <SearchResultHeading query={query} count={posts.length} /> : null}
       {posts.length === 0 ? (
         <FeedEmpty>{query ? NO_SEARCH_RESULT_MESSAGE : '이 메뉴에는 아직 공개된 글이 없습니다.'}</FeedEmpty>

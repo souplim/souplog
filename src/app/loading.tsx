@@ -1,3 +1,4 @@
+import { Skeleton } from '~/components/ui/skeleton';
 import { FeedContainer, FeedHeading } from '~/components/post/FeedLayout';
 import { PostListSkeleton } from '~/components/post/PostListSkeleton';
 import { SearchForm } from '~/components/search/SearchForm';
@@ -12,6 +13,7 @@ import { SearchForm } from '~/components/search/SearchForm';
 export default function HomeLoading() {
   return (
     <FeedContainer>
+      <Skeleton className="mb-[var(--space-2xs)] h-4 w-12" />
       <SearchForm />
       <FeedHeading>최근 글</FeedHeading>
       <PostListSkeleton />

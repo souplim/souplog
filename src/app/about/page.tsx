@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { getCurrentUser } from '~/lib/auth';
 import { getPostImageUrl } from '~/lib/images';
+import { getNavLabel } from '~/lib/menus';
 import { getProfile } from '~/lib/profile';
 import { ProfileAvatar } from '~/components/about/ProfileAvatar';
 import { PostContent } from '~/components/post/PostContent';
@@ -25,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
-  const [profile, user] = await Promise.all([getProfile(), getCurrentUser()]);
+  const [profile, user, navLabel] = await Promise.all([getProfile(), getCurrentUser(), getNavLabel('about')]);
   const isOwner = Boolean(user);
 
   return (
@@ -36,7 +37,7 @@ export default async function AboutPage() {
             <header className="flex flex-col items-start gap-6 border-b border-border pb-[var(--space-lg)] sm:flex-row sm:items-center">
               <ProfileAvatar avatar={profile.avatar} name={profile.name} size={AVATAR_SIZE} />
               <div className="min-w-0 flex-1">
-                <PageEyebrow>About</PageEyebrow>
+                <PageEyebrow>{navLabel}</PageEyebrow>
                 <PageTitle>{profile.name}</PageTitle>
                 {profile.tagline && (
                   <p className="mt-2 text-[length:var(--text-lg)] text-pretty text-muted-foreground">

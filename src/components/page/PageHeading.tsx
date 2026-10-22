@@ -4,9 +4,14 @@ interface PageHeadingProps {
   children: ReactNode;
 }
 
+interface PageEyebrowProps extends PageHeadingProps {
+  /** `h1` when the page has no visible title of its own and the label names the page (the feed, a menu page). */
+  as?: 'p' | 'h1';
+}
+
 /** The small accent label above a page title ("About", a menu name, a book's status). */
-export function PageEyebrow({ children }: PageHeadingProps) {
-  return <p className="mb-[var(--space-2xs)] text-xs font-semibold text-accent-foreground">{children}</p>;
+export function PageEyebrow({ children, as: Tag = 'p' }: PageEyebrowProps) {
+  return <Tag className="mb-[var(--space-2xs)] text-xs font-semibold text-accent-foreground">{children}</Tag>;
 }
 
 /** The headline of a public page — posts, About, the bookshelf, a book. */

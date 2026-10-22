@@ -1,6 +1,14 @@
 import 'server-only';
 import { cache } from 'react';
-import { DEFAULT_NAV_ITEMS, resolveNavItems, type NavItem, type NavItemKey } from '~/lib/nav-items';
+import {
+  DEFAULT_NAV_ITEMS,
+  resolveNavItems,
+  resolvePageHeading,
+  type NavItem,
+  type NavItemKey,
+  type PageHeading,
+  type PageHeadingKey,
+} from '~/lib/nav-items';
 import { createClient } from '~/lib/supabase/server';
 import type { Menu } from '~/lib/supabase/types';
 
@@ -81,7 +89,9 @@ export async function reorderMenus(orderedIds: string[]): Promise<void> {
 /** The header's top-level entries, always one per key — see `resolveNavItems`. Cached per request like `getMenus`. */
 export const getNavItems = cache(async (): Promise<NavItem[]> => {
   const supabase = await createClient();
-  const { data, error } = await supabase.from('nav_items').select('key, label, sort_order, is_visible');
+  const { data, error } = await supabase
+    .from('nav_items')
+    .select('key, label, sort_order, is_visible, title, description');
   if (error) throw new Error(`상단 메뉴를 불러오지 못했습니다: ${error.message}`);
   return resolveNavItems(data);
 });
@@ -96,6 +106,12 @@ export async function getNavLabel(key: NavItemKey): Promise<string> {
   return navItems.find((item) => item.key === key)?.label ?? key;
 }
 
+/** A page's headline and intro, with the same fallback as `getNavLabel` when the nav can't be read. */
+export async function getPageHeading(key: PageHeadingKey): Promise<PageHeading> {
+  const navItems = await getNavItems().catch(() => DEFAULT_NAV_ITEMS);
+  return resolvePageHeading(navItems, key);
+}
+
 /**
  * Writes the whole top-level nav back in the given order. Always the full
  * list, upserted, so a key whose row was never seeded gets one on first save.
@@ -106,6 +122,8 @@ export async function saveNavItems(items: readonly NavItem[]): Promise<void> {
     key: item.key,
     label: item.label,
     is_visible: item.isVisible,
+    title: item.title,
+    description: item.description,
     sort_order: index,
   }));
   const { error } = await supabase.from('nav_items').upsert(rows);

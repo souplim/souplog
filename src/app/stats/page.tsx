@@ -1,24 +1,24 @@
 import type { Metadata } from 'next';
+import { getPageHeading } from '~/lib/menus';
 import { PageEyebrow, PageTitle } from '~/components/page/PageHeading';
 import { StatCard } from '~/components/stats/StatCard';
 import { getWomenStats } from '~/lib/women-stats';
 
-export const metadata: Metadata = {
-  title: '여성의 일과 삶',
-  description: '경력단절, 고용, 임금, 빈곤, 육아휴직으로 본 여성의 일과 삶 — KOSIS 국가통계',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const heading = await getPageHeading('stats');
+  return { title: heading.title, description: heading.description };
+}
 
 export default async function StatsPage() {
-  const cards = await getWomenStats();
+  const [cards, heading] = await Promise.all([getWomenStats(), getPageHeading('stats')]);
 
   return (
     <div className="mx-auto max-w-[var(--page-width)] px-4 py-[var(--space-xl)] sm:px-6">
       <header className="max-w-[var(--content-width)]">
         <PageEyebrow>통계</PageEyebrow>
-        <PageTitle>여성의 일과 삶</PageTitle>
-        <p className="mt-[var(--space-sm)] text-muted-foreground text-pretty">
-          경력단절부터 노후 빈곤까지, 국가승인통계로 여성의 일과 삶이 어떻게 달라져 왔는지 봅니다. <br />
-          KOSIS 국가통계포털자료를 하루에 한 번 새로 받아옵니다.
+        <PageTitle>{heading.title}</PageTitle>
+        <p className="mt-[var(--space-sm)] whitespace-pre-line text-muted-foreground text-pretty">
+          {heading.description}
         </p>
       </header>
 

@@ -34,6 +34,8 @@ export interface Database {
           label: string;
           sort_order: number;
           is_visible: boolean;
+          title: string;
+          description: string;
           updated_at: string;
         };
         Insert: {
@@ -41,9 +43,25 @@ export interface Database {
           label: string;
           sort_order?: number;
           is_visible?: boolean;
+          title?: string;
+          description?: string;
           updated_at?: string;
         };
         Update: Partial<Database['public']['Tables']['nav_items']['Insert']>;
+        Relationships: [];
+      };
+      site_settings: {
+        Row: {
+          id: boolean;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: boolean;
+          title?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database['public']['Tables']['site_settings']['Insert']>;
         Relationships: [];
       };
       posts: {

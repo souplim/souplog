@@ -13,17 +13,15 @@ import {
   todayInSeoul,
 } from '~/lib/book-shelf';
 import { getBooks } from '~/lib/books';
-import { getNavLabel } from '~/lib/menus';
+import { getNavLabel, getPageHeading } from '~/lib/menus';
 import { PageEyebrow, PageTitle } from '~/components/page/PageHeading';
 import { BookShelf } from '~/components/books/BookShelf';
 import { ShelfSummary } from '~/components/books/ShelfSummary';
 import { Button } from '~/components/ui/button';
 
 export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: await getNavLabel('books'),
-    description: '읽고 싶은 책, 읽는 중인 책, 읽은 책',
-  };
+  const [label, heading] = await Promise.all([getNavLabel('books'), getPageHeading('books')]);
+  return { title: label, description: heading.description };
 }
 
 interface BooksPageProps {
@@ -31,7 +29,12 @@ interface BooksPageProps {
 }
 
 export default async function BooksPage({ searchParams }: BooksPageProps) {
-  const [books, user, params] = await Promise.all([getBooks(), getCurrentUser(), searchParams]);
+  const [books, user, params, heading] = await Promise.all([
+    getBooks(),
+    getCurrentUser(),
+    searchParams,
+    getPageHeading('books'),
+  ]);
   const today = todayInSeoul();
   const currentYear = Number(today.slice(0, 4));
   const years = summaryYears(books, currentYear);
@@ -49,7 +52,7 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
       <header>
         <PageEyebrow>책장</PageEyebrow>
         <div className="flex items-center justify-between gap-[var(--space-sm)]">
-          <PageTitle>한 해의 책장</PageTitle>
+          <PageTitle>{heading.title}</PageTitle>
           {user && (
             <Button asChild size="sm" className="shrink-0">
               <Link href="/admin/books/new">
@@ -58,8 +61,8 @@ export default async function BooksPage({ searchParams }: BooksPageProps) {
             </Button>
           )}
         </div>
-        <p className="mt-[var(--space-sm)] max-w-[var(--content-width)] text-muted-foreground text-pretty">
-          읽고 싶은 책, 읽는 중인 책, 다 읽은 책을 한 해씩 꽂아 둡니다.
+        <p className="mt-[var(--space-sm)] max-w-[var(--content-width)] whitespace-pre-line text-muted-foreground text-pretty">
+          {heading.description}
         </p>
       </header>
 

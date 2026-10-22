@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { MAX_PAGE_DESCRIPTION_LENGTH, MAX_PAGE_TITLE_LENGTH } from '~/lib/nav-items';
+import { MAX_SITE_TITLE_LENGTH } from '~/lib/site-title';
 import { BOOK_STATUSES, sanitizeForStatus } from '~/lib/book-shelf';
 import { MAX_PROFILE_FACTS, MAX_PROFILE_LINKS, profileFactSchema, profileLinkSchema } from '~/lib/profile-fields';
 
@@ -23,6 +25,19 @@ export const menuSchema = z.object({
 
 export const navItemSchema = z.object({
   label: z.string().trim().min(1, '이름을 입력하세요.').max(20),
+});
+
+/** Blank is allowed: the page then shows its default headline. */
+export const pageHeadingSchema = z.object({
+  title: z.string().trim().max(MAX_PAGE_TITLE_LENGTH, `제목은 ${MAX_PAGE_TITLE_LENGTH}자까지 쓸 수 있어요.`),
+  description: z
+    .string()
+    .trim()
+    .max(MAX_PAGE_DESCRIPTION_LENGTH, `설명은 ${MAX_PAGE_DESCRIPTION_LENGTH}자까지 쓸 수 있어요.`),
+});
+
+export const siteTitleSchema = z.object({
+  title: z.string().trim().max(MAX_SITE_TITLE_LENGTH, `블로그 제목은 ${MAX_SITE_TITLE_LENGTH}자까지 쓸 수 있어요.`),
 });
 
 export const profileSchema = z.object({

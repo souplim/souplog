@@ -13,10 +13,10 @@ import {
   setMenuVisibility,
   updateMenu,
 } from '~/lib/menus';
-import { isNavItemKey, type NavItem, type NavItemKey } from '~/lib/nav-items';
+import { hasPageHeading, isNavItemKey, type NavItem, type NavItemKey } from '~/lib/nav-items';
 import { moveItem } from '~/lib/sortOrder';
 import { ensureUniqueSlug, slugify } from '~/lib/slugify';
-import { menuSchema, navItemSchema } from '~/lib/validation';
+import { menuSchema, navItemSchema, pageHeadingSchema } from '~/lib/validation';
 
 export interface MenuFormState {
   error?: string;
@@ -116,7 +116,15 @@ function assertNavItemKey(key: unknown): asserts key is NavItemKey {
   if (!isNavItemKey(key)) throw new Error('알 수 없는 상단 메뉴입니다.');
 }
 
-export async function renameNavItemAction(
+/** Readable only for pages that have a headline — the form doesn't render these fields for the others. */
+function parsePageHeading(formData: FormData) {
+  return pageHeadingSchema.safeParse({
+    title: formData.get('title') ?? '',
+    description: formData.get('description') ?? '',
+  });
+}
+
+export async function updateNavItemAction(
   key: NavItemKey,
   _prevState: MenuFormState | undefined,
   formData: FormData,
@@ -129,8 +137,23 @@ export async function renameNavItemAction(
     return { error: parsed.error.issues[0]?.message ?? '입력을 확인하세요.' };
   }
 
-  const items = await getNavItems();
-  await persistNavItems(items.map((item) => (item.key === key ? { ...item, label: parsed.data.label } : item)));
+  let heading: Pick<NavItem, 'title' | 'description'> | null = null;
+  if (hasPageHeading(key)) {
+    const parsedHeading = parsePageHeading(formData);
+    if (!parsedHeading.success) {
+      return { error: parsedHeading.error.issues[0]?.message ?? '입력을 확인하세요.' };
+    }
+    heading = parsedHeading.data;
+  }
+
+  try {
+    const items = await getNavItems();
+    await persistNavItems(
+      items.map((item) => (item.key === key ? { ...item, label: parsed.data.label, ...heading } : item)),
+    );
+  } catch (error: unknown) {
+    return { error: error instanceof Error ? error.message : '상단 메뉴를 저장하지 못했습니다.' };
+  }
   return {};
 }
 

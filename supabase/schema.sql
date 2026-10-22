@@ -51,6 +51,23 @@ insert into public.nav_items (key, label, sort_order)
 values ('about', 'About', 0), ('posts', '게시글', 1), ('books', '책장', 2), ('stats', 'Dashboard', 3)
 on conflict (key) do nothing;
 
+-- 책장·Dashboard 페이지 맨 위의 큰 제목과 그 아래 설명. 빈 문자열이면 앱의 기본 문구를 쓴다.
+-- About·게시글 화면은 자기 제목이 따로 없어 이 칸을 쓰지 않는다.
+alter table public.nav_items add column if not exists title       text not null default '';
+alter table public.nav_items add column if not exists description text not null default '';
+
+-- ---------------------------------------------------------------------------
+-- 사이트 설정 (행이 하나뿐인 테이블)
+-- ---------------------------------------------------------------------------
+-- 헤더·푸터·브라우저 탭에 보이는 블로그 이름. 빈 문자열이면 앱이 'souplog'를 쓴다.
+-- profile 과 같은 방식으로 id 를 true 로 고정해 행을 하나만 둔다.
+
+create table if not exists public.site_settings (
+  id         boolean primary key default true check (id),
+  title      text not null default '',
+  updated_at timestamptz not null default now()
+);
+
 -- ---------------------------------------------------------------------------
 -- 글
 -- ---------------------------------------------------------------------------
@@ -291,6 +308,11 @@ create trigger nav_items_touch_updated_at
   before update on public.nav_items
   for each row execute function public.touch_updated_at();
 
+drop trigger if exists site_settings_touch_updated_at on public.site_settings;
+create trigger site_settings_touch_updated_at
+  before update on public.site_settings
+  for each row execute function public.touch_updated_at();
+
 drop trigger if exists profile_touch_updated_at on public.profile;
 create trigger profile_touch_updated_at
   before update on public.profile
@@ -404,6 +426,7 @@ alter table public.nav_items enable row level security;
 alter table public.posts    enable row level security;
 alter table public.comments enable row level security;
 alter table public.profile  enable row level security;
+alter table public.site_settings enable row level security;
 alter table public.books    enable row level security;
 
 -- 2026-10-30 부터 Supabase 는 public 에 새로 만든 테이블에 Data API 권한을
@@ -423,6 +446,9 @@ grant select, insert, update on public.nav_items to authenticated;
 grant select on public.profile to anon;
 grant select, insert, update on public.profile to authenticated;
 
+grant select on public.site_settings to anon;
+grant select, insert, update on public.site_settings to authenticated;
+
 grant select on public.books to anon;
 grant select, insert, update, delete on public.books to authenticated;
 
@@ -431,7 +457,8 @@ grant select on public.comments_public to anon, authenticated;
 grant select on public.posts_list to anon, authenticated;
 
 grant select, insert, update, delete
-  on public.menus, public.nav_items, public.posts, public.comments, public.profile, public.books to service_role;
+  on public.menus, public.nav_items, public.posts, public.comments, public.profile, public.books,
+     public.site_settings to service_role;
 grant select on public.comments_public, public.posts_list to service_role;
 
 drop policy if exists "anyone_reads_menus" on public.menus;
@@ -456,6 +483,14 @@ create policy "anyone_reads_profile" on public.profile
 
 drop policy if exists "owner_writes_profile" on public.profile;
 create policy "owner_writes_profile" on public.profile
+  for all to authenticated using (true) with check (true);
+
+drop policy if exists "anyone_reads_site_settings" on public.site_settings;
+create policy "anyone_reads_site_settings" on public.site_settings
+  for select to anon, authenticated using (true);
+
+drop policy if exists "owner_writes_site_settings" on public.site_settings;
+create policy "owner_writes_site_settings" on public.site_settings
   for all to authenticated using (true) with check (true);
 
 -- 글과 같은 규칙: 방문자는 공개한 책만, 글쓴이는 숨긴 책까지 본다.

@@ -1,14 +1,17 @@
 import Link from 'next/link';
 import { getCurrentUser } from '~/lib/auth';
+import { getSiteTitle } from '~/lib/site';
 import { Button } from '~/components/ui/button';
 
 export async function Footer() {
-  const user = await getCurrentUser().catch(() => null);
+  const [user, siteTitle] = await Promise.all([getCurrentUser().catch(() => null), getSiteTitle()]);
 
   return (
     <footer className="border-t border-border">
       <div className="mx-auto flex h-14 max-w-[var(--page-width)] items-center justify-between px-4 text-xs text-muted-foreground sm:px-6">
-        <span>© {new Date().getFullYear()} souplog</span>
+        <span>
+          © {new Date().getFullYear()} {siteTitle}
+        </span>
         {!user && (
           <Button
             variant="link"

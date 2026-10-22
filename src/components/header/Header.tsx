@@ -3,6 +3,7 @@ import { getCurrentUser } from '~/lib/auth';
 import { getMenus, getNavItems } from '~/lib/menus';
 import { DEFAULT_NAV_ITEMS } from '~/lib/nav-items';
 import { getProfile } from '~/lib/profile';
+import { getSiteTitle } from '~/lib/site';
 import { MenuNav } from '~/components/header/MenuNav';
 import { AdminMenu } from '~/components/header/AdminMenu';
 import { ThemeToggle } from '~/components/theme/ThemeToggle';
@@ -19,11 +20,12 @@ export async function Header() {
   // degrade-don't-throw rule: a failure just falls back to the icon.
   const userPromise = getCurrentUser().catch(() => null);
   const profilePromise = userPromise.then((user) => (user ? getProfile().catch(() => null) : null));
-  const [menus, navItems, user, profile] = await Promise.all([
+  const [menus, navItems, user, profile, siteTitle] = await Promise.all([
     getMenus().catch(() => []),
     getNavItems().catch(() => [...DEFAULT_NAV_ITEMS]),
     userPromise,
     profilePromise,
+    getSiteTitle(),
   ]);
 
   return (
@@ -31,9 +33,9 @@ export async function Header() {
       <div className="mx-auto flex h-16 max-w-[var(--page-width)] items-center justify-between gap-4 px-4 sm:gap-8 sm:px-6">
         <Link
           href="/"
-          className="shrink-0 font-heading text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground"
+          className="max-w-48 shrink-0 truncate font-heading text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground"
         >
-          souplog
+          {siteTitle}
         </Link>
 
         <MenuNav navItems={navItems} menus={menus} />

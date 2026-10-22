@@ -3,7 +3,7 @@
  * `posts`, the category dropdown), so the set of keys is closed — the owner
  * can rename, reorder, and hide them, but never add or delete one.
  */
-export const NAV_ITEM_KEYS = ['about', 'posts', 'books', 'stats'] as const;
+export const NAV_ITEM_KEYS = ['about', 'posts', 'books', 'stats', 'papers'] as const;
 
 export type NavItemKey = (typeof NAV_ITEM_KEYS)[number];
 
@@ -22,14 +22,15 @@ export const DEFAULT_NAV_ITEMS: readonly NavItem[] = [
   { key: 'posts', label: '게시글', isVisible: true, title: '', description: '' },
   { key: 'books', label: '책장', isVisible: true, title: '', description: '' },
   { key: 'stats', label: 'Dashboard', isVisible: true, title: '', description: '' },
+  { key: 'papers', label: '연구동향', isVisible: true, title: '', description: '' },
 ];
 
 /**
  * Pages with a headline and intro of their own under the label. About and the
- * feed have none — the label (or the hero) names them — so only these two
+ * feed have none — the label (or the hero) names them — so only these
  * offer a title and description to edit.
  */
-export const PAGE_HEADING_KEYS = ['books', 'stats'] as const satisfies readonly NavItemKey[];
+export const PAGE_HEADING_KEYS = ['books', 'stats', 'papers'] as const satisfies readonly NavItemKey[];
 
 export type PageHeadingKey = (typeof PAGE_HEADING_KEYS)[number];
 
@@ -51,6 +52,12 @@ export const DEFAULT_PAGE_HEADINGS: Readonly<Record<PageHeadingKey, PageHeading>
     description:
       '경력단절부터 노후 빈곤까지, 국가승인통계로 여성의 일과 삶이 어떻게 달라져 왔는지 봅니다.\n' +
       'KOSIS 국가통계포털자료를 하루에 한 번 새로 받아옵니다.',
+  },
+  papers: {
+    title: '인문학·사회과학 연구동향',
+    description:
+      '요즘 인문학·사회과학 논문이 가장 많이 다루는 키워드를 봅니다.\n' +
+      'KCI 한국학술지인용색인에서 하루에 한 번 새로 받아옵니다.',
   },
 };
 
@@ -74,6 +81,7 @@ export const NAV_ITEM_DESTINATIONS: Readonly<Record<NavItemKey, string>> = {
   posts: '게시글 메뉴 드롭다운',
   books: '/books',
   stats: '/stats',
+  papers: '/papers',
 };
 
 export function isNavItemKey(value: unknown): value is NavItemKey {

@@ -17,7 +17,8 @@ export function PageEyebrow({ children, as: Tag = 'p' }: PageEyebrowProps) {
 /** The headline of a public page — posts, About, the bookshelf, a book. */
 export function PageTitle({ children }: PageHeadingProps) {
   return (
-    <h1 className="font-heading text-[length:var(--text-display)] tracking-[var(--tracking-display)] text-balance">
+    // break-keep: Korean otherwise wraps mid-word; wrap-break-word keeps a long unspaced title from overflowing.
+    <h1 className="font-heading text-[length:var(--text-display)] tracking-[var(--tracking-display)] text-balance break-keep wrap-break-word">
       {children}
     </h1>
   );

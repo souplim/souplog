@@ -30,13 +30,14 @@ describe('resolveNavItems', () => {
       { key: 'posts', label: '글', isVisible: true, title: '', description: '' },
       { key: 'about', label: '소개', isVisible: false, title: '', description: '' },
       { key: 'stats', label: 'Dashboard', isVisible: true, title: '', description: '' },
+      { key: 'papers', label: '연구동향', isVisible: true, title: '', description: '' },
     ]);
   });
 
   it('appends keys that have no stored row with their defaults', () => {
     const result = resolveNavItems([row({ key: 'books', label: '서재', sort_order: 0 })]);
 
-    expect(result.map((item) => item.key)).toEqual(['books', 'about', 'posts', 'stats']);
+    expect(result.map((item) => item.key)).toEqual(['books', 'about', 'posts', 'stats', 'papers']);
     expect(result[1]).toEqual({ key: 'about', label: 'About', isVisible: true, title: '', description: '' });
   });
 
@@ -47,7 +48,7 @@ describe('resolveNavItems', () => {
       row({ key: 'about', label: '중복', sort_order: 2 }),
     ]);
 
-    expect(result.map((item) => item.key)).toEqual(['about', 'posts', 'books', 'stats']);
+    expect(result.map((item) => item.key)).toEqual(['about', 'posts', 'books', 'stats', 'papers']);
     expect(result[0].label).toBe('소개');
   });
 
@@ -91,6 +92,7 @@ describe('hasPageHeading', () => {
   it('is true only for pages with a headline of their own', () => {
     expect(hasPageHeading('books')).toBe(true);
     expect(hasPageHeading('stats')).toBe(true);
+    expect(hasPageHeading('papers')).toBe(true);
     expect(hasPageHeading('about')).toBe(false);
     expect(hasPageHeading('posts')).toBe(false);
   });
@@ -102,6 +104,7 @@ describe('isNavItemKey', () => {
     expect(isNavItemKey('posts')).toBe(true);
     expect(isNavItemKey('books')).toBe(true);
     expect(isNavItemKey('stats')).toBe(true);
+    expect(isNavItemKey('papers')).toBe(true);
     expect(isNavItemKey('admin')).toBe(false);
     expect(isNavItemKey(undefined)).toBe(false);
   });

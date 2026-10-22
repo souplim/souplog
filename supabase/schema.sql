@@ -35,7 +35,7 @@ alter table public.menus add column if not exists is_visible boolean not null de
 -- 행이 없으면 앱이 기본값으로 채워 보여 주므로 아래 기본 행은 출발점일 뿐이다.
 
 create table if not exists public.nav_items (
-  key        text primary key check (key in ('about', 'posts', 'books', 'stats')),
+  key        text primary key check (key in ('about', 'posts', 'books', 'stats', 'papers')),
   label      text not null,
   sort_order integer not null default 0,
   is_visible boolean not null default true,
@@ -45,13 +45,13 @@ create table if not exists public.nav_items (
 -- 이미 만들어진 DB 는 위 create 가 건너뛰므로 허용 key 목록을 여기서 다시 건다.
 alter table public.nav_items drop constraint if exists nav_items_key_check;
 alter table public.nav_items add constraint nav_items_key_check
-  check (key in ('about', 'posts', 'books', 'stats'));
+  check (key in ('about', 'posts', 'books', 'stats', 'papers'));
 
 insert into public.nav_items (key, label, sort_order)
-values ('about', 'About', 0), ('posts', '게시글', 1), ('books', '책장', 2), ('stats', 'Dashboard', 3)
+values ('about', 'About', 0), ('posts', '게시글', 1), ('books', '책장', 2), ('stats', 'Dashboard', 3), ('papers', '연구동향', 4)
 on conflict (key) do nothing;
 
--- 책장·Dashboard 페이지 맨 위의 큰 제목과 그 아래 설명. 빈 문자열이면 앱의 기본 문구를 쓴다.
+-- 책장·Dashboard·논문 페이지 맨 위의 큰 제목과 그 아래 설명. 빈 문자열이면 앱의 기본 문구를 쓴다.
 -- About·게시글 화면은 자기 제목이 따로 없어 이 칸을 쓰지 않는다.
 alter table public.nav_items add column if not exists title       text not null default '';
 alter table public.nav_items add column if not exists description text not null default '';

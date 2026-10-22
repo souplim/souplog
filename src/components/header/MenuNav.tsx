@@ -29,6 +29,7 @@ const PAGE_HREFS: Readonly<Record<Exclude<NavItemKey, 'posts'>, string>> = {
   about: '/about',
   books: '/books',
   stats: '/stats',
+  papers: '/papers',
 };
 const ALL_POSTS_HREF = '/posts';
 const MENU_PATH_PREFIX = '/posts/menu/';
@@ -42,7 +43,7 @@ function isPageActive(pathname: string, href: string): boolean {
  * and hides them. The fixed pages stay plain links; the post categories fold
  * into one dropdown so the row doesn't grow with the number of menus.
  *
- * Four entries don't fit beside the logo on a phone, so below `sm` the whole
+ * The entries don't fit beside the logo on a phone, so below `sm` the whole
  * row folds into a single 메뉴 dropdown holding the same links.
  */
 export function MenuNav({ navItems, menus }: MenuNavProps) {

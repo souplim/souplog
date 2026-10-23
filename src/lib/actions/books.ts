@@ -8,8 +8,8 @@ import { applyStatusChange, BOOK_STATUSES, todayInSeoul, type BookStatus } from 
 import { createBook, deleteBook, getBookById, updateBook, updateBookProgress, type BookInput } from '~/lib/books';
 import { uploadPostImage } from '~/lib/image-upload';
 import { parsePostImageJson, type PostImage } from '~/lib/images';
-import { searchKakaoBooks } from '~/lib/kakao-books';
-import { downloadCover } from '~/lib/remote-cover';
+import { searchKakaoBooks } from '~/lib/external/kakao-books';
+import { downloadCover } from '~/lib/external/remote-cover';
 import { bookSchema } from '~/lib/validation';
 
 export interface BookFormState {

@@ -1,5 +1,5 @@
 import 'server-only';
-import { getKosisRows, type KosisQuery } from '~/lib/kosis';
+import { getKosisRows, type KosisQuery } from '~/lib/external/kosis';
 import {
   buildLatestShares,
   buildRatioTrend,

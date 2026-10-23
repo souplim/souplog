@@ -1,5 +1,5 @@
 import 'server-only';
-import { getPopularKeywords } from '~/lib/kci';
+import { getPopularKeywords } from '~/lib/external/kci';
 import type { FieldKeywords } from '~/lib/kci-keywords';
 
 /** The 대분야 shown on /papers, in display order — KCI publishes eight. */

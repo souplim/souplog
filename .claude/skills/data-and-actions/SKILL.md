@@ -58,9 +58,10 @@ export async function createBookAction(_prev: BookFormState | undefined, formDat
 - **`NEXT_PUBLIC_*`는 정적 접근으로 읽는다**: `process.env[name]`처럼 계산해서 읽으면 클라이언트 번들에서 `undefined`가 된다. 새 공개 변수는 `lib/supabase/env.ts`의 `PUBLIC_ENV`처럼 리터럴로 읽는다. 서버 전용 키(`KAKAO_REST_API_KEY`)에는 `NEXT_PUBLIC_`을 붙이지 않는다.
 - **폼 제출은 `onSubmit` + `startTransition`**: `<form action={formAction}>`을 쓰면 React가 액션 뒤 폼을 리셋한다. 그러면 실패 후 다시 저장할 때 고른 파일이 빠진다. `PostForm`·`BookForm`·`AboutForm`처럼 `onSubmit`에서 `preventDefault` 후 `startTransition(() => formAction(formData))`로 제출한다.
 - **파일 업로드는 바이트로 올린다**: storage-js가 `File`을 올릴 때 `contentType`을 무시한다. 그래서 `.hwp`·`.md`처럼 브라우저가 타입을 비워 두는 파일이 버킷에서 거절된다. `await file.arrayBuffer()`로 올리고, 콘텐츠 타입은 브라우저 값 대신 확장자로 서버에서 정한다(`lib/attachments.ts`).
-- **이미지는 업로드할 때 픽셀 크기를 저장한다**(`lib/image-dimensions.ts`). 화면이 사진 자리를 미리 잡는 데 쓰인다.
-- **외부 이미지는 허용된 호스트에서만 내려받는다**(`lib/remote-cover.ts`). 새 호스트는 `next.config.ts`의 `remotePatterns`와 함께 연다.
-- Server Action 요청 크기 한도는 `next.config.ts`의 `bodySizeLimit: '20mb'`다. 첨부 한도를 늘리면 같이 본다.
+- **이미지는 업로드할 때 픽셀 크기를 저장한다**(`lib/image-dimensions.ts`). 화면이 사진 자리를 미리 잡는 데 쓰인다. 형식도 `File.type`이 아니라 파일 앞부분 바이트(`detectImageType`)로 정한다.
+- **외부 이미지는 허용된 호스트에서만 내려받는다**(`lib/remote-cover.ts`). 새 호스트는 `lib/book-search.ts`의 `COVER_HOSTS`에 넣고, 검색 결과 썸네일을 보여 줘야 하면 `csp.ts`의 `img-src`도 연다.
+- **저장된 파일은 `/media/<버킷>/<키>`로 읽는다**(`app/media/[bucket]/[file]/route.ts`). 버킷은 비공개이고, 라우트가 보는 사람의 세션으로 내려받아 스토리지 RLS가 볼 수 있는지를 정한다. Supabase 공개 URL(`/object/public/...`)을 새로 만들지 않는다.
+- Server Action 요청 크기 한도는 `next.config.ts`의 `bodySizeLimit: '20mb'`다. 첨부 한도를 늘리면 같이 본다. 로그인하지 않은 요청은 `proxy.ts`가 본문 1MB까지만 받는다(`lib/request-body-limit.ts`). 방문자용 폼에 파일을 붙이려면 이 한도부터 본다.
 
 ## 성능
 

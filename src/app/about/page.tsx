@@ -95,7 +95,13 @@ function FeaturedBookPreview({ featured }: { featured: AboutSummary<Book>['featu
   const { book, isReading } = featured;
   return (
     <div className="flex items-center gap-[var(--space-sm)]">
-      <BookCover title={book.title} cover={book.cover} sizes="56px" className="w-14 shrink-0" />
+      <BookCover
+        title={book.title}
+        cover={book.cover}
+        isPublic={book.is_public}
+        sizes="56px"
+        className="w-14 shrink-0"
+      />
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{isReading ? '지금 읽는 책' : '최근에 다 읽은 책'}</p>
         <p className="mt-[var(--space-3xs)] line-clamp-2 text-sm font-semibold break-keep">{book.title}</p>

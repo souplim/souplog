@@ -14,13 +14,9 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        pathname: '/storage/v1/object/public/**',
-      },
-    ],
+    // Stored images are served by the app's own /media route (the buckets are
+    // private). Only that path, with no query string, may be optimized.
+    localPatterns: [{ pathname: '/media/post-images/**', search: '' }],
   },
   async redirects() {
     return [

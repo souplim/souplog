@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getSupabaseUrl } from '~/lib/supabase/env';
+import { getMediaUrl } from '~/lib/media-url';
 
 export const POST_IMAGE_BUCKET = 'post-images';
 
@@ -11,7 +11,16 @@ export const MAX_POST_IMAGES = 10;
  * uploaded filename), so anything that doesn't match that shape didn't come
  * from this app and is dropped rather than rendered.
  */
-const POST_IMAGE_PATH_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(webp|jpg|png|gif)$/;
+export const POST_IMAGE_PATH_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(webp|jpg|png|gif)$/;
+
+/** The type each stored image is served with, keyed by the extension its storage key ends in. */
+export const IMAGE_CONTENT_TYPES: Readonly<Record<string, string>> = {
+  webp: 'image/webp',
+  jpg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+};
 
 const postImageSchema = z.object({
   path: z.string().regex(POST_IMAGE_PATH_PATTERN),
@@ -24,7 +33,7 @@ const postImageSchema = z.object({
 export type PostImage = z.infer<typeof postImageSchema>;
 
 export function getPostImageUrl(path: string): string {
-  return `${getSupabaseUrl()}/storage/v1/object/public/${POST_IMAGE_BUCKET}/${path}`;
+  return getMediaUrl(POST_IMAGE_BUCKET, path);
 }
 
 /**

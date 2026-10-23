@@ -39,6 +39,7 @@ function ShelfBook({ book, note, isPriority }: ShelfBookProps) {
       <BookCover
         title={book.title}
         cover={book.cover}
+        isPublic={book.is_public}
         sizes="(min-width: 40rem) 112px, 88px"
         className="transition-transform duration-[var(--duration-normal)] ease-[var(--ease-out-expo)] group-hover:-translate-y-2 group-focus-visible:-translate-y-2 group-focus-visible:ring-2 group-focus-visible:ring-ring"
         isPriority={isPriority}

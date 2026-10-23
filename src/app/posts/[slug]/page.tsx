@@ -89,7 +89,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
       {post.images.length > 0 && (
         <div className="mx-auto mb-8 w-full max-w-[var(--content-width)]">
-          <PostGallery images={post.images} title={post.title} />
+          <PostGallery images={post.images} title={post.title} isPublic={post.is_public} />
         </div>
       )}
 

@@ -103,6 +103,8 @@ function PostCardCover({ post, isPriority }: PostCardCoverProps) {
         className="object-cover transition-transform duration-[var(--duration-normal)] ease-[var(--ease-out-expo)] group-hover:scale-[1.03]"
         loading={isPriority ? 'eager' : 'lazy'}
         fetchPriority={isPriority ? 'high' : 'auto'}
+        // Private posts only reach the owner; the optimizer can't read their files.
+        unoptimized={!post.is_public}
       />
     </div>
   );

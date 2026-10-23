@@ -80,7 +80,8 @@ description: souplog에서 페이지·컴포넌트·스타일을 만들거나 �
 
 ## CSP·보안
 
-- CSP는 요청마다 nonce를 발급한다(`src/proxy.ts` → `src/lib/csp.ts`). 인라인 `<script>`는 nonce 없이 실행되지 않는다. 새 외부 출처가 필요하면 `csp.ts`에서 해당 지시어만 연다(현재 `img-src`는 Supabase 스토리지, 카카오 CDN, 업로드 전 미리보기용 `blob:`).
+- CSP는 요청마다 nonce를 발급한다(`src/proxy.ts` → `src/lib/csp.ts`). 인라인 `<script>`는 nonce 없이 실행되지 않는다. 새 외부 출처가 필요하면 `csp.ts`에서 해당 지시어만 연다(현재 `img-src`는 같은 출처, 카카오 CDN, 업로드 전 미리보기용 `blob:`). 저장된 사진은 앱의 `/media` 라우트로 같은 출처에서 나가므로 Supabase 주소를 열지 않는다.
+- 저장된 사진은 `getPostImageUrl`(→ `/media/...`)로만 가리킨다. 비공개 글·책의 사진은 `next/image`에 `unoptimized`를 준다. 최적화기는 쿠키 없이 방문자 권한으로 원본을 받으므로 비공개 파일을 읽지 못한다(`PostGallery`·`PostCard`·`BookCover`의 `isPublic`).
 - 글 본문 마크다운에 `rehype-raw`를 넣지 않는다. 댓글은 마크다운 없이 텍스트로만 렌더링한다. `dangerouslySetInnerHTML`을 쓰지 않는다.
 - 파비콘(`app/icon.svg`)은 페이지 밖에서 그려지므로 토큰을 못 읽는다. 색을 직접 쓰고 SVG 안의 `prefers-color-scheme`으로 다크를 처리한다.
 

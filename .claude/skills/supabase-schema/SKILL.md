@@ -25,7 +25,8 @@ description: souplog의 supabase/schema.sql을 고칠 때 읽는다 — 테이�
 
 - **새 테이블·뷰는 GRANT를 직접 적는다.** 2026-10-30부터 Supabase가 `public` 스키마의 새 테이블에 Data API 권한을 자동으로 주지 않는다. RLS 정책 범위에 맞춰 `anon` / `authenticated` / `service_role`에 필요한 만큼만 준다. 기존 GRANT 블록(`grant select on public.books to anon;` 근처)에 나란히 둔다.
 - **RLS가 유일한 신뢰 경계다.** 새 테이블은 `enable row level security`를 켜고 정책을 둔다. 앱의 `requireUser()`는 이중 장치일 뿐이다. 정책 이름은 기존 패턴을 따른다. 모두 읽는 테이블은 `anyone_reads_<table>`, 공개 여부로 거르는 테이블은 `public_<table>_are_readable`, 관리자 쓰기는 `owner_writes_<table>`.
-- 스토리지 버킷은 `allowed_mime_types`와 `file_size_limit`를 걸고, `storage.objects` 정책을 버킷 단위로 둔다. html·svg처럼 브라우저가 문서로 렌더링하는 형식은 허용하지 않는다. 첨부 허용 형식은 `src/lib/attachments.ts`의 `ATTACHMENT_CONTENT_TYPES`와 맞춘다.
+- **글쓴이 판별은 `public.is_owner()`로 한다.** `authenticated` 역할이나 `auth.role()`만으로 쓰기·비공개 읽기를 허용하지 않는다. 정책에서는 `using ((select public.is_owner()))`처럼 괄호를 두 겹 둔다.
+- 스토리지 버킷은 비공개(`public = false`)로 두고 `allowed_mime_types`와 `file_size_limit`를 건다. `storage.objects` 정책은 버킷 단위로 둔다. 읽기는 `is_owner()` 또는 `is_public_media(bucket_id, name)`이다. 공개 글·책·프로필이 실제로 쓰는 파일만 방문자에게 열린다. 파일을 참조하는 새 컬럼이 생기면 `is_public_media`에도 넣는다. html·svg처럼 브라우저가 문서로 렌더링하는 형식은 허용하지 않는다. 첨부 허용 형식은 `src/lib/attachments.ts`의 `ATTACHMENT_CONTENT_TYPES`와 맞춘다.
 - **`service_role` 키는 앱에서 쓰지 않는다.** RLS를 우회하는 경로를 만들지 않는다.
 - `security definer` 함수는 `revoke all on function ... from public` 후 필요한 역할에만 `grant execute` 한다. 함수 안에서 `search_path`를 고정한다.
 

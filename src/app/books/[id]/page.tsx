@@ -62,6 +62,7 @@ export default async function BookPage({ params }: BookPageProps) {
           <BookCover
             title={book.title}
             cover={book.cover}
+            isPublic={book.is_public}
             sizes="(min-width: 40rem) 176px, 160px"
             className="w-40 sm:w-44"
             isPriority

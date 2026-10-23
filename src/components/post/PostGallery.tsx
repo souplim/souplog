@@ -16,9 +16,14 @@ interface PostGalleryProps {
   images: PostImage[];
   /** Used to describe the photos when they aren't purely decorative. */
   title: string;
+  /**
+   * Private content skips the optimizer: it fetches as a visitor, so it can't
+   * read these files — the owner's browser loads them from `/media` directly.
+   */
+  isPublic: boolean;
 }
 
-export function PostGallery({ images, title }: PostGalleryProps) {
+export function PostGallery({ images, title, isPublic }: PostGalleryProps) {
   if (images.length === 0) return null;
 
   return (
@@ -29,6 +34,7 @@ export function PostGallery({ images, title }: PostGalleryProps) {
           image={image}
           alt={images.length > 1 ? `${title} 사진 ${index + 1}` : title}
           isFirst={index === 0}
+          isPublic={isPublic}
         />
       ))}
     </div>
@@ -39,9 +45,10 @@ interface PostGalleryImageProps {
   image: PostImage;
   alt: string;
   isFirst: boolean;
+  isPublic: boolean;
 }
 
-function PostGalleryImage({ image, alt, isFirst }: PostGalleryImageProps) {
+function PostGalleryImage({ image, alt, isFirst, isPublic }: PostGalleryImageProps) {
   const src = getPostImageUrl(image.path);
   // Only the lead photo is worth loading ahead of the fold; the rest wait.
   const loading = isFirst ? 'eager' : 'lazy';
@@ -58,6 +65,7 @@ function PostGalleryImage({ image, alt, isFirst }: PostGalleryImageProps) {
           className="object-contain"
           loading={loading}
           fetchPriority={fetchPriority}
+          unoptimized={!isPublic}
         />
       </div>
     );
@@ -73,6 +81,7 @@ function PostGalleryImage({ image, alt, isFirst }: PostGalleryImageProps) {
       className="mx-auto h-auto max-h-[70svh] w-auto max-w-full rounded-lg object-contain ring-1 ring-border"
       loading={loading}
       fetchPriority={fetchPriority}
+      unoptimized={!isPublic}
     />
   );
 }

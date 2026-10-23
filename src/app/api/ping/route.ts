@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { checkCronRequest } from '~/lib/cron-auth';
 
 /**
  * Supabase's free tier pauses a project after 7 days without a request.
@@ -10,8 +11,16 @@ const PING_PATH = '/rest/v1/menus?select=id&limit=1';
 const TIMEOUT_MS = 10_000;
 
 export async function GET(request: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  if (secret !== undefined && secret !== '' && request.headers.get('authorization') !== `Bearer ${secret}`) {
+  const check = checkCronRequest(
+    process.env.CRON_SECRET,
+    request.headers.get('authorization'),
+    process.env.NODE_ENV === 'production',
+  );
+  // Shows up as a failed run in Vercel's cron log, so a missing secret gets noticed.
+  if (check === 'misconfigured') {
+    return NextResponse.json({ error: 'CRON_SECRET이 설정되지 않았습니다.' }, { status: 500 });
+  }
+  if (check === 'unauthorized') {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 

@@ -9,13 +9,18 @@ interface BookCoverProps {
   sizes: string;
   className?: string;
   isPriority?: boolean;
+  /**
+   * Private content skips the optimizer: it fetches as a visitor, so it can't
+   * read these files — the owner's browser loads them from `/media` directly.
+   */
+  isPublic: boolean;
 }
 
 /**
  * A 2:3 book cover. Books without a cover get a tinted plane set with the
  * title, so a row of covers lines up either way.
  */
-export function BookCover({ title, cover, sizes, className, isPriority = false }: BookCoverProps) {
+export function BookCover({ title, cover, sizes, className, isPriority = false, isPublic }: BookCoverProps) {
   return (
     <div
       className={cn(
@@ -33,6 +38,7 @@ export function BookCover({ title, cover, sizes, className, isPriority = false }
           className="object-cover"
           loading={isPriority ? 'eager' : 'lazy'}
           fetchPriority={isPriority ? 'high' : 'auto'}
+          unoptimized={!isPublic}
         />
       ) : (
         <div className="flex size-full items-center justify-center p-[12%] select-none" aria-hidden="true">

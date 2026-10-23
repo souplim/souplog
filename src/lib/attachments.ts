@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getSupabaseUrl } from '~/lib/supabase/env';
+import { getMediaUrl } from '~/lib/media-url';
 
 export const POST_ATTACHMENT_BUCKET = 'post-attachments';
 
@@ -46,7 +46,7 @@ const EXTENSION_GROUP = Object.keys(ATTACHMENT_CONTENT_TYPES).join('|');
  * Storage keys are minted server-side as `<uuid>.<extension>`; the original
  * filename lives only in `name`, for display and the download filename.
  */
-const POST_ATTACHMENT_PATH_PATTERN = new RegExp(
+export const POST_ATTACHMENT_PATH_PATTERN = new RegExp(
   `^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(${EXTENSION_GROUP})$`,
 );
 
@@ -78,11 +78,12 @@ export function normalizeAttachmentName(filename: string): string {
 }
 
 /**
- * `download` makes Supabase answer with `Content-Disposition: attachment`, so
- * the file is saved under its original name instead of opening in the tab.
+ * `download` carries the original name to the media route, which answers with
+ * `Content-Disposition: attachment` so the file is saved under that name
+ * instead of opening in the tab.
  */
 export function getPostAttachmentUrl(attachment: Pick<PostAttachment, 'path' | 'name'>): string {
-  return `${getSupabaseUrl()}/storage/v1/object/public/${POST_ATTACHMENT_BUCKET}/${attachment.path}?download=${encodeURIComponent(attachment.name)}`;
+  return `${getMediaUrl(POST_ATTACHMENT_BUCKET, attachment.path)}?download=${encodeURIComponent(attachment.name)}`;
 }
 
 const SIZE_UNITS = ['B', 'KB', 'MB', 'GB'] as const;

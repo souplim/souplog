@@ -582,12 +582,47 @@ create policy "owner_deletes_comments" on public.comments
 -- ---------------------------------------------------------------------------
 -- 글 사진 스토리지
 -- ---------------------------------------------------------------------------
+-- 두 버킷 모두 비공개다. 공개 URL(/object/public/...) 은 쓰지 않고, 앱의
+-- /media 라우트가 방문자 권한으로 내려받아 전한다 — 그래서 아래 select 정책이
+-- 곧 "누가 이 파일을 볼 수 있나" 를 정한다. 방문자는 공개 글·공개 책·프로필이
+-- 실제로 쓰고 있는 파일만, 글쓴이는 전부 본다. 글을 비공개로 돌리거나 사진을
+-- 빼면 그 파일도 곧바로 방문자에게서 가려진다.
+
+create index if not exists posts_images_gin_idx on public.posts using gin (images jsonb_path_ops);
+create index if not exists posts_attachments_gin_idx on public.posts using gin (attachments jsonb_path_ops);
+
+-- 호출자 권한으로 돈다 — posts·books 의 RLS 위에 is_public 을 한 번 더 건다.
+create or replace function public.is_public_media(p_bucket text, p_path text)
+returns boolean
+language sql
+stable
+set search_path = ''
+as $$
+  select case p_bucket
+    when 'post-images' then
+      exists (
+        select 1 from public.posts p
+        where p.is_public and p.images @> jsonb_build_array(jsonb_build_object('path', p_path))
+      )
+      or exists (select 1 from public.books b where b.is_public and b.cover ->> 'path' = p_path)
+      or exists (select 1 from public.profile pr where pr.avatar ->> 'path' = p_path)
+    when 'post-attachments' then
+      exists (
+        select 1 from public.posts p
+        where p.is_public and p.attachments @> jsonb_build_array(jsonb_build_object('path', p_path))
+      )
+    else false
+  end;
+$$;
+
+revoke all on function public.is_public_media(text, text) from public;
+grant execute on function public.is_public_media(text, text) to anon, authenticated, service_role;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'post-images',
   'post-images',
-  true,
+  false,
   5242880,
   array['image/webp', 'image/jpeg', 'image/png', 'image/gif']
 )
@@ -597,8 +632,10 @@ on conflict (id) do update
       allowed_mime_types = excluded.allowed_mime_types;
 
 drop policy if exists "anyone_reads_post_images" on storage.objects;
-create policy "anyone_reads_post_images" on storage.objects
-  for select to anon, authenticated using (bucket_id = 'post-images');
+drop policy if exists "public_post_images_are_readable" on storage.objects;
+create policy "public_post_images_are_readable" on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'post-images' and ((select public.is_owner()) or public.is_public_media(bucket_id, name)));
 
 drop policy if exists "owner_writes_post_images" on storage.objects;
 create policy "owner_writes_post_images" on storage.objects
@@ -623,7 +660,7 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values (
   'post-attachments',
   'post-attachments',
-  true,
+  false,
   10485760,
   array[
     'application/pdf',
@@ -648,8 +685,10 @@ on conflict (id) do update
       allowed_mime_types = excluded.allowed_mime_types;
 
 drop policy if exists "anyone_reads_post_attachments" on storage.objects;
-create policy "anyone_reads_post_attachments" on storage.objects
-  for select to anon, authenticated using (bucket_id = 'post-attachments');
+drop policy if exists "public_post_attachments_are_readable" on storage.objects;
+create policy "public_post_attachments_are_readable" on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'post-attachments' and ((select public.is_owner()) or public.is_public_media(bucket_id, name)));
 
 drop policy if exists "owner_writes_post_attachments" on storage.objects;
 create policy "owner_writes_post_attachments" on storage.objects

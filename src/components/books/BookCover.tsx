@@ -24,7 +24,7 @@ export function BookCover({ title, cover, sizes, className, isPriority = false, 
   return (
     <div
       className={cn(
-        'relative aspect-[2/3] overflow-hidden rounded-xs bg-accent shadow-[0_1px_2px_oklch(22%_0.012_158/0.08),2px_4px_12px_oklch(22%_0.012_158/0.08)] ring-1 ring-border',
+        'relative aspect-[2/3] overflow-hidden rounded-xs bg-accent shadow-[var(--shadow-cover)] ring-1 ring-border',
         className,
       )}
     >

@@ -234,7 +234,7 @@ function StatusPicker({ value, onChange }: StatusPickerProps) {
             className={cn(
               'cursor-pointer rounded-sm px-3.5 py-1.5 text-sm transition-colors duration-[var(--duration-fast)] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50',
               value === status
-                ? 'bg-card font-semibold text-foreground shadow-[0_1px_2px_oklch(22%_0.012_158/0.1)]'
+                ? 'bg-card font-semibold text-foreground ring-1 ring-border'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >

@@ -24,6 +24,8 @@ description: souplog에서 페이지·컴포넌트·스타일을 만들거나 �
 
 - **카드 그림자를 쓰지 않는다.** 항목은 `border`/`border-b` 구분선과 여백으로 나눈다.
 - `--shadow-raised`는 떠 있는 레이어(팝오버, 드롭다운, 다이얼로그)에만 쓴다.
+- `--shadow-cover`는 책 표지(`BookCover`)에만 쓴다.
+- 세그먼트 컨트롤의 선택 항목도 그림자 대신 `ring-1 ring-border`로 띄운다.
 - 갤러리 이미지 경계도 그림자 대신 border ring으로 표시한다.
 - hover 리프트(`translate-y`)를 쓰지 않는다.
 

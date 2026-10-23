@@ -1,7 +1,7 @@
 'use client';
 
 import { PostContent } from '~/components/post/PostContent';
-import { cn } from '~/lib/utils';
+import { cn } from 'cn';
 import { EDITOR_PANE_PADDING } from './postEditorStyles';
 
 interface PostPreviewPaneProps {

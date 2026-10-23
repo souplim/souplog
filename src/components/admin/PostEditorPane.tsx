@@ -1,7 +1,7 @@
 'use client';
 
 import { formatDate } from '~/lib/date';
-import { cn } from '~/lib/utils';
+import { cn } from 'cn';
 import type { PostAttachment } from '~/lib/attachments';
 import type { PostImage } from '~/lib/images';
 import type { Menu } from '~/lib/supabase/types';

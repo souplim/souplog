@@ -1,6 +1,6 @@
 import type { ShareItem } from '~/lib/kosis-series';
 import { formatPercent, formatThousandPersons } from '~/lib/stat-format';
-import { cn } from '~/lib/utils';
+import { cn } from 'cn';
 
 interface ShareBarsProps {
   /** Largest first. */

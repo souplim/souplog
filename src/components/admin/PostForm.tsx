@@ -1,7 +1,7 @@
 'use client';
 
 import { startTransition, useActionState, useState, type FormEvent } from 'react';
-import { cn } from '~/lib/utils';
+import { cn } from 'cn';
 import type { Menu, Post } from '~/lib/supabase/types';
 import type { PostFormState } from '~/lib/actions/posts';
 import { PostEditorPane } from './PostEditorPane';

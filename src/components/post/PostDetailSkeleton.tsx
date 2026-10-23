@@ -1,4 +1,4 @@
-import { cn } from '~/lib/utils';
+import { cn } from 'cn';
 import { Skeleton } from '~/components/ui/skeleton';
 
 /** Body placeholder lines, shortest last so the block reads as a paragraph. */

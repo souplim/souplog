@@ -4,9 +4,10 @@
 -- 안전하도록 모든 생성문이 idempotent 하게 작성되어 있다.
 --
 -- 이 앱은 lba와 달리 "실제 인증"을 쓴다 — 비공개 글이 존재하기 때문에
--- RLS가 anon과 authenticated(글쓴이 본인)를 명확히 구분한다.
+-- RLS가 방문자와 글쓴이를 명확히 구분한다. 글쓴이는 로그인 여부가 아니라
+-- public.is_owner() 가 가리키는 계정 하나다.
 -- 글쓴이 계정은 이 SQL로 만들지 않는다. Supabase 대시보드의
--- Authentication > Users 에서 한 번만 직접 만든다.
+-- Authentication > Users 에서 한 번만 직접 만들고, 가입은 꺼 둔다.
 
 create extension if not exists pgcrypto with schema extensions;
 
@@ -418,6 +419,27 @@ revoke all on function public.delete_comment(uuid, text) from public;
 grant execute on function public.delete_comment(uuid, text) to anon, authenticated;
 
 -- ---------------------------------------------------------------------------
+-- 글쓴이 판별
+-- ---------------------------------------------------------------------------
+-- 'authenticated' 역할만으로는 글쓴이라고 볼 수 없다 — 가입이 열려 있으면
+-- 누구나 그 역할을 얻는다. 쓰기와 비공개 읽기는 모두 이 함수로 글쓴이
+-- 계정 하나에 묶는다. 계정을 바꾸면 아래 uuid 를 Authentication > Users 의
+-- 새 User UID 로 고친 뒤 이 스크립트를 다시 실행한다.
+-- 정책에서는 (select public.is_owner()) 로 감싸 쿼리마다 한 번만 평가되게 한다.
+
+create or replace function public.is_owner()
+returns boolean
+language sql
+stable
+set search_path = ''
+as $$
+  select coalesce(auth.uid() = '8c1b4190-fb78-40d5-817a-400b7f802030'::uuid, false);
+$$;
+
+revoke all on function public.is_owner() from public;
+grant execute on function public.is_owner() to anon, authenticated, service_role;
+
+-- ---------------------------------------------------------------------------
 -- 접근 정책
 -- ---------------------------------------------------------------------------
 
@@ -467,7 +489,7 @@ create policy "anyone_reads_menus" on public.menus
 
 drop policy if exists "owner_writes_menus" on public.menus;
 create policy "owner_writes_menus" on public.menus
-  for all to authenticated using (true) with check (true);
+  for all to authenticated using ((select public.is_owner())) with check ((select public.is_owner()));
 
 drop policy if exists "anyone_reads_nav_items" on public.nav_items;
 create policy "anyone_reads_nav_items" on public.nav_items
@@ -475,7 +497,7 @@ create policy "anyone_reads_nav_items" on public.nav_items
 
 drop policy if exists "owner_writes_nav_items" on public.nav_items;
 create policy "owner_writes_nav_items" on public.nav_items
-  for all to authenticated using (true) with check (true);
+  for all to authenticated using ((select public.is_owner())) with check ((select public.is_owner()));
 
 drop policy if exists "anyone_reads_profile" on public.profile;
 create policy "anyone_reads_profile" on public.profile
@@ -483,7 +505,7 @@ create policy "anyone_reads_profile" on public.profile
 
 drop policy if exists "owner_writes_profile" on public.profile;
 create policy "owner_writes_profile" on public.profile
-  for all to authenticated using (true) with check (true);
+  for all to authenticated using ((select public.is_owner())) with check ((select public.is_owner()));
 
 drop policy if exists "anyone_reads_site_settings" on public.site_settings;
 create policy "anyone_reads_site_settings" on public.site_settings
@@ -491,37 +513,37 @@ create policy "anyone_reads_site_settings" on public.site_settings
 
 drop policy if exists "owner_writes_site_settings" on public.site_settings;
 create policy "owner_writes_site_settings" on public.site_settings
-  for all to authenticated using (true) with check (true);
+  for all to authenticated using ((select public.is_owner())) with check ((select public.is_owner()));
 
 -- 글과 같은 규칙: 방문자는 공개한 책만, 글쓴이는 숨긴 책까지 본다.
 drop policy if exists "public_books_are_readable" on public.books;
 create policy "public_books_are_readable" on public.books
   for select to anon, authenticated
-  using (is_public = true or auth.role() = 'authenticated');
+  using (is_public = true or (select public.is_owner()));
 
 drop policy if exists "owner_writes_books" on public.books;
 create policy "owner_writes_books" on public.books
-  for all to authenticated using (true) with check (true);
+  for all to authenticated using ((select public.is_owner())) with check ((select public.is_owner()));
 
 drop policy if exists "public_posts_are_readable" on public.posts;
 create policy "public_posts_are_readable" on public.posts
   for select to anon, authenticated
-  using (is_public = true or auth.role() = 'authenticated');
+  using (is_public = true or (select public.is_owner()));
 
 drop policy if exists "owner_writes_posts" on public.posts;
 create policy "owner_writes_posts" on public.posts
-  for all to authenticated using (true) with check (true);
+  for all to authenticated using ((select public.is_owner())) with check ((select public.is_owner()));
 
 -- comments 기본 테이블: anon 에게는 select 정책을 두지 않는다(뷰로만 읽는다).
 -- 삭제는 RPC(delete_comment)를 통해서만 이루어지므로 anon delete 정책도 없다.
 -- 관리자(글쓴이)는 모든 댓글을 직접 조회·삭제할 수 있다(비밀번호 없이 모더레이션).
 drop policy if exists "owner_reads_comments" on public.comments;
 create policy "owner_reads_comments" on public.comments
-  for select to authenticated using (true);
+  for select to authenticated using ((select public.is_owner()));
 
 drop policy if exists "owner_deletes_comments" on public.comments;
 create policy "owner_deletes_comments" on public.comments
-  for delete to authenticated using (true);
+  for delete to authenticated using ((select public.is_owner()));
 
 -- ---------------------------------------------------------------------------
 -- 글 사진 스토리지
@@ -546,15 +568,16 @@ create policy "anyone_reads_post_images" on storage.objects
 
 drop policy if exists "owner_writes_post_images" on storage.objects;
 create policy "owner_writes_post_images" on storage.objects
-  for insert to authenticated with check (bucket_id = 'post-images');
+  for insert to authenticated with check (bucket_id = 'post-images' and (select public.is_owner()));
 
 drop policy if exists "owner_updates_post_images" on storage.objects;
 create policy "owner_updates_post_images" on storage.objects
-  for update to authenticated using (bucket_id = 'post-images');
+  for update to authenticated using (bucket_id = 'post-images' and (select public.is_owner()))
+  with check (bucket_id = 'post-images' and (select public.is_owner()));
 
 drop policy if exists "owner_deletes_post_images" on storage.objects;
 create policy "owner_deletes_post_images" on storage.objects
-  for delete to authenticated using (bucket_id = 'post-images');
+  for delete to authenticated using (bucket_id = 'post-images' and (select public.is_owner()));
 
 -- ---------------------------------------------------------------------------
 -- 글 첨부 파일 스토리지
@@ -596,8 +619,8 @@ create policy "anyone_reads_post_attachments" on storage.objects
 
 drop policy if exists "owner_writes_post_attachments" on storage.objects;
 create policy "owner_writes_post_attachments" on storage.objects
-  for insert to authenticated with check (bucket_id = 'post-attachments');
+  for insert to authenticated with check (bucket_id = 'post-attachments' and (select public.is_owner()));
 
 drop policy if exists "owner_deletes_post_attachments" on storage.objects;
 create policy "owner_deletes_post_attachments" on storage.objects
-  for delete to authenticated using (bucket_id = 'post-attachments');
+  for delete to authenticated using (bucket_id = 'post-attachments' and (select public.is_owner()));

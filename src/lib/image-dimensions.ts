@@ -22,14 +22,32 @@ export const IMAGE_HEADER_BYTES = 256 * 1024;
 
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
-export function readImageDimensions(bytes: Uint8Array): ImageDimensions | null {
-  if (startsWith(bytes, PNG_SIGNATURE)) return readPngDimensions(bytes);
-  if (startsWith(bytes, [0x47, 0x49, 0x46, 0x38])) return readGifDimensions(bytes);
-  if (startsWith(bytes, [0xff, 0xd8])) return readJpegDimensions(bytes);
+export type ImageMimeType = 'image/png' | 'image/gif' | 'image/jpeg' | 'image/webp';
+
+/**
+ * The format the bytes actually are, judged by their signature — never by the
+ * browser-declared `File.type` or the filename, which the uploader controls.
+ */
+export function detectImageType(bytes: Uint8Array): ImageMimeType | null {
+  if (startsWith(bytes, PNG_SIGNATURE)) return 'image/png';
+  if (startsWith(bytes, [0x47, 0x49, 0x46, 0x38])) return 'image/gif';
+  if (startsWith(bytes, [0xff, 0xd8])) return 'image/jpeg';
   if (startsWith(bytes, [0x52, 0x49, 0x46, 0x46]) && matchesAt(bytes, 8, [0x57, 0x45, 0x42, 0x50])) {
-    return readWebpDimensions(bytes);
+    return 'image/webp';
   }
   return null;
+}
+
+const DIMENSION_READERS: Record<ImageMimeType, (bytes: Uint8Array) => ImageDimensions | null> = {
+  'image/png': readPngDimensions,
+  'image/gif': readGifDimensions,
+  'image/jpeg': readJpegDimensions,
+  'image/webp': readWebpDimensions,
+};
+
+export function readImageDimensions(bytes: Uint8Array): ImageDimensions | null {
+  const type = detectImageType(bytes);
+  return type ? DIMENSION_READERS[type](bytes) : null;
 }
 
 function readPngDimensions(bytes: Uint8Array): ImageDimensions | null {

@@ -2,6 +2,18 @@ import 'server-only';
 import { createClient } from '~/lib/supabase/server';
 import type { PublicComment } from '~/lib/supabase/types';
 
+/** SQLSTATE of a plain `raise exception` — the messages the comment functions write for visitors. */
+const USER_FACING_ERROR_CODE = 'P0001';
+
+/**
+ * Only the comment functions' own Korean messages reach the visitor. Anything
+ * else (a malformed id, a PostgREST error) would leak database internals, so it
+ * is replaced with `fallback`.
+ */
+function toVisitorError(error: { code: string; message: string }, fallback: string): Error {
+  return new Error(error.code === USER_FACING_ERROR_CODE ? error.message : fallback);
+}
+
 export async function getCommentsForPost(postId: string): Promise<PublicComment[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -35,7 +47,7 @@ export async function createComment(input: CreateCommentInput): Promise<PublicCo
     p_content: input.content,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) throw toVisitorError(error, '댓글을 저장하지 못했습니다.');
   const [comment] = data;
   if (!comment) throw new Error('댓글을 저장하지 못했습니다.');
   return comment;
@@ -48,7 +60,7 @@ export async function deleteCommentWithPassword(commentId: string, password: str
     p_comment_id: commentId,
     p_password: password,
   });
-  if (error) throw new Error(error.message);
+  if (error) throw toVisitorError(error, '댓글을 삭제하지 못했습니다.');
   return data;
 }
 

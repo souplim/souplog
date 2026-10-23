@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readImageDimensions } from './image-dimensions';
+import { detectImageType, readImageDimensions } from './image-dimensions';
 
 function bytes(...values: number[]): Uint8Array {
   return Uint8Array.from(values);
@@ -129,5 +129,24 @@ describe('readImageDimensions', () => {
 
   it('returns null for a zero-sized image', () => {
     expect(readImageDimensions(png(0, 0))).toBeNull();
+  });
+});
+
+describe('detectImageType', () => {
+  it.each([
+    ['PNG', png(10, 10), 'image/png'],
+    ['GIF', gif(10, 10), 'image/gif'],
+    ['JPEG', jpeg(10, 10), 'image/jpeg'],
+    ['WebP', lossyWebp(10, 10), 'image/webp'],
+  ])('recognizes a %s by its signature', (_name, header, expected) => {
+    expect(detectImageType(header)).toBe(expected);
+  });
+
+  it('returns null for HTML sent with an image extension', () => {
+    expect(detectImageType(new TextEncoder().encode('<html><script>alert(1)</script>'))).toBeNull();
+  });
+
+  it('returns null for a RIFF file that is not WebP', () => {
+    expect(detectImageType(new TextEncoder().encode('RIFF\0\0\0\0WAVEfmt '))).toBeNull();
   });
 });

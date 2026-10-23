@@ -53,7 +53,12 @@ export async function deleteCommentAction(
     return { error: '비밀번호를 확인하세요.' };
   }
 
-  const deleted = await deleteCommentWithPassword(parsed.data.commentId, parsed.data.password);
+  let deleted: boolean;
+  try {
+    deleted = await deleteCommentWithPassword(parsed.data.commentId, parsed.data.password);
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : '댓글을 삭제하지 못했습니다.' };
+  }
   if (!deleted) {
     return { error: '비밀번호가 올바르지 않습니다.' };
   }

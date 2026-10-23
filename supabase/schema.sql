@@ -292,6 +292,7 @@ alter table public.books drop column if exists current_page;
 create or replace function public.touch_updated_at()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   new.updated_at := now();
@@ -332,6 +333,22 @@ create trigger posts_touch_updated_at
 -- ---------------------------------------------------------------------------
 -- 댓글 작성 / 삭제 (비밀번호는 여기서만 해시·검증된다)
 -- ---------------------------------------------------------------------------
+-- 두 함수는 anon 키만 있으면 앱을 거치지 않고 REST 로 바로 부를 수 있다.
+-- 그래서 횟수 제한도 앱이 아니라 여기서 건다.
+-- - 작성: 사이트 전체에서 10분에 30개까지. 도배를 막는다.
+-- - 삭제: 한 댓글에 비밀번호를 15분에 5번 틀리면 그 댓글은 잠시 잠근다.
+--   잠겨도 글쓴이는 관리자 삭제로 지울 수 있다.
+
+create index if not exists comments_created_idx on public.comments (created_at);
+
+-- 삭제 비밀번호 실패 기록. 함수(security definer)만 읽고 쓴다 — anon·authenticated 권한은 주지 않는다.
+create table if not exists public.comment_delete_failures (
+  comment_id uuid not null references public.comments (id) on delete cascade,
+  failed_at  timestamptz not null default now()
+);
+
+create index if not exists comment_delete_failures_lookup_idx
+  on public.comment_delete_failures (comment_id, failed_at);
 
 create or replace function public.create_comment(
   p_post_id uuid,
@@ -372,6 +389,10 @@ begin
     raise exception '비공개 글에는 댓글을 달 수 없습니다.';
   end if;
 
+  if (select count(*) from public.comments where comments.created_at > now() - interval '10 minutes') >= 30 then
+    raise exception '댓글이 너무 많이 올라오고 있습니다. 잠시 뒤에 다시 시도하세요.';
+  end if;
+
   insert into public.comments (post_id, author_name, password_hash, content)
   values (p_post_id, trim(p_author_name), crypt(p_password, gen_salt('bf')), trim(p_content))
   returning comments.id into v_new_id;
@@ -403,7 +424,17 @@ begin
     return false;
   end if;
 
+  if (
+    select count(*) from public.comment_delete_failures
+    where comment_id = p_comment_id and failed_at > now() - interval '15 minutes'
+  ) >= 5 then
+    raise exception '비밀번호를 여러 번 틀렸습니다. 15분 뒤에 다시 시도하세요.';
+  end if;
+
+  -- 실패는 예외가 아니라 false 로 돌려준다 — 예외를 던지면 아래 기록까지 함께 롤백된다.
   if crypt(p_password, v_hash) <> v_hash then
+    delete from public.comment_delete_failures where failed_at < now() - interval '1 day';
+    insert into public.comment_delete_failures (comment_id) values (p_comment_id);
     return false;
   end if;
 
@@ -450,6 +481,7 @@ alter table public.comments enable row level security;
 alter table public.profile  enable row level security;
 alter table public.site_settings enable row level security;
 alter table public.books    enable row level security;
+alter table public.comment_delete_failures enable row level security;
 
 -- 2026-10-30 부터 Supabase 는 public 에 새로 만든 테이블에 Data API 권한을
 -- 자동으로 주지 않는다. 새 프로젝트에 이 스크립트를 처음 실행해도 동작하도록
@@ -460,6 +492,8 @@ grant select, insert, update, delete on public.menus, public.posts to authentica
 -- comments 는 anon 이 뷰(comments_public)와 RPC 로만 접근하므로 테이블 권한을 주지 않는다.
 -- 예전 자동 부여로 남아 있을 수 있는 권한도 함께 걷어낸다.
 revoke all on public.comments from anon;
+-- 실패 기록은 delete_comment 만 다룬다. 정책도 두지 않는다.
+revoke all on public.comment_delete_failures from anon, authenticated;
 grant select, delete on public.comments to authenticated;
 
 grant select on public.nav_items to anon;

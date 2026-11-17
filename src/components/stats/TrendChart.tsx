@@ -1,8 +1,8 @@
 'use client';
 
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
+import dynamic from 'next/dynamic';
 
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '~/components/ui/chart';
+import { Skeleton } from '~/components/ui/skeleton';
 import type { TrendPoint } from '~/lib/kosis-series';
 import { formatPercent } from '~/lib/stat-format';
 import type { TrendSeries } from '~/lib/women-stats';
@@ -13,58 +13,22 @@ interface TrendChartProps {
   points: TrendPoint[];
 }
 
-const Y_AXIS_WIDTH = 36;
-
 /**
- * Yearly lines. The headline series takes the accent; the comparison series
- * stays muted so the eye lands on the one the card is about.
+ * recharts (~100KB gzipped) loads after the page, client-only — the plot is
+ * aria-hidden and the figcaption below already carries every number, so
+ * nothing is lost by not server-rendering it. The skeleton holds the plot's
+ * exact height so nothing shifts when it arrives.
  */
-export function TrendChart({ title, series, points }: TrendChartProps) {
-  const config = Object.fromEntries(
-    series.map(({ key, label, isPrimary }) => [
-      key,
-      { label, color: isPrimary ? 'var(--color-accent)' : 'var(--color-text-muted)' },
-    ]),
-  ) satisfies ChartConfig;
-  const data = points.map(({ period, values }) => ({ period, ...values }));
+const TrendPlot = dynamic(() => import('./TrendPlot'), {
+  ssr: false,
+  loading: () => <Skeleton className="h-44 w-full" aria-hidden="true" />,
+});
 
+/** Yearly lines for one indicator, with a screen-reader caption listing every value. */
+export function TrendChart({ title, series, points }: TrendChartProps) {
   return (
     <figure className="min-w-0">
-      <ChartContainer config={config} className="aspect-auto h-44 w-full" aria-hidden="true">
-        <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-          <CartesianGrid vertical={false} />
-          <XAxis
-            dataKey="period"
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            minTickGap={24}
-            tick={{ fontSize: 11 }}
-          />
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            width={Y_AXIS_WIDTH}
-            domain={['auto', 'auto']}
-            tick={{ fontSize: 11 }}
-          />
-          <ChartTooltip
-            content={<ChartTooltipContent indicator="line" labelFormatter={(label) => `${String(label)}년`} />}
-          />
-          {series.map(({ key, isPrimary }) => (
-            <Line
-              key={key}
-              dataKey={key}
-              type="monotone"
-              stroke={`var(--color-${key})`}
-              strokeWidth={isPrimary ? 2 : 1.5}
-              dot={false}
-              connectNulls
-              isAnimationActive={false}
-            />
-          ))}
-        </LineChart>
-      </ChartContainer>
+      <TrendPlot series={series} points={points} />
       <figcaption className="sr-only">
         {title}:{' '}
         {points

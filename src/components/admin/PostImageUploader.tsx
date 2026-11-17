@@ -149,7 +149,7 @@ function Thumbnail({ src, label, isCover, onRemove }: ThumbnailProps) {
       <img src={src} alt={label} className="size-full object-cover" />
 
       {isCover && (
-        <span className="absolute bottom-1 left-1 rounded-full bg-background/85 px-2 py-0.5 text-[0.625rem] font-medium tracking-wide text-foreground backdrop-blur">
+        <span className="absolute bottom-1 left-1 rounded-full bg-background/85 px-2 py-0.5 text-[length:var(--text-2xs)] font-medium tracking-wide text-foreground backdrop-blur">
           대표
         </span>
       )}

@@ -33,7 +33,7 @@ export async function Header() {
       <div className="mx-auto flex h-16 max-w-[var(--page-width)] items-center justify-between gap-4 px-4 sm:gap-8 sm:px-6">
         <Link
           href="/"
-          className="max-w-48 shrink-0 truncate font-heading text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground"
+          className="max-w-48 shrink-0 truncate font-heading text-[length:var(--text-base)] font-semibold tracking-[var(--tracking-display)] text-foreground"
         >
           {siteTitle}
         </Link>

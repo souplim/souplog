@@ -19,7 +19,7 @@ export default function BooksLoading() {
       </div>
       <div className="mt-[var(--space-xl)] flex gap-3 overflow-hidden pt-3 sm:gap-4">
         {Array.from({ length: SHELF_COVERS }, (_, index) => (
-          <Skeleton key={index} className="aspect-[2/3] w-[5.5rem] shrink-0 rounded-b-none sm:w-28" />
+          <Skeleton key={index} className="aspect-[2/3] w-22 shrink-0 rounded-b-none sm:w-28" />
         ))}
       </div>
     </div>

@@ -100,7 +100,7 @@ export function PostEditorPane({
         value={content}
         onChange={(event) => onContentChange(event.target.value)}
         placeholder="당신의 이야기를 마크다운으로 적어보세요…"
-        className="mt-6 min-h-[20rem] flex-1 resize-none border-none bg-transparent p-0 font-mono text-sm leading-[var(--leading-relaxed)] shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-0 md:text-sm dark:bg-transparent"
+        className="mt-6 min-h-80 flex-1 resize-none border-none bg-transparent p-0 font-mono text-sm leading-[var(--leading-relaxed)] shadow-none placeholder:text-muted-foreground/60 focus-visible:ring-0 md:text-sm dark:bg-transparent"
       />
 
       <div className="mt-10 space-y-5 border-t border-border/60 pt-6">

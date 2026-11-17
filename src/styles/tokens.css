@@ -34,6 +34,8 @@
   --text-base: 1.0625rem;
   --text-sm: 0.9375rem;
   --text-xs: 0.8125rem;
+  /* 표지 아래 저자·메모, 썸네일 배지처럼 좁은 자리 전용 */
+  --text-2xs: 0.6875rem;
 
   --leading-tight: 1.3;
   --leading-normal: 1.6;
@@ -56,6 +58,8 @@
   /* 한글 본문 한 줄 ~38자 */
   --content-width: 42rem;
   --page-width: 64rem;
+  /* 로그인처럼 필드 한 줄짜리 폼 */
+  --form-width: 21.25rem;
 
   --radius: 8px;
 

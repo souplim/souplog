@@ -5,7 +5,8 @@ import { Button } from '~/components/ui/button';
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    console.error(error);
+    // The digest, not the error itself: a raw Error can carry request details into the browser console.
+    console.error('렌더링 오류', { name: error.name, digest: error.digest });
   }, [error]);
 
   return (
